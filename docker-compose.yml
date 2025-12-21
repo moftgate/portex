@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: portex-postgres
+    restart: unless-stopped
+    ports:
+      - "6666:5432"
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-portex}
+      POSTGRES_USER: ${DB_USERNAME:-portex}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-a47d564021be600975841236ae380975c30893789daae08f8beca68f04add163168e}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - portex-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USERNAME:-portex}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: portex-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis_secret_2024}
+    volumes:
+      - redis_data:/data
+    networks:
+      - portex-network
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  portex-network:
+    driver: bridge
