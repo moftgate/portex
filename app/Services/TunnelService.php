@@ -20,7 +20,9 @@ class TunnelService
         } else {
             // Validate subdomain availability
             if (!$this->validateSubdomain($data['subdomain'])) {
-                throw new \Exception('Subdomain is already taken');
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'subdomain' => ['Subdomain is already taken'],
+                ]);
             }
         }
 
@@ -99,6 +101,11 @@ class TunnelService
         if (empty($serverUrl) || empty($serverApiKey)) {
             return; // Server not configured yet
         }
+
+        logger()->debug('Notifying Go server about tunnel change', [
+            'url' => "{$serverUrl}/api/internal/tunnels/{$action}",
+            'tunnel_id' => $tunnel->id
+        ]);
 
         try {
             Http::withHeaders([

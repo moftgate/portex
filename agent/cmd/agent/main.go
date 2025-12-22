@@ -110,7 +110,9 @@ func registerNewAgent() (*AgentRegistrationResponse, error) {
 
 	fmt.Printf("📡 Connecting to %s...\n", serverURL)
 
-	resp, err := http.Post(serverURL+"/api/agent/register", "application/json", nil)
+	req, _ := http.NewRequest("POST", serverURL+"/api/agent/register", nil)
+	req.Header.Set("Accept", "application/json")
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		// If production fails and we haven't specified a URL, maybe try localhost as fallback
 		if os.Getenv("PORTEX_SERVER_URL") == "" && serverURL != "http://localhost:8000" {
@@ -204,7 +206,10 @@ var startCmd = &cobra.Command{
 		}
 		authBody, _ := json.Marshal(authReq)
 
-		resp, err := http.Post(cfg.Server.URL+"/api/agent/auth", "application/json", bytes.NewBuffer(authBody))
+		req, _ := http.NewRequest("POST", cfg.Server.URL+"/api/agent/auth", bytes.NewBuffer(authBody))
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Accept", "application/json")
+		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
 			return fmt.Errorf("failed to authenticate: %w", err)
 		}
@@ -251,8 +256,9 @@ var startCmd = &cobra.Command{
 		}
 		tunnelBody, _ := json.Marshal(tunnelReq)
 
-		req, _ := http.NewRequest("POST", cfg.Server.URL+"/api/agent/tunnels", bytes.NewBuffer(tunnelBody))
+		req, _ = http.NewRequest("POST", cfg.Server.URL+"/api/agent/tunnels", bytes.NewBuffer(tunnelBody))
 		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Accept", "application/json")
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s:%s", cfg.Server.APIKey, cfg.Server.APISecret))
 
 		resp, err = http.DefaultClient.Do(req)

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Tunnel;
 use App\Services\AgentService;
 use App\Services\TunnelService;
 use Illuminate\Http\Request;
@@ -145,6 +146,34 @@ class AgentController extends Controller
         $validated['name'] = $validated['name'] ?? 'Tunnel ' . now()->format('Y-m-d H:i');
         $validated['protocol'] = $validated['protocol'] ?? 'http';
         $validated['agent_id'] = $agent->id;
+
+        // Check if this agent already has this subdomain
+        if (!empty($validated['subdomain'])) {
+            $existing = Tunnel::where('agent_id', $agent->id)
+                ->where('subdomain', $validated['subdomain'])
+                ->first();
+
+            if ($existing) {
+                $existing->update([
+                    'local_port' => $validated['local_port'],
+                    'protocol' => $validated['protocol'],
+                    'status' => 'active',
+                ]);
+
+                return response()->json([
+                    'tunnel' => [
+                        'id' => $existing->id,
+                        'name' => $existing->name,
+                        'subdomain' => $existing->subdomain,
+                        'local_port' => $existing->local_port,
+                        'protocol' => $existing->protocol,
+                        'public_url' => $existing->public_url,
+                        'status' => $existing->status,
+                    ],
+                    'message' => 'Tunnel updated successfully',
+                ], 200);
+            }
+        }
 
         // Create tunnel for the agent's user
         $tunnel = $this->tunnelService->createTunnel($agent->user, $validated);
