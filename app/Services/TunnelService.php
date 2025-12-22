@@ -19,7 +19,7 @@ class TunnelService
             $data['subdomain'] = $this->assignSubdomain();
         } else {
             // Validate subdomain availability
-            if (!$this->validateSubdomain($data['subdomain'])) {
+            if (! $this->validateSubdomain($data['subdomain'])) {
                 throw \Illuminate\Validation\ValidationException::withMessages([
                     'subdomain' => ['Subdomain is already taken'],
                 ]);
@@ -27,7 +27,7 @@ class TunnelService
         }
 
         // Hash auth password if provided
-        if (!empty($data['auth_password'])) {
+        if (! empty($data['auth_password'])) {
             $data['auth_password'] = bcrypt($data['auth_password']);
         }
 
@@ -45,7 +45,7 @@ class TunnelService
     public function updateTunnel(Tunnel $tunnel, array $data): Tunnel
     {
         // Hash auth password if provided and changed
-        if (!empty($data['auth_password'])) {
+        if (! empty($data['auth_password'])) {
             $data['auth_password'] = bcrypt($data['auth_password']);
         }
 
@@ -76,7 +76,7 @@ class TunnelService
         do {
             // Generate random 8-character subdomain
             $subdomain = Str::lower(Str::random(8));
-        } while (!$this->validateSubdomain($subdomain));
+        } while (! $this->validateSubdomain($subdomain));
 
         return $subdomain;
     }
@@ -87,7 +87,7 @@ class TunnelService
     public function validateSubdomain(string $subdomain): bool
     {
         // Check if subdomain is already taken
-        return !Tunnel::where('subdomain', $subdomain)->exists();
+        return ! Tunnel::where('subdomain', $subdomain)->exists();
     }
 
     /**
@@ -102,10 +102,10 @@ class TunnelService
             return; // Server not configured yet
         }
 
-        logger()->debug('Notifying Go server about tunnel change', [
-            'url' => "{$serverUrl}/api/internal/tunnels/{$action}",
-            'tunnel_id' => $tunnel->id
-        ]);
+        // logger()->debug('Notifying Go server about tunnel change', [
+        //     'url' => "{$serverUrl}/api/internal/tunnels/{$action}",
+        //     'tunnel_id' => $tunnel->id
+        // ]);
 
         try {
             Http::withHeaders([

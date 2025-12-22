@@ -319,7 +319,8 @@ var startCmd = &cobra.Command{
 		}
 		defer resp.Body.Close()
 
-		if resp.StatusCode != 201 {
+		// Accept both 200 (updated) and 201 (created)
+		if resp.StatusCode != 200 && resp.StatusCode != 201 {
 			body, _ := io.ReadAll(resp.Body)
 			return fmt.Errorf("failed to create tunnel: %s", string(body))
 		}
