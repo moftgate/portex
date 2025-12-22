@@ -24,6 +24,7 @@ Route::middleware(AgentAuthentication::class)->prefix('agent')->group(function (
     Route::post('/heartbeat', [AgentController::class, 'heartbeat']);
     Route::get('/tunnels', [AgentController::class, 'getTunnels']);
     Route::post('/tunnels', [AgentController::class, 'createTunnel']);
+    Route::post('/create-login-token', [AgentController::class, 'createLoginToken']);
 });
 
 // Server routes (server API key auth)

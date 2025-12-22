@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"portex/agent/pkg/config"
+	"portex/agent/pkg/deviceid"
 	"portex/agent/pkg/forwarder"
 
 	"github.com/spf13/cobra"
@@ -29,37 +30,58 @@ var (
 	apiSecret string
 )
 
-var authCmd = &cobra.Command{
-	Use:   "auth",
+var loginCmd = &cobra.Command{
+	Use:   "login",
 	Short: "Link this agent to your Portex dashboard",
 	Long:  `Automatically log in and link this agent to your Portex account in the dashboard.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		// Load or register agent first
+		// Load config
 		cfg, err := config.Load("")
 		if err != nil {
-			fmt.Println("⚙️  No configuration found. Creating global identity...")
-			reg, err := registerNewAgent()
-			if err != nil {
-				return fmt.Errorf("failed to register agent: %w", err)
-			}
-			cfg, _ = config.Load("") // Reload
-			_ = reg                  // reg used for messages
+			return fmt.Errorf("no agent configuration found. Please run 'portex start' first")
 		}
 
-		loginURL := fmt.Sprintf("%s/panel/agents/claim?api_key=%s&api_secret=%s", cfg.Server.URL, cfg.Server.APIKey, cfg.Server.APISecret)
+		fmt.Println("🔐 Generating secure login link...")
+
+		// Call API to create login token
+		req, _ := http.NewRequest("POST", cfg.Server.URL+"/api/agent/create-login-token", nil)
+		req.Header.Set("Accept", "application/json")
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s:%s", cfg.Server.APIKey, cfg.Server.APISecret))
+
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			return fmt.Errorf("failed to create login link: %w", err)
+		}
+		defer resp.Body.Close()
+
+		if resp.StatusCode != 200 {
+			body, _ := io.ReadAll(resp.Body)
+			return fmt.Errorf("failed to create login link (status %d): %s", resp.StatusCode, string(body))
+		}
+
+		var result struct {
+			LoginURL  string `json:"login_url"`
+			ExpiresIn int    `json:"expires_in"`
+			Message   string `json:"message"`
+		}
+
+		if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+			return fmt.Errorf("failed to decode response: %w", err)
+		}
 
 		fmt.Println("🔗 Opening browser for automatic login...")
-		fmt.Printf("   If the browser doesn't open, please visit:\n   %s\n", loginURL)
+		fmt.Printf("   Link expires in %d seconds\n", result.ExpiresIn)
+		fmt.Printf("   If the browser doesn't open, please visit:\n   %s\n", result.LoginURL)
 
 		// Open browser
 		var openErr error
 		switch os.Getenv("GOOS") {
 		case "windows":
-			openErr = exec.Command("rundll32", "url.dll,FileProtocolHandler", loginURL).Start()
+			openErr = exec.Command("rundll32", "url.dll,FileProtocolHandler", result.LoginURL).Start()
 		case "darwin":
-			openErr = exec.Command("open", loginURL).Start()
+			openErr = exec.Command("open", result.LoginURL).Start()
 		default: // linux, bsd, etc
-			openErr = exec.Command("xdg-open", loginURL).Start()
+			openErr = exec.Command("xdg-open", result.LoginURL).Start()
 		}
 
 		if openErr != nil {
@@ -100,44 +122,74 @@ type AgentRegistrationResponse struct {
 func registerNewAgent() (*AgentRegistrationResponse, error) {
 	fmt.Println("⚙️  First time running? Configuring your agent identity...")
 
+	// Get device ID
+	deviceID, err := deviceid.GetDeviceID()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get device ID: %w", err)
+	}
+
+	// Get hostname
+	hostname, err := deviceid.GetHostname()
+	if err != nil {
+		hostname = "unknown"
+	}
+
 	// Get server URL from environment or use default
 	serverURL := os.Getenv("PORTEX_SERVER_URL")
 	if serverURL == "" {
-		// If we are developing locally, portex.space might not be the target
-		// But for now we stick to a sensible default or env
 		serverURL = "https://portex.space"
 	}
 
 	fmt.Printf("📡 Connecting to %s...\n", serverURL)
+	fmt.Printf("🔑 Device ID: %s\n", deviceID)
+	fmt.Printf("💻 Hostname: %s\n", hostname)
 
-	req, _ := http.NewRequest("POST", serverURL+"/api/agent/register", nil)
+	// Prepare request body with device_id and hostname
+	reqBody := map[string]string{
+		"device_id": deviceID,
+		"hostname":  hostname,
+	}
+	reqBodyJSON, _ := json.Marshal(reqBody)
+
+	req, _ := http.NewRequest("POST", serverURL+"/api/agent/register", bytes.NewBuffer(reqBodyJSON))
 	req.Header.Set("Accept", "application/json")
+	req.Header.Set("Content-Type", "application/json")
+
 	resp, err := http.DefaultClient.Do(req)
+
 	if err != nil {
 		// If production fails and we haven't specified a URL, maybe try localhost as fallback
 		if os.Getenv("PORTEX_SERVER_URL") == "" && serverURL != "http://localhost:8000" {
 			serverURL = "http://localhost:8000"
-			resp, err = http.Post(serverURL+"/api/agent/register", "application/json", nil)
+			req, _ = http.NewRequest("POST", serverURL+"/api/agent/register", bytes.NewBuffer(reqBodyJSON))
+			req.Header.Set("Accept", "application/json")
+			req.Header.Set("Content-Type", "application/json")
+			resp, err = http.DefaultClient.Do(req)
 		}
 
 		if err != nil {
 			return nil, fmt.Errorf("failed to reach Portex server: %w", err)
 		}
 	}
+
 	defer resp.Body.Close()
 
-	if resp.StatusCode != 201 {
+	// Accept both 200 (existing) and 201 (new)
+	if resp.StatusCode != 200 && resp.StatusCode != 201 {
 		body, _ := io.ReadAll(resp.Body)
+
 		return nil, fmt.Errorf("server rejected registration (status %d): %s", resp.StatusCode, string(body))
 	}
 
 	var regResp AgentRegistrationResponse
+
 	if err := json.NewDecoder(resp.Body).Decode(&regResp); err != nil {
 		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
 
 	// Determine WebSocket URL based on server URL
 	wsURL := os.Getenv("PORTEX_WS_URL")
+
 	if wsURL == "" {
 		if strings.HasPrefix(serverURL, "https://") {
 			wsURL = "wss://" + strings.TrimPrefix(serverURL, "https://") + "/ws"
@@ -177,8 +229,10 @@ var startCmd = &cobra.Command{
 			return fmt.Errorf("--port is required")
 		}
 
-		fmt.Println("🚀 Starting Portex tunnel...")
-		fmt.Printf("   Local port: %d\n", port)
+		fmt.Println("\033[1;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m")
+		fmt.Println("\033[1;32m  Portex Agent\033[0m")
+		fmt.Println("\033[1;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m")
+		fmt.Println()
 
 		// Try to load config
 		cfg, err := config.Load("")
@@ -199,7 +253,7 @@ var startCmd = &cobra.Command{
 			cfg, _ = config.Load("")
 		}
 
-		// Authenticate with server
+		// Authenticate
 		authReq := map[string]string{
 			"api_key":    cfg.Server.APIKey,
 			"api_secret": cfg.Server.APISecret,
@@ -245,8 +299,6 @@ var startCmd = &cobra.Command{
 			return fmt.Errorf("authentication failed (status %d): %s", resp.StatusCode, string(body))
 		}
 
-		fmt.Println("✓ Authenticated with server")
-
 		// Create tunnel
 		tunnelReq := map[string]interface{}{
 			"local_port": port,
@@ -277,19 +329,45 @@ var startCmd = &cobra.Command{
 			return fmt.Errorf("failed to decode response: %w", err)
 		}
 
-		fmt.Println("✓ Tunnel created successfully!")
-		fmt.Println()
-		// NetBird style info box
-		fmt.Println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-		fmt.Printf("  Tunnel Name:   %s\n", tunnelResp.Tunnel.Name)
-		fmt.Printf("  Public URL:    %s\n", tunnelResp.Tunnel.PublicURL)
-		fmt.Printf("  Local Port:    %d\n", tunnelResp.Tunnel.LocalPort)
-		fmt.Printf("  Protocol:      %s\n", tunnelResp.Tunnel.Protocol)
-		fmt.Printf("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-		fmt.Println()
+		// Generate login URL automatically
+		loginReq, _ := http.NewRequest("POST", cfg.Server.URL+"/api/agent/create-login-token", nil)
+		loginReq.Header.Set("Accept", "application/json")
+		loginReq.Header.Set("Authorization", fmt.Sprintf("Bearer %s:%s", cfg.Server.APIKey, cfg.Server.APISecret))
 
-		// Start forwarder
-		fmt.Println("🔗 Connecting to server relay...")
+		loginResp, err := http.DefaultClient.Do(loginReq)
+		var loginURL string
+		if err == nil && loginResp.StatusCode == 200 {
+			defer loginResp.Body.Close()
+			var loginResult struct {
+				LoginURL string `json:"login_url"`
+			}
+			if json.NewDecoder(loginResp.Body).Decode(&loginResult) == nil {
+				loginURL = loginResult.LoginURL
+			}
+		}
+
+		// Modern ngrok-style output
+		fmt.Println()
+		fmt.Println("\033[1;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m")
+		fmt.Println("\033[1;32m  Portex Agent - Tunnel Active\033[0m")
+		fmt.Println("\033[1;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m")
+		fmt.Println()
+		fmt.Printf("  \033[1mSession Status\033[0m                 online\n")
+		fmt.Printf("  \033[1mAccount\033[0m                        %s\n", cfg.Server.APIKey[:20]+"...")
+		fmt.Printf("  \033[1mVersion\033[0m                        1.0.0\n")
+		fmt.Println()
+		fmt.Println("  \033[1;33mForwarding\033[0m")
+		fmt.Printf("  %s \033[1;34m->\033[0m http://localhost:%d\n", tunnelResp.Tunnel.PublicURL, tunnelResp.Tunnel.LocalPort)
+		fmt.Println()
+		if loginURL != "" {
+			fmt.Println("  \033[1;35mWeb Interface\033[0m")
+			fmt.Printf("  %s\n", loginURL)
+			fmt.Println()
+		}
+		fmt.Println("\033[1;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m")
+		fmt.Println()
+		fmt.Println("\033[1;90m  Press Ctrl+C to stop\033[0m")
+		fmt.Println()
 		forwarderInst := forwarder.New(
 			port,
 			cfg.Server.WSURL,
@@ -338,11 +416,9 @@ var logoutCmd = &cobra.Command{
 }
 
 func init() {
-	// Auth command flags
-	authCmd.Flags().StringVar(&apiKey, "api-key", "", "API key from Portex dashboard")
-	authCmd.Flags().StringVar(&apiSecret, "api-secret", "", "API secret from Portex dashboard")
-	authCmd.MarkFlagRequired("api-key")
-	authCmd.MarkFlagRequired("api-secret")
+	// Login command flags
+	loginCmd.Flags().StringVar(&apiKey, "api-key", "", "API key from Portex dashboard")
+	loginCmd.Flags().StringVar(&apiSecret, "api-secret", "", "API secret from Portex dashboard")
 
 	// Start command flags
 	startCmd.Flags().IntVarP(&port, "port", "p", 0, "Local port to forward")
@@ -350,7 +426,7 @@ func init() {
 	startCmd.MarkFlagRequired("port")
 
 	// Add commands to root
-	rootCmd.AddCommand(authCmd)
+	rootCmd.AddCommand(loginCmd)
 	rootCmd.AddCommand(startCmd)
 	rootCmd.AddCommand(logoutCmd)
 }

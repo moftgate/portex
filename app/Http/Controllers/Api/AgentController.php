@@ -3,17 +3,22 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Agent;
+use App\Models\AgentLoginToken;
 use App\Models\Tunnel;
+use App\Models\User;
 use App\Services\AgentService;
 use App\Services\TunnelService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AgentController extends Controller
 {
     public function __construct(
-        protected AgentService $agentService,
+        protected AgentService  $agentService,
         protected TunnelService $tunnelService
-    ) {
+    )
+    {
     }
 
     /**
@@ -37,7 +42,6 @@ class AgentController extends Controller
             ], 401);
         }
 
-        // Update agent status to online
         $this->agentService->updateAgentStatus($agent, 'online');
 
         return response()->json([
@@ -52,25 +56,67 @@ class AgentController extends Controller
      */
     public function registerAnonymous(Request $request)
     {
-        // Get or create default user for anonymous agents
-        $user = \App\Models\User::firstOrCreate(
-            ['email' => 'anonymous@portex.io'],
+        $validated = $request->validate([
+            'device_id' => 'required|string|max:255',
+            'hostname' => 'nullable|string|max:255',
+        ]);
+
+        $deviceId = $validated['device_id'];
+        $hostname = $validated['hostname'] ?? $deviceId;
+
+        // Sanitize hostname for email (remove spaces, special chars)
+        $sanitizedHostname = preg_replace('/[^a-zA-Z0-9-]/', '-', strtolower($hostname));
+        $sanitizedHostname = preg_replace('/-+/', '-', $sanitizedHostname); // Remove multiple dashes
+        $sanitizedHostname = trim($sanitizedHostname, '-'); // Remove leading/trailing dashes
+
+        // Create email from hostname
+        $deviceEmail = "{$sanitizedHostname}@portex.space";
+
+        // Get or create device-specific user
+        $user = User::firstOrCreate(
+            ['email' => $deviceEmail],
             [
-                'name' => 'Anonymous User',
+                'name' => $hostname,
                 'password' => bcrypt(str()->random(32)),
+                'email_verified_at' => now(),
             ]
         );
 
-        // Create agent
-        $agent = $this->agentService->registerAgent($user, [
-            'name' => 'Agent ' . now()->format('Y-m-d H:i:s'),
+        // Check if agent already exists for this device
+        $existingAgent = Agent::where('device_id', $deviceId)->first();
+
+        if ($existingAgent) {
+            // Regenerate credentials for existing agent
+            $result = $this->agentService->regenerateCredentials($existingAgent);
+
+            return response()->json([
+                'agent_id' => $result['agent']->id,
+                'agent_name' => $result['agent']->name,
+                'api_key' => $result['agent']->api_key,
+                'api_secret' => $result['plain_secret'],
+                'message' => 'Agent credentials regenerated',
+            ], 200);
+        }
+
+        // Create new agent for this device
+        $result = $this->agentService->registerAgent($user, [
+            'name' => $hostname ?? 'Agent ' . now()->format('Y-m-d H:i:s'),
+            'metadata' => ['device_id' => $deviceId],
         ]);
+
+        $agent = $result['agent'];
+        $plainSecret = $result['plain_secret'];
+
+        // Update device_id directly in database
+        \DB::table('agents')
+            ->where('id', $agent->id)
+            ->update(['device_id' => $deviceId]);
 
         return response()->json([
             'agent_id' => $agent->id,
             'agent_name' => $agent->name,
             'api_key' => $agent->api_key,
-            'api_secret' => $agent->plain_api_secret,
+            'api_secret' => $plainSecret,
             'message' => 'Agent registered successfully',
         ], 201);
     }
@@ -190,5 +236,39 @@ class AgentController extends Controller
             ],
             'message' => 'Tunnel created successfully',
         ], 201);
+    }
+
+    /**
+     * Create a magic login token for dashboard access
+     * @throws \Throwable
+     */
+    public function createLoginToken(Request $request)
+    {
+        // Comes from AgentAuthentication middleware
+        $agent = $request->agent;
+
+        // Generate a secure random token
+        $token = bin2hex(random_bytes(32));
+
+        $minutes = 60;
+
+        $loginUrl = DB::transaction(function () use ($agent, $token, $minutes) {
+            AgentLoginToken::where('agent_id', $agent->id)->delete();
+
+            $loginToken = AgentLoginToken::create([
+                'agent_id' => $agent->id,
+                'token' => $token,
+                'expires_at' => now()->addMinutes($minutes),
+            ]);
+
+            return config('app.url') . '/auth/magic/' . $loginToken->token;
+        });
+
+
+        return response()->json([
+            'login_url' => $loginUrl,
+            'expires_in' => $minutes * 60, // seconds
+            'message' => 'Login token created successfully',
+        ]);
     }
 }

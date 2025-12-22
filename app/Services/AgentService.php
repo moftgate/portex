@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Agent;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 class AgentService
@@ -11,23 +12,24 @@ class AgentService
     /**
      * Register a new agent.
      */
-    public function registerAgent(User $user, array $data): Agent
+    public function registerAgent(User $user, array $data): array
     {
         // Generate API credentials
         $credentials = $this->generateApiCredentials();
 
         $agent = $user->agents()->create([
-            'name' => $data['name'] ?? 'Agent ' . Str::random(4),
+            'name' => $data['name'] ?? 'Agent '.Str::random(4),
             'api_key' => $credentials['api_key'],
             'api_secret' => $credentials['api_secret_hash'],
             'status' => 'offline',
             'metadata' => $data['metadata'] ?? [],
         ]);
 
-        // Return agent with plain API secret (only time it's visible)
-        $agent->plain_api_secret = $credentials['api_secret'];
-
-        return $agent;
+        // Return agent and plain secret separately
+        return [
+            'agent' => $agent,
+            'plain_secret' => $credentials['api_secret'],
+        ];
     }
 
     /**
@@ -35,8 +37,8 @@ class AgentService
      */
     public function generateApiCredentials(): array
     {
-        $apiKey = 'pk_' . Str::random(32);
-        $apiSecret = 'sk_' . Str::random(48);
+        $apiKey = 'pk_'.Str::random(32);
+        $apiSecret = 'sk_'.Str::random(48);
 
         return [
             'api_key' => $apiKey,
@@ -86,13 +88,13 @@ class AgentService
      */
     public function validateCredentials(string $apiKey, string $apiSecret): ?Agent
     {
-        $agent = Agent::where('api_key', $apiKey)->first();
+        $agent = Agent::firstWhere('api_key', $apiKey);
 
-        if (!$agent) {
+        if (! $agent) {
             return null;
         }
 
-        if (!\Illuminate\Support\Facades\Hash::check($apiSecret, $agent->api_secret)) {
+        if (! Hash::check($apiSecret, $agent->api_secret)) {
             return null;
         }
 
@@ -102,7 +104,7 @@ class AgentService
     /**
      * Regenerate agent API credentials.
      */
-    public function regenerateCredentials(Agent $agent): Agent
+    public function regenerateCredentials(Agent $agent): array
     {
         $credentials = $this->generateApiCredentials();
 
@@ -111,10 +113,10 @@ class AgentService
             'api_secret' => $credentials['api_secret_hash'],
         ]);
 
-        // Return agent with plain API secret
-        $agent->plain_api_secret = $credentials['api_secret'];
-
-        return $agent->fresh();
+        return [
+            'agent' => $agent->fresh(),
+            'plain_secret' => $credentials['api_secret'],
+        ];
     }
 
     /**

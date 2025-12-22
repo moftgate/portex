@@ -5,8 +5,7 @@ use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 use Mary\Traits\Toast;
 
-new #[Layout('components.layouts.guest', ['title' => 'Login'])] class extends Component
-{
+new #[Layout('components.layouts.guest', ['title' => 'Login'])] class extends Component {
     use Toast;
 
     public string $email = '';
@@ -24,6 +23,13 @@ new #[Layout('components.layouts.guest', ['title' => 'Login'])] class extends Co
 
         if (Auth::attempt($credentials, $this->remember)) {
             request()->session()->regenerate();
+
+            if (session()->has('claim_agent_api_key')) {
+                return redirect()->route('agents.claim', [
+                    'api_key' => session()->pull('claim_agent_api_key'),
+                    'api_secret' => session()->pull('claim_agent_api_secret'),
+                ]);
+            }
 
             return redirect()->intended('/panel');
         }

@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property array<array-key, mixed>|null $metadata
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $device_id
  * @property-read string|null $last_seen_human
  * @property-read string $status_badge
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Tunnel> $tunnels
@@ -31,6 +32,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Agent whereApiKey($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Agent whereApiSecret($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Agent whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Agent whereDeviceId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Agent whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Agent whereLastSeenAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Agent whereMetadata($value)
@@ -53,6 +55,7 @@ class Agent extends Model
         'name',
         'api_key',
         'api_secret',
+        'device_id',
         'last_seen_at',
         'status',
         'metadata',

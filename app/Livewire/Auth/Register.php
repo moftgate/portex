@@ -34,7 +34,7 @@ class Register extends Component
         Auth::login($user);
         request()->session()->regenerate();
 
-        return redirect('/');
+        return redirect('/panel');
     }
 
     public function render()
