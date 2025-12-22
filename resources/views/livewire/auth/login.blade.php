@@ -5,11 +5,14 @@ use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 use Mary\Traits\Toast;
 
-new #[Layout('components.layouts.guest', ['title' => 'Login'])] class extends Component {
+new #[Layout('components.layouts.guest', ['title' => 'Login'])] class extends Component
+{
     use Toast;
 
     public string $email = '';
+
     public string $password = '';
+
     public bool $remember = false;
 
     public function login()
@@ -21,7 +24,8 @@ new #[Layout('components.layouts.guest', ['title' => 'Login'])] class extends Co
 
         if (Auth::attempt($credentials, $this->remember)) {
             request()->session()->regenerate();
-            return redirect()->intended('/');
+
+            return redirect()->intended('/panel');
         }
 
         $this->error('Invalid credentials', position: 'toast-bottom');

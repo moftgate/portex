@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -30,25 +31,41 @@ var (
 
 var authCmd = &cobra.Command{
 	Use:   "auth",
-	Short: "Authenticate with Portex server",
-	Long:  `Save your API credentials to authenticate with the Portex server.`,
+	Short: "Link this agent to your Portex dashboard",
+	Long:  `Automatically log in and link this agent to your Portex account in the dashboard.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if apiKey == "" || apiSecret == "" {
-			return fmt.Errorf("both --api-key and --api-secret are required")
+		// Load or register agent first
+		cfg, err := config.Load("")
+		if err != nil {
+			fmt.Println("⚙️  No configuration found. Creating global identity...")
+			reg, err := registerNewAgent()
+			if err != nil {
+				return fmt.Errorf("failed to register agent: %w", err)
+			}
+			cfg, _ = config.Load("") // Reload
+			_ = reg                  // reg used for messages
 		}
 
-		cfg := &config.Config{}
-		cfg.Server.APIKey = apiKey
-		cfg.Server.APISecret = apiSecret
-		cfg.Server.URL = "http://localhost:8000"
-		cfg.Server.WSURL = "ws://localhost:8080/ws"
+		loginURL := fmt.Sprintf("%s/panel/agents/claim?api_key=%s&api_secret=%s", cfg.Server.URL, cfg.Server.APIKey, cfg.Server.APISecret)
 
-		if err := config.Save(cfg, ""); err != nil {
-			return fmt.Errorf("failed to save configuration: %w", err)
+		fmt.Println("🔗 Opening browser for automatic login...")
+		fmt.Printf("   If the browser doesn't open, please visit:\n   %s\n", loginURL)
+
+		// Open browser
+		var openErr error
+		switch os.Getenv("GOOS") {
+		case "windows":
+			openErr = exec.Command("rundll32", "url.dll,FileProtocolHandler", loginURL).Start()
+		case "darwin":
+			openErr = exec.Command("open", loginURL).Start()
+		default: // linux, bsd, etc
+			openErr = exec.Command("xdg-open", loginURL).Start()
 		}
 
-		fmt.Println("✓ Authentication successful!")
-		fmt.Println("✓ Credentials saved to ~/.portex/config.yaml")
+		if openErr != nil {
+			fmt.Printf("⚠️  Could not open browser: %v\n", openErr)
+		}
+
 		return nil
 	},
 }
@@ -81,23 +98,35 @@ type AgentRegistrationResponse struct {
 }
 
 func registerNewAgent() (*AgentRegistrationResponse, error) {
-	fmt.Println("⚙️  Configuring agent identity...")
+	fmt.Println("⚙️  First time running? Configuring your agent identity...")
 
 	// Get server URL from environment or use default
 	serverURL := os.Getenv("PORTEX_SERVER_URL")
 	if serverURL == "" {
+		// If we are developing locally, portex.space might not be the target
+		// But for now we stick to a sensible default or env
 		serverURL = "https://portex.space"
 	}
 
+	fmt.Printf("📡 Connecting to %s...\n", serverURL)
+
 	resp, err := http.Post(serverURL+"/api/agent/register", "application/json", nil)
 	if err != nil {
-		return nil, fmt.Errorf("failed to register agent: %w", err)
+		// If production fails and we haven't specified a URL, maybe try localhost as fallback
+		if os.Getenv("PORTEX_SERVER_URL") == "" && serverURL != "http://localhost:8000" {
+			serverURL = "http://localhost:8000"
+			resp, err = http.Post(serverURL+"/api/agent/register", "application/json", nil)
+		}
+
+		if err != nil {
+			return nil, fmt.Errorf("failed to reach Portex server: %w", err)
+		}
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 201 {
 		body, _ := io.ReadAll(resp.Body)
-		return nil, fmt.Errorf("failed to register agent: %s", string(body))
+		return nil, fmt.Errorf("server rejected registration (status %d): %s", resp.StatusCode, string(body))
 	}
 
 	var regResp AgentRegistrationResponse
@@ -108,11 +137,17 @@ func registerNewAgent() (*AgentRegistrationResponse, error) {
 	// Determine WebSocket URL based on server URL
 	wsURL := os.Getenv("PORTEX_WS_URL")
 	if wsURL == "" {
-		// Auto-detect from server URL
 		if strings.HasPrefix(serverURL, "https://") {
 			wsURL = "wss://" + strings.TrimPrefix(serverURL, "https://") + "/ws"
 		} else {
-			wsURL = "ws://" + strings.TrimPrefix(serverURL, "http://") + "/ws"
+			// Handle http://localhost:8000 -> ws://localhost:8080/ws correctly
+			// For local dev with Reverb, it's usually 8080
+			host := strings.TrimPrefix(serverURL, "http://")
+			if strings.Contains(host, "localhost:8000") {
+				wsURL = "ws://localhost:8080/ws"
+			} else {
+				wsURL = "ws://" + host + "/ws"
+			}
 		}
 	}
 
@@ -127,7 +162,7 @@ func registerNewAgent() (*AgentRegistrationResponse, error) {
 		return nil, fmt.Errorf("failed to save config: %w", err)
 	}
 
-	fmt.Printf("✓ Agent registered: %s\n", regResp.AgentName)
+	fmt.Printf("✓ Agent registered and ready!\n")
 	return &regResp, nil
 }
 
@@ -146,15 +181,20 @@ var startCmd = &cobra.Command{
 		// Try to load config
 		cfg, err := config.Load("")
 		if err != nil {
-			_, err := registerNewAgent()
+			// Silently try to register
+			reg, err := registerNewAgent()
 			if err != nil {
-				return err
+				return fmt.Errorf("could not start without configuration: %w\nPlease check if the Portex server is running", err)
 			}
-			// Reload config after registration
-			cfg, err = config.Load("")
-			if err != nil {
-				return fmt.Errorf("failed to load config after registration: %w", err)
+			cfg = &config.Config{}
+			cfg.Server.APIKey = reg.APIKey
+			cfg.Server.APISecret = reg.APISecret
+			cfg.Server.URL = os.Getenv("PORTEX_SERVER_URL")
+			if cfg.Server.URL == "" {
+				cfg.Server.URL = "https://portex.space"
 			}
+			// WS URL is handled inside the registerNewAgent or we can reload
+			cfg, _ = config.Load("")
 		}
 
 		// Authenticate with server

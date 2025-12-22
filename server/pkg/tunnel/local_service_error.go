@@ -1,148 +1,17 @@
 package tunnel
 
-import (
-	"io"
-	"log"
-	"net/http"
-	"portex/server/pkg/api"
-	"strings"
-	"time"
+import "net/http"
 
-	"github.com/google/uuid"
-)
-
-type ProxyHandler struct {
-	manager   *TunnelManager
-	apiClient *api.Client
-	domain    string
-}
-
-func NewProxyHandler(manager *TunnelManager, apiClient *api.Client, domain string) *ProxyHandler {
-	return &ProxyHandler{
-		manager:   manager,
-		apiClient: apiClient,
-		domain:    domain,
-	}
-}
-
-func (h *ProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	start := time.Now()
-
-	// Extract subdomain from Host header
-	host := r.Host
-	subdomain := h.extractSubdomain(host)
-
-	if subdomain == "" {
-		http.Error(w, "Invalid subdomain", http.StatusBadRequest)
-		return
-	}
-
-	// Get agent for this subdomain
-	agent := h.manager.GetAgent(subdomain)
-	if agent == nil {
-		h.renderOfflinePage(w, subdomain)
-		return
-	}
-
-	// Read request body
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		http.Error(w, "Failed to read request body", http.StatusInternalServerError)
-		return
-	}
-	defer r.Body.Close()
-
-	// Convert headers to map
-	headers := make(map[string]string)
-	for key, values := range r.Header {
-		if len(values) > 0 {
-			headers[key] = values[0]
-		}
-	}
-
-	// Create HTTP request message
-	httpReq := HTTPRequest{
-		Method:  r.Method,
-		Path:    r.URL.Path + "?" + r.URL.RawQuery,
-		Headers: headers,
-		Body:    body,
-	}
-
-	// Generate request ID
-	requestID := uuid.New().String()
-
-	// Send to agent and wait for response
-	resp, err := agent.SendHTTPRequest(requestID, httpReq)
-	if err != nil {
-		http.Error(w, "Failed to forward request to agent", http.StatusBadGateway)
-		return
-	}
-
-	// Check if local service is unreachable
-	if resp.StatusCode == http.StatusBadGateway &&
-		string(resp.Body) == "Failed to connect to local service" {
-		h.renderLocalServiceError(w, subdomain)
-		return
-	}
-
-	// Write response headers
-	for key, value := range resp.Headers {
-		w.Header().Set(key, value)
-	}
-
-	// Write status code
-	w.WriteHeader(resp.StatusCode)
-
-	// Write response body
-	w.Write(resp.Body)
-
-	duration := time.Since(start)
-
-	log.Printf("Proxied %s %s -> %s (status: %d, time: %v)", r.Method, r.URL.Path, subdomain, resp.StatusCode, duration)
-
-	// Async log to backend
-	go func() {
-		err := h.apiClient.LogRequest(
-			agent.TunnelID,
-			r.Method,
-			r.URL.Path,
-			resp.StatusCode,
-			int(duration.Milliseconds()),
-			strings.Split(r.RemoteAddr, ":")[0],
-			r.UserAgent(),
-		)
-		if err != nil {
-			log.Printf("Failed to log request to backend: %v", err)
-		}
-	}()
-}
-
-func (h *ProxyHandler) extractSubdomain(host string) string {
-	// Remove port if present
-	if idx := strings.Index(host, ":"); idx != -1 {
-		host = host[:idx]
-	}
-
-	// Check if it ends with our domain
-	if !strings.HasSuffix(host, "."+h.domain) {
-		return ""
-	}
-
-	// Extract subdomain
-	subdomain := strings.TrimSuffix(host, "."+h.domain)
-	return subdomain
-}
-
-func (h *ProxyHandler) renderOfflinePage(w http.ResponseWriter, subdomain string) {
+func (h *ProxyHandler) renderLocalServiceError(w http.ResponseWriter, subdomain string) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-	w.WriteHeader(http.StatusServiceUnavailable)
+	w.WriteHeader(http.StatusBadGateway)
 
 	html := `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tunnel Offline - Portex</title>
+    <title>Local Service Unreachable - Portex</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -155,7 +24,7 @@ func (h *ProxyHandler) renderOfflinePage(w http.ResponseWriter, subdomain string
         
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -177,12 +46,12 @@ func (h *ProxyHandler) renderOfflinePage(w http.ResponseWriter, subdomain string
             width: 80px;
             height: 80px;
             margin: 0 auto 30px;
-            background: linear-gradient(135deg, #F97316 0%, #FB923C 100%);
+            background: linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%);
             border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 10px 30px rgba(249, 115, 22, 0.3);
+            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.3);
         }
         
         .icon svg {
@@ -203,10 +72,10 @@ func (h *ProxyHandler) renderOfflinePage(w http.ResponseWriter, subdomain string
         
         .subdomain {
             font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
-            color: #F97316;
+            color: #D97706;
             font-weight: 600;
             font-size: 18px;
-            background: #FFF7ED;
+            background: #FEF3C7;
             padding: 8px 16px;
             border-radius: 8px;
             display: inline-block;
@@ -221,17 +90,18 @@ func (h *ProxyHandler) renderOfflinePage(w http.ResponseWriter, subdomain string
         }
         
         .reasons {
-            background: #f9fafb;
+            background: #fffbeb;
             border-radius: 16px;
             padding: 24px;
             margin: 32px 0;
             text-align: left;
+            border: 2px solid #FDE68A;
         }
         
         .reasons h3 {
             font-size: 14px;
             font-weight: 600;
-            color: #374151;
+            color: #92400E;
             margin-bottom: 16px;
             text-transform: uppercase;
             letter-spacing: 0.05em;
@@ -243,24 +113,22 @@ func (h *ProxyHandler) renderOfflinePage(w http.ResponseWriter, subdomain string
         
         .reasons li {
             font-size: 14px;
-            color: #6b7280;
+            color: #78350F;
             padding: 8px 0;
             padding-left: 28px;
             position: relative;
         }
         
         .reasons li:before {
-            content: "•";
+            content: "⚠";
             position: absolute;
-            left: 12px;
-            color: #F97316;
-            font-weight: bold;
-            font-size: 18px;
+            left: 8px;
+            font-size: 16px;
         }
         
         .cta {
             display: inline-block;
-            background: linear-gradient(135deg, #F97316 0%, #FB923C 100%);
+            background: linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%);
             color: white;
             padding: 14px 32px;
             border-radius: 12px;
@@ -268,12 +136,12 @@ func (h *ProxyHandler) renderOfflinePage(w http.ResponseWriter, subdomain string
             font-weight: 600;
             font-size: 15px;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
         }
         
         .cta:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
         }
         
         .footer {
@@ -306,23 +174,23 @@ func (h *ProxyHandler) renderOfflinePage(w http.ResponseWriter, subdomain string
     <div class="container">
         <div class="icon">
             <svg viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
             </svg>
         </div>
         
-        <h1>Tunnel Offline</h1>
+        <h1>Local Service Unreachable</h1>
         
         <div class="subdomain">` + subdomain + `.` + h.domain + `</div>
         
-        <p>This tunnel is currently not available. The agent may be offline or the tunnel has been stopped.</p>
+        <p>The tunnel is active, but the local service is not responding. Please check your local application.</p>
         
         <div class="reasons">
-            <h3>Possible Reasons</h3>
+            <h3>Common Causes</h3>
             <ul>
-                <li>The Portex agent is not running</li>
-                <li>The tunnel was stopped or deleted</li>
-                <li>Network connectivity issues</li>
-                <li>The local service is not accessible</li>
+                <li>The local application is not running</li>
+                <li>Wrong port number configured</li>
+                <li>Firewall blocking local connections</li>
+                <li>Application crashed or stopped</li>
             </ul>
         </div>
         
