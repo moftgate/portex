@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"sync"
 
 	"github.com/gorilla/websocket"
 )
@@ -45,6 +46,7 @@ type Forwarder struct {
 	Subdomain string
 	TunnelID  string
 	conn      *websocket.Conn
+	writeMu   sync.Mutex // Protect concurrent writes to WebSocket
 }
 
 func New(localPort int, serverURL, subdomain, tunnelID string) *Forwarder {
@@ -111,8 +113,10 @@ func (f *Forwarder) readPump() {
 		case MessageTypeHTTPRequest:
 			go f.handleHTTPRequest(msg.RequestID, msg.Data)
 		case MessageTypePing:
-			// Send pong
+			// Send pong (protected by mutex)
+			f.writeMu.Lock()
 			f.conn.WriteJSON(Message{Type: MessageTypePong})
+			f.writeMu.Unlock()
 		}
 	}
 }
@@ -187,6 +191,9 @@ func (f *Forwarder) sendHTTPResponse(requestID string, resp HTTPResponse) {
 		RequestID: requestID,
 		Data:      data,
 	}
+
+	f.writeMu.Lock()
+	defer f.writeMu.Unlock()
 
 	if err := f.conn.WriteJSON(msg); err != nil {
 		log.Printf("Failed to send HTTP response: %v", err)
