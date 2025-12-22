@@ -123,4 +123,16 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Tunnel Domain
+    |--------------------------------------------------------------------------
+    |
+    | This is the base domain used for tunnel subdomains. All tunnels will
+    | be accessible at {subdomain}.{tunnel_domain}
+    |
+    */
+
+    'tunnel_domain' => env('TUNNEL_DOMAIN', 'portex.space'),
+
 ];

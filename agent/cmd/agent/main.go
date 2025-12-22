@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"portex/agent/pkg/config"
 	"portex/agent/pkg/forwarder"
@@ -82,7 +83,13 @@ type AgentRegistrationResponse struct {
 func registerNewAgent() (*AgentRegistrationResponse, error) {
 	fmt.Println("⚙️  Configuring agent identity...")
 
-	resp, err := http.Post("http://localhost:8000/api/agent/register", "application/json", nil)
+	// Get server URL from environment or use default
+	serverURL := os.Getenv("PORTEX_SERVER_URL")
+	if serverURL == "" {
+		serverURL = "https://portex.space"
+	}
+
+	resp, err := http.Post(serverURL+"/api/agent/register", "application/json", nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to register agent: %w", err)
 	}
@@ -98,12 +105,23 @@ func registerNewAgent() (*AgentRegistrationResponse, error) {
 		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
 
+	// Determine WebSocket URL based on server URL
+	wsURL := os.Getenv("PORTEX_WS_URL")
+	if wsURL == "" {
+		// Auto-detect from server URL
+		if strings.HasPrefix(serverURL, "https://") {
+			wsURL = "wss://" + strings.TrimPrefix(serverURL, "https://") + "/ws"
+		} else {
+			wsURL = "ws://" + strings.TrimPrefix(serverURL, "http://") + "/ws"
+		}
+	}
+
 	// Save config
 	cfg := &config.Config{}
 	cfg.Server.APIKey = regResp.APIKey
 	cfg.Server.APISecret = regResp.APISecret
-	cfg.Server.URL = "http://localhost:8000"
-	cfg.Server.WSURL = "ws://localhost:8080/ws"
+	cfg.Server.URL = serverURL
+	cfg.Server.WSURL = wsURL
 
 	if err := config.Save(cfg, ""); err != nil {
 		return nil, fmt.Errorf("failed to save config: %w", err)

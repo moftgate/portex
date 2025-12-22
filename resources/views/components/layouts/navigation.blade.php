@@ -28,6 +28,11 @@
                         style="{{ request()->routeIs('agents.*') ? 'background-color: var(--color-primary);' : '' }}">
                         Agents
                     </a>
+                    <a href="{{ route('activity.index') }}"
+                        class="px-3 py-2 text-sm font-medium rounded-md transition-colors {{ request()->routeIs('activity.*') ? 'text-white' : 'text-gray-700 hover:bg-gray-100' }}"
+                        style="{{ request()->routeIs('activity.*') ? 'background-color: var(--color-primary);' : '' }}">
+                        Activity
+                    </a>
                 </div>
             </div>
 
@@ -87,6 +92,11 @@
                 class="block px-3 py-2 text-sm font-medium rounded-md {{ request()->routeIs('agents.*') ? 'text-white' : 'text-gray-700' }}"
                 style="{{ request()->routeIs('agents.*') ? 'background-color: var(--color-primary);' : '' }}">
                 Agents
+            </a>
+            <a href="{{ route('activity.index') }}"
+                class="block px-3 py-2 text-sm font-medium rounded-md {{ request()->routeIs('activity.*') ? 'text-white' : 'text-gray-700' }}"
+                style="{{ request()->routeIs('activity.*') ? 'background-color: var(--color-primary);' : '' }}">
+                Activity
             </a>
         </div>
     </div>

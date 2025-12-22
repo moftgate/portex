@@ -6,15 +6,16 @@ use App\Models\TunnelRequest;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Volt\Component;
 
-new class extends Component {
+new class extends Component
+{
     public function with(): array
     {
         $user = auth()->user();
 
         return [
-            'activeTunnelsCount' => Tunnel::query()->when(is_user(), fn(Tunnel|Builder $query) => $query->where('user_id', $user->id))->where('status', 'active')->count(),
+            'activeTunnelsCount' => Tunnel::query()->when(is_user(), fn (Tunnel|Builder $query) => $query->where('user_id', $user->id))->where('status', 'active')->count(),
 
-            'onlineAgentsCount' => Agent::query()->when(is_user(), fn(Agent|Builder $query) => $query->where('user_id', $user->id))->where('status', 'online')->count(),
+            'onlineAgentsCount' => Agent::query()->when(is_user(), fn (Agent|Builder $query) => $query->where('user_id', $user->id))->where('status', 'online')->count(),
 
             'todayRequestsCount' => TunnelRequest::query()
                 ->whereHas('tunnel', function ($query) use ($user) {
@@ -23,7 +24,7 @@ new class extends Component {
                 ->whereDate('created_at', today())
                 ->count(),
 
-            'recentTunnels' => Tunnel::query()->when(is_user(), fn(Tunnel|Builder $query) => $query->where('user_id', $user->id))->with('agent')->latest()->take(5)->get(),
+            'recentTunnels' => Tunnel::query()->when(is_user(), fn (Tunnel|Builder $query) => $query->where('user_id', $user->id))->with('agent')->latest()->take(5)->get(),
         ];
     }
 }; ?>

@@ -11,7 +11,9 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('/', 'dashboard.index')->name('dashboard');
     Volt::route('/tunnels', 'tunnels.index')->name('tunnels.index');
     Volt::route('/tunnels/create', 'tunnels.create')->name('tunnels.create');
+    Volt::route('/tunnels/{tunnel}', 'tunnels.show')->name('tunnels.show');
     Volt::route('/agents', 'agents.index')->name('agents.index');
+    Volt::route('/activity', 'activity.index')->name('activity.index');
     
     Route::post('/logout', function () {
         auth()->logout();

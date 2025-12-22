@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/joho/godotenv"
 )
 
 var upgrader = websocket.Upgrader{
@@ -19,6 +20,13 @@ var upgrader = websocket.Upgrader{
 }
 
 func main() {
+	// Load .env file (try .env.production first, then .env)
+	if err := godotenv.Load(".env.production"); err != nil {
+		if err := godotenv.Load(); err != nil {
+			log.Println("No .env file found, using environment variables")
+		}
+	}
+
 	// Load configuration
 	cfg := config.Load()
 
@@ -69,7 +77,7 @@ func main() {
 	})
 
 	// HTTP proxy for tunnel traffic
-	proxyHandler := tunnel.NewProxyHandler(tunnelManager, "portex.io")
+	proxyHandler := tunnel.NewProxyHandler(tunnelManager, apiClient, "portex.space")
 	http.Handle("/", proxyHandler)
 
 	// Health check

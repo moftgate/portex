@@ -4,24 +4,30 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"portex/server/pkg/api"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 )
 
 type ProxyHandler struct {
-	manager *TunnelManager
-	domain  string
+	manager   *TunnelManager
+	apiClient *api.Client
+	domain    string
 }
 
-func NewProxyHandler(manager *TunnelManager, domain string) *ProxyHandler {
+func NewProxyHandler(manager *TunnelManager, apiClient *api.Client, domain string) *ProxyHandler {
 	return &ProxyHandler{
-		manager: manager,
-		domain:  domain,
+		manager:   manager,
+		apiClient: apiClient,
+		domain:    domain,
 	}
 }
 
 func (h *ProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	start := time.Now()
+
 	// Extract subdomain from Host header
 	host := r.Host
 	subdomain := h.extractSubdomain(host)
@@ -34,7 +40,7 @@ func (h *ProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Get agent for this subdomain
 	agent := h.manager.GetAgent(subdomain)
 	if agent == nil {
-		http.Error(w, "Tunnel not found or offline", http.StatusNotFound)
+		h.renderOfflinePage(w, subdomain)
 		return
 	}
 
@@ -83,7 +89,25 @@ func (h *ProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Write response body
 	w.Write(resp.Body)
 
-	log.Printf("Proxied %s %s -> %s (status: %d)", r.Method, r.URL.Path, subdomain, resp.StatusCode)
+	duration := time.Since(start)
+
+	log.Printf("Proxied %s %s -> %s (status: %d, time: %v)", r.Method, r.URL.Path, subdomain, resp.StatusCode, duration)
+
+	// Async log to backend
+	go func() {
+		err := h.apiClient.LogRequest(
+			agent.TunnelID,
+			r.Method,
+			r.URL.Path,
+			resp.StatusCode,
+			int(duration.Milliseconds()),
+			strings.Split(r.RemoteAddr, ":")[0],
+			r.UserAgent(),
+		)
+		if err != nil {
+			log.Printf("Failed to log request to backend: %v", err)
+		}
+	}()
 }
 
 func (h *ProxyHandler) extractSubdomain(host string) string {

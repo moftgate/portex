@@ -159,7 +159,7 @@ class Tunnel extends Model
             return "https://{$this->custom_domain}";
         }
 
-        $baseDomain = config('app.tunnel_domain', 'portex.io');
+        $baseDomain = config('app.tunnel_domain', 'portex.space');
         return "https://{$this->subdomain}.{$baseDomain}";
     }
 
