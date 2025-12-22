@@ -20,6 +20,9 @@ psr12 uygula
 livewire volt kullan
 
 
+Tasarım olarak Netbird tasarım mantığını ve tasarım yaklaşımlarını kullan
+
+
 tasarım olarak basit bir yapı kullan apple gibi olsun tasarımlar
 
 layouts/app.blade.php -> ana layout
@@ -30,3 +33,7 @@ livewire class-based componentler yap
 gate kullanam middleware ile authorization yap
 
 browser testleri yapma
+
+3 renk kullan hep üçü de netbird'den alıntı olsun ve bu 3 rengi sürekli uygula dark mode olmasın projede
+
+https://pinggy.io/ özelliklerinde de olmalı

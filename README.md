@@ -1,59 +1,142 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Portex - ngrok/bore/localtunnel Alternative
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Portex is a self-hosted tunnel service that allows you to expose local services to the internet through a central server infrastructure.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- 🚀 **Fast & Lightweight**: Built with Go for high performance
+- 🔒 **Secure**: End-to-end encryption with optional basic authentication
+- 🎯 **Easy to Use**: Simple CLI for agents, beautiful web dashboard
+- 📊 **Analytics**: Track requests, response times, and tunnel usage
+- 🔄 **Auto-Reconnect**: Agents automatically reconnect on connection loss
+- 🌐 **Custom Domains**: Support for custom subdomains and domains
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Architecture
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Laravel Backend**: User management, tunnel configuration, API, and dashboard
+- **Go Server**: High-performance proxy and tunnel router
+- **Go Agent**: Lightweight client for local port forwarding
 
-## Learning Laravel
+## Quick Start
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### Prerequisites
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- PHP 8.2+
+- PostgreSQL 15+
+- Go 1.21+
+- Node.js 18+
 
-## Laravel Sponsors
+### Installation
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+1. **Clone the repository**
+```bash
+git clone https://github.com/yourusername/portex.git
+cd portex
+```
 
-### Premium Partners
+2. **Install Laravel dependencies**
+```bash
+composer install
+npm install
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+3. **Configure environment**
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-## Contributing
+4. **Configure database**
+Edit `.env` and set your PostgreSQL credentials:
+```
+DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=portex
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+5. **Run migrations**
+```bash
+php artisan migrate
+```
 
-## Code of Conduct
+6. **Start development servers**
+```bash
+# Terminal 1: Laravel
+php artisan serve
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# Terminal 2: Vite
+npm run dev
 
-## Security Vulnerabilities
+# Terminal 3: Go Server (coming soon)
+cd server && go run main.go
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Usage
+
+### Web Dashboard
+
+1. Visit `http://localhost:8000`
+2. Register an account
+3. Create a new agent and save the API credentials
+4. Create a tunnel and assign it to your agent
+
+### Agent
+
+1. **Install the agent** (coming soon)
+```bash
+# Download pre-built binary
+curl -L https://portex.io/download/agent -o portex
+chmod +x portex
+```
+
+2. **Authenticate**
+```bash
+portex auth --api-key YOUR_API_KEY --api-secret YOUR_API_SECRET
+```
+
+3. **Start a tunnel**
+```bash
+portex start --port 3000 --subdomain myapp
+```
+
+Your local service on port 3000 will be available at `https://myapp.portex.io`
+
+## Configuration
+
+### Environment Variables
+
+```bash
+# Portex Configuration
+PORTEX_TUNNEL_DOMAIN=portex.local
+PORTEX_SERVER_URL=http://localhost:8080
+PORTEX_WEBSOCKET_URL=ws://localhost:8080/ws
+PORTEX_SERVER_API_KEY=your_server_api_key
+```
+
+## Development Status
+
+- ✅ Database Schema & Models
+- ✅ Backend API & Services
+- ✅ Frontend Dashboard (MaryUI + Livewire)
+- 🚧 Go Server Component (in progress)
+- 🚧 Go Agent Component (in progress)
+- ⏳ Integration & Testing
+- ⏳ Documentation
+
+## Tech Stack
+
+- **Backend**: Laravel 12, PostgreSQL 15
+- **Frontend**: Livewire Volt, MaryUI, TailwindCSS
+- **Server**: Go 1.21+
+- **Agent**: Go 1.21+
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+MIT License
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
