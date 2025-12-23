@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 
@@ -22,9 +23,20 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "portex",
-	Short: "Portex - Expose your local services to the internet",
-	Long:  `Portex is a secure tunnel client that exposes your local services to the internet.`,
+	Use:     "portex",
+	Version: version,
+	Short:   "Portex - Expose your local services to the internet",
+	Long:    `Portex is a secure tunnel client that exposes your local services to the internet.`,
+}
+
+var version = "0.6.0"
+
+var versionCmd = &cobra.Command{
+	Use:   "version",
+	Short: "Print the version number of Portex",
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Printf("Portex version %s\n", version)
+	},
 }
 
 // Auth command variables
@@ -78,7 +90,7 @@ var loginCmd = &cobra.Command{
 
 		// Open browser
 		var openErr error
-		switch os.Getenv("GOOS") {
+		switch runtime.GOOS {
 		case "windows":
 			openErr = exec.Command("rundll32", "url.dll,FileProtocolHandler", result.LoginURL).Start()
 		case "darwin":
@@ -379,7 +391,7 @@ var startCmd = &cobra.Command{
 		fmt.Println("\033[1;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m")
 		// Clear screen and show modern minimal header
 		fmt.Print("\033[H\033[2J")
-		fmt.Println("\033[1;38;5;208m  PORTEX\033[0m \033[38;5;244m1.0.0\033[0m")
+		fmt.Printf("\033[1;38;5;208m  PORTEX\033[0m \033[38;5;244m%s\033[0m\n", version)
 		fmt.Println("\033[38;5;238m  ────────────────────────────────────────────────────────────\033[0m")
 
 		fmt.Printf("  \033[1mStatus\033[0m        \033[32mOnline\033[0m\n")
@@ -497,6 +509,7 @@ func init() {
 	rootCmd.AddCommand(startCmd)
 	rootCmd.AddCommand(logoutCmd)
 	rootCmd.AddCommand(shareCmd)
+	rootCmd.AddCommand(versionCmd)
 }
 
 var shareCmd = &cobra.Command{

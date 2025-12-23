@@ -32,5 +32,6 @@ Route::middleware(AgentAuthentication::class)->prefix('agent')->group(function (
 Route::middleware(ServerAuthentication::class)->prefix('server')->group(function () {
     Route::get('/tunnels', [ServerController::class, 'getTunnels']);
     Route::get('/tunnel/{tunnel}', [ServerController::class, 'getTunnel']);
+    Route::put('/tunnel/{tunnel}/status', [ServerController::class, 'updateStatus']);
     Route::post('/tunnel/{tunnel}/request', [ServerController::class, 'logRequest']);
 });

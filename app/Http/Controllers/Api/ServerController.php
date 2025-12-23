@@ -110,4 +110,29 @@ class ServerController extends Controller
             'status' => 'logged',
         ]);
     }
+
+    /**
+     * Update tunnel status (e.g., active, inactive).
+     */
+    public function updateStatus(Request $request, Tunnel $tunnel)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:active,inactive,online,offline',
+        ]);
+
+        $status = $validated['status'];
+        // Map 'online' -> 'active', 'offline' -> 'inactive' if needed, or just use as is.
+        // Assuming database uses 'active' / 'inactive'
+        if ($status === 'online') $status = 'active';
+        if ($status === 'offline') $status = 'inactive';
+
+        $tunnel->update([
+            'status' => $status,
+        ]);
+
+        return response()->json([
+            'message' => 'Tunnel status updated',
+            'status' => $tunnel->status,
+        ]);
+    }
 }

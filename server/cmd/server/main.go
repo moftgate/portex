@@ -72,6 +72,11 @@ func main() {
 			log.Printf("Warning: Failed to fetch tunnel details for %s: %v", tunnelID, err)
 		}
 
+		// Update status to active
+		if err := apiClient.UpdateTunnelStatus(tunnelID, "active"); err != nil {
+			log.Printf("Warning: Failed to update tunnel status to active: %v", err)
+		}
+
 		// Register agent
 		agent := tunnelManager.RegisterAgent(subdomain, tunnelID, pin, conn)
 
@@ -83,6 +88,11 @@ func main() {
 
 		// Cleanup after disconnect
 		tunnelManager.UnregisterAgent(subdomain)
+
+		// Update status to inactive
+		if err := apiClient.UpdateTunnelStatus(tunnelID, "inactive"); err != nil {
+			log.Printf("Warning: Failed to update tunnel status to inactive: %v", err)
+		}
 	})
 
 	// HTTP proxy for tunnel traffic

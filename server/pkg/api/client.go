@@ -147,3 +147,30 @@ func (c *Client) LogRequest(
 
 	return nil
 }
+
+func (c *Client) UpdateTunnelStatus(tunnelID, status string) error {
+	payload := map[string]string{
+		"status": status,
+	}
+	body, _ := json.Marshal(payload)
+
+	req, err := http.NewRequest("PUT", fmt.Sprintf("%s/api/server/tunnel/%s/status", c.baseURL, tunnelID), bytes.NewBuffer(body))
+	if err != nil {
+		return err
+	}
+
+	req.Header.Set("Authorization", "Bearer "+c.apiKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := c.client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to update tunnel status: status %d", resp.StatusCode)
+	}
+
+	return nil
+}
