@@ -233,74 +233,75 @@
     </style>
 
 
-    <script defer src="https://cloud.umami.is/script.js"
-            data-website-id="269e123b-a36d-485b-bec5-378554421aa9"></script>
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="269e123b-a36d-485b-bec5-378554421aa9"></script>
 </head>
 
 <body>
-<nav>
-    <div class="container nav-inner">
-        <a href="/" class="logo">
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                <rect x="2" y="2" width="28" height="28" rx="8" fill="#0F172A"/>
-                <circle cx="16" cy="16" r="6" stroke="#FF6B2C" stroke-width="3"/>
-                <path d="M22 16H27" stroke="#FF6B2C" stroke-width="3" stroke-linecap="round"/>
-            </svg>
-            Portex
-        </a>
-        <div class="nav-links">
-            <a href="/#guide">Guide</a>
-            <div class="dropdown">
-                <a href="#" onclick="return false;">Solutions ▾</a>
-                <div class="dropdown-content">
-                    <a href="{{ route('solutions.webhooks') }}">Webhook Debugging</a>
-                    <a href="{{ route('solutions.mobile') }}">Mobile Development</a>
-                    <a href="{{ route('solutions.static') }}">Static Hosting</a>
-                    <a href="{{ route('solutions.ci-cd') }}">CI/CD Integration</a>
+    <nav>
+        <div class="container nav-inner">
+            <a href="/" class="logo">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                    <rect x="2" y="2" width="28" height="28" rx="8" fill="#0F172A" />
+                    <circle cx="16" cy="16" r="6" stroke="#FF6B2C" stroke-width="3" />
+                    <path d="M22 16H27" stroke="#FF6B2C" stroke-width="3" stroke-linecap="round" />
+                </svg>
+                Portex
+            </a>
+            <div class="nav-links">
+                <a href="/#guide">Guide</a>
+                <div class="dropdown">
+                    <a href="#" onclick="return false;">Solutions ▾</a>
+                    <div class="dropdown-content">
+                        <a href="{{ route('solutions.webhooks') }}">Webhook Debugging</a>
+                        <a href="{{ route('solutions.mobile') }}">Mobile Development</a>
+                        <a href="{{ route('solutions.static') }}">Static Hosting</a>
+                        <a href="{{ route('solutions.ci-cd') }}">CI/CD Integration</a>
+                        <a href="{{ route('solutions.api-dev') }}">API Development</a>
+                        <a href="{{ route('solutions.remote-access') }}">Remote Access (SSH)</a>
+                    </div>
+                </div>
+                <a href="/#features">Features</a>
+                <a href="{{ route('docs.index') }}">Docs</a>
+                <a href="https://github.com/orgs/portex-space/repositories" target="_blank">GitHub</a>
+                @auth
+                    <a href="{{ route('dashboard') }}" class="btn btn-primary"
+                        style="margin-left: 32px; color: white;">Dashboard</a>
+                @else
+                    <a href="{{ route('login') }}" class="btn btn-primary" style="margin-left: 32px; color: white;">Sign
+                        in</a>
+                @endauth
+            </div>
+        </div>
+    </nav>
+
+    @yield('content')
+
+    <footer class="footer">
+        <div class="container">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <p style="color: var(--slate); font-size: 14px;">© 2024 Portex Space. Open source and secure.</p>
+                <div class="nav-links" style="margin: 0;">
+                    <a href="https://github.com/orgs/portex-space/repositories" target="_blank">GitHub</a>
+                    <a href="{{ route('docs.index') }}">Documentation</a>
                 </div>
             </div>
-            <a href="/#features">Features</a>
-            <a href="{{ route('docs.index') }}">Docs</a>
-            <a href="https://github.com/orgs/portex-space/repositories" target="_blank">GitHub</a>
-            @auth
-                <a href="{{ route('dashboard') }}" class="btn btn-primary"
-                   style="margin-left: 32px; color: white;">Dashboard</a>
-            @else
-                <a href="{{ route('login') }}" class="btn btn-primary" style="margin-left: 32px; color: white;">Sign
-                    in</a>
-            @endauth
         </div>
-    </div>
-</nav>
+    </footer>
+    <script>
+        // Dropdown Click Handle
+        document.querySelector('.dropdown > a').addEventListener('click', function(e) {
+            e.preventDefault();
+            this.parentElement.classList.toggle('active');
+        });
 
-@yield('content')
-
-<footer class="footer">
-    <div class="container">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <p style="color: var(--slate); font-size: 14px;">© 2024 Portex Space. Open source and secure.</p>
-            <div class="nav-links" style="margin: 0;">
-                <a href="https://github.com/orgs/portex-space/repositories" target="_blank">GitHub</a>
-                <a href="{{ route('docs.index') }}">Documentation</a>
-            </div>
-        </div>
-    </div>
-</footer>
-<script>
-    // Dropdown Click Handle
-    document.querySelector('.dropdown > a').addEventListener('click', function (e) {
-        e.preventDefault();
-        this.parentElement.classList.toggle('active');
-    });
-
-    // Close dropdown when clicking outside
-    document.addEventListener('click', function (e) {
-        if (!e.target.closest('.dropdown')) {
-            const dropdown = document.querySelector('.dropdown');
-            if (dropdown) dropdown.classList.remove('active');
-        }
-    });
-</script>
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.dropdown')) {
+                const dropdown = document.querySelector('.dropdown');
+                if (dropdown) dropdown.classList.remove('active');
+            }
+        });
+    </script>
 </body>
 
 </html>

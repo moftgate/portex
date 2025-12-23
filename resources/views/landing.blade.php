@@ -773,6 +773,8 @@
                         <a href="{{ route('solutions.mobile') }}">Mobile Development</a>
                         <a href="{{ route('solutions.static') }}">Static Hosting</a>
                         <a href="{{ route('solutions.ci-cd') }}">CI/CD Integration</a>
+                        <a href="{{ route('solutions.api-dev') }}">API Development</a>
+                        <a href="{{ route('solutions.remote-access') }}">Remote Access (SSH)</a>
                     </div>
                 </div>
                 <a href="#features">Features</a>

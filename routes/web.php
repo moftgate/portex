@@ -14,6 +14,8 @@ Route::prefix('solutions')->group(function () {
     Route::view('/mobile', 'solutions.mobile')->name('solutions.mobile');
     Route::view('/static', 'solutions.static')->name('solutions.static');
     Route::view('/ci-cd', 'solutions.ci-cd')->name('solutions.ci-cd');
+    Route::view('/api-dev', 'solutions.api-dev')->name('solutions.api-dev');
+    Route::view('/remote-access', 'solutions.remote-access')->name('solutions.remote-access');
 });
 
 Route::prefix('docs')->group(function () {
