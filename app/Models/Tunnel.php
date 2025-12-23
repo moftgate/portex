@@ -76,6 +76,12 @@ class Tunnel extends Model
         'auth_password',
         'max_connections',
         'metadata',
+        'bytes_uploaded',
+        'bytes_downloaded',
+        'total_requests',
+        'last_activity_at',
+        'usage_seconds_today',
+        'usage_reset_date',
     ];
 
     /**
@@ -86,6 +92,8 @@ class Tunnel extends Model
     protected $casts = [
         'auth_enabled' => 'boolean',
         'metadata' => 'array',
+        'last_activity_at' => 'datetime',
+        'usage_reset_date' => 'date',
     ];
 
     /**

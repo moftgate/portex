@@ -15,11 +15,9 @@ use Illuminate\Support\Facades\DB;
 class AgentController extends Controller
 {
     public function __construct(
-        protected AgentService  $agentService,
+        protected AgentService $agentService,
         protected TunnelService $tunnelService
-    )
-    {
-    }
+    ) {}
 
     /**
      * Authenticate agent and return token.
@@ -36,7 +34,7 @@ class AgentController extends Controller
             $request->api_secret
         );
 
-        if (!$agent) {
+        if (! $agent) {
             return response()->json([
                 'error' => 'Invalid credentials',
             ], 401);
@@ -100,7 +98,7 @@ class AgentController extends Controller
 
         // Create new agent for this device
         $result = $this->agentService->registerAgent($user, [
-            'name' => $hostname ?? 'Agent ' . now()->format('Y-m-d H:i:s'),
+            'name' => $hostname ?? 'Agent '.now()->format('Y-m-d H:i:s'),
             'metadata' => ['device_id' => $deviceId],
         ]);
 
@@ -180,21 +178,36 @@ class AgentController extends Controller
     public function createTunnel(Request $request)
     {
         $agent = $request->agent;
+        $user = $agent->user;
+
+        // Check usage limits
+        $usageService = app(\App\Services\UsageTrackingService::class);
+
+        if ($usageService->hasExceededDailyLimit($user)) {
+            $stats = $usageService->getUsageStats($user);
+
+            return response()->json([
+                'error' => 'Daily usage limit exceeded',
+                'message' => "You've used {$stats['used_formatted']} of your {$stats['limit_formatted']} daily limit. Upgrade to Premium for unlimited usage!",
+                'usage_stats' => $stats,
+                'upgrade_url' => config('app.url').'/panel/upgrade',
+            ], 429); // Too Many Requests
+        }
 
         $validated = $request->validate([
             'name' => 'nullable|string|max:255',
-            'subdomain' => 'nullable|string|max:255|alpha_dash',
+            'subdomain' => 'nullable|string|max:63|regex:/^[a-z0-9-]+$/',
             'local_port' => 'required|integer|min:1|max:65535',
             'protocol' => 'nullable|in:http,https,tcp',
         ]);
 
         // Set defaults
-        $validated['name'] = $validated['name'] ?? 'Tunnel ' . now()->format('Y-m-d H:i');
+        $validated['name'] = $validated['name'] ?? 'Tunnel '.now()->format('Y-m-d H:i');
         $validated['protocol'] = $validated['protocol'] ?? 'http';
         $validated['agent_id'] = $agent->id;
 
         // Check if this agent already has this subdomain
-        if (!empty($validated['subdomain'])) {
+        if (! empty($validated['subdomain'])) {
             $existing = Tunnel::where('agent_id', $agent->id)
                 ->where('subdomain', $validated['subdomain'])
                 ->first();
@@ -240,6 +253,7 @@ class AgentController extends Controller
 
     /**
      * Create a magic login token for dashboard access
+     *
      * @throws \Throwable
      */
     public function createLoginToken(Request $request)
@@ -261,14 +275,27 @@ class AgentController extends Controller
                 'expires_at' => now()->addMinutes($minutes),
             ]);
 
-            return config('app.url') . '/auth/magic/' . $loginToken->token;
+            return config('app.url').'/auth/magic/'.$loginToken->token;
         });
-
 
         return response()->json([
             'login_url' => $loginUrl,
             'expires_in' => $minutes * 60, // seconds
             'message' => 'Login token created successfully',
         ]);
+    }
+
+    /**
+     * Get usage statistics for the agent's user
+     */
+    public function getUsageStats(Request $request)
+    {
+        $agent = $request->agent;
+        $user = $agent->user;
+
+        $usageService = app(\App\Services\UsageTrackingService::class);
+        $stats = $usageService->getUsageStats($user);
+
+        return response()->json($stats);
     }
 }

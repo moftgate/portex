@@ -55,6 +55,9 @@ class User extends Authenticatable
         'email',
         'password',
         'email_verified_at',
+        'tier',
+        'daily_usage_limit_seconds',
+        'bandwidth_limit_bytes',
     ];
 
     /**

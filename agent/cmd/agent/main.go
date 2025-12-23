@@ -347,6 +347,26 @@ var startCmd = &cobra.Command{
 			}
 		}
 
+		// Fetch usage stats
+		statsReq, _ := http.NewRequest("GET", cfg.Server.URL+"/api/agent/usage-stats", nil)
+		statsReq.Header.Set("Accept", "application/json")
+		statsReq.Header.Set("Authorization", fmt.Sprintf("Bearer %s:%s", cfg.Server.APIKey, cfg.Server.APISecret))
+
+		var usageStats struct {
+			Tier               string  `json:"tier"`
+			UsedFormatted      string  `json:"used_formatted"`
+			LimitFormatted     string  `json:"limit_formatted"`
+			RemainingFormatted string  `json:"remaining_formatted"`
+			PercentageUsed     float64 `json:"percentage_used"`
+			IsPremium          bool    `json:"is_premium"`
+		}
+
+		statsResp, err := http.DefaultClient.Do(statsReq)
+		if err == nil && statsResp.StatusCode == 200 {
+			defer statsResp.Body.Close()
+			json.NewDecoder(statsResp.Body).Decode(&usageStats)
+		}
+
 		// Modern ngrok-style output
 		fmt.Println()
 		fmt.Println("\033[1;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m")
@@ -355,8 +375,34 @@ var startCmd = &cobra.Command{
 		fmt.Println()
 		fmt.Printf("  \033[1mSession Status\033[0m                 online\n")
 		fmt.Printf("  \033[1mAccount\033[0m                        %s\n", cfg.Server.APIKey[:20]+"...")
+
+		// Show tier
+		if usageStats.IsPremium {
+			fmt.Printf("  \033[1mTier\033[0m                           \033[1;33m✨ Premium\033[0m\n")
+		} else {
+			fmt.Printf("  \033[1mTier\033[0m                           Free\n")
+		}
+
 		fmt.Printf("  \033[1mVersion\033[0m                        1.0.0\n")
 		fmt.Println()
+
+		// Show usage stats for free tier
+		if !usageStats.IsPremium && usageStats.UsedFormatted != "" {
+			fmt.Println("  \033[1;33mUsage Today\033[0m")
+			fmt.Printf("  %s / %s used (\033[1m%.1f%%\033[0m)\n",
+				usageStats.UsedFormatted,
+				usageStats.LimitFormatted,
+				usageStats.PercentageUsed)
+
+			// Warning if close to limit
+			if usageStats.PercentageUsed >= 80 {
+				fmt.Printf("  \033[1;31m⚠️  %s remaining - Upgrade to Premium!\033[0m\n", usageStats.RemainingFormatted)
+			} else {
+				fmt.Printf("  %s remaining\n", usageStats.RemainingFormatted)
+			}
+			fmt.Println()
+		}
+
 		fmt.Println("  \033[1;33mForwarding\033[0m")
 		fmt.Printf("  %s \033[1;34m->\033[0m http://localhost:%d\n", tunnelResp.Tunnel.PublicURL, tunnelResp.Tunnel.LocalPort)
 		fmt.Println()

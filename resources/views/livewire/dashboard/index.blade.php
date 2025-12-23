@@ -11,6 +11,7 @@ new class extends Component
     public function with(): array
     {
         $user = auth()->user();
+        $usageService = app(\App\Services\UsageTrackingService::class);
 
         return [
             'activeTunnelsCount' => Tunnel::query()->when(is_user(), fn (Tunnel|Builder $query) => $query->where('user_id', $user->id))->where('status', 'active')->count(),
@@ -25,6 +26,8 @@ new class extends Component
                 ->count(),
 
             'recentTunnels' => Tunnel::query()->when(is_user(), fn (Tunnel|Builder $query) => $query->where('user_id', $user->id))->with('agent')->latest()->take(5)->get(),
+
+            'usageStats' => $usageService->getUsageStats($user),
         ];
     }
 }; ?>
@@ -89,6 +92,128 @@ new class extends Component
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                     </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Usage Section -->
+    <div class="grid gap-6 md:grid-cols-2 mb-8">
+        <!-- Daily Usage -->
+        <div class="bg-white rounded-lg border border-gray-200 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="font-semibold" style="color: var(--color-neutral);">Daily Usage Limit</h3>
+                @if ($usageStats['is_premium'])
+                    <span
+                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                        ✨ Premium
+                    </span>
+                @else
+                    <span
+                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        Free Tier
+                    </span>
+                @endif
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="text-gray-600">Time Used Today</span>
+                        <span class="font-medium text-gray-900">{{ $usageStats['used_formatted'] }} /
+                            {{ $usageStats['limit_formatted'] }}</span>
+                    </div>
+                    @if ($usageStats['is_premium'])
+                        <div class="w-full bg-gray-100 rounded-full h-2">
+                            <div class="bg-yellow-400 h-2 rounded-full" style="width: 100%"></div>
+                        </div>
+                        <div class="mt-1 text-xs text-gray-500">Unlimited tunnel time for Premium users</div>
+                    @else
+                        <div class="w-full bg-gray-100 rounded-full h-2">
+                            <div class="h-2 rounded-full transition-all duration-500 {{ $usageStats['percentage_used'] > 90 ? 'bg-red-500' : ($usageStats['percentage_used'] > 75 ? 'bg-orange-500' : 'bg-blue-600') }}"
+                                style="width: {{ min(100, $usageStats['percentage_used']) }}%"></div>
+                        </div>
+                        <div class="flex justify-between mt-1">
+                            <span class="text-xs text-gray-500">{{ $usageStats['remaining_formatted'] }}
+                                remaining</span>
+                            <span
+                                class="text-xs font-medium {{ $usageStats['percentage_used'] > 90 ? 'text-red-600' : 'text-gray-600' }}">{{ $usageStats['percentage_used'] }}%</span>
+                        </div>
+                    @endif
+                </div>
+
+                @if (!$usageStats['is_premium'])
+                    <div class="p-4 rounded-lg bg-blue-50 border border-blue-100 mt-4">
+                        <div class="flex gap-3">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-blue-400" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-medium text-blue-800">Need more time?</h4>
+                                <p class="text-xs text-blue-600 mt-1">Upgrade to Premium for unlimited tunnel duration
+                                    and custom subdomains.</p>
+                                <a href="#"
+                                    class="mt-2 text-xs font-semibold text-blue-800 hover:text-blue-900 flex items-center gap-1">
+                                    Upgrade Now <svg class="w-3 h-3" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        <!-- Bandwidth & Health -->
+        <div class="bg-white rounded-lg border border-gray-200 p-6">
+            <h3 class="font-semibold mb-4" style="color: var(--color-neutral);">Traffic Overview</h3>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="p-4 rounded-lg bg-gray-50 border border-gray-100 text-center">
+                    <div class="text-xs text-gray-500 uppercase font-medium mb-1">Total Bandwidth</div>
+                    <div class="text-xl font-bold text-gray-900">{{ $usageStats['total_bandwidth_formatted'] }}</div>
+                </div>
+                <div class="p-4 rounded-lg bg-gray-50 border border-gray-100 text-center">
+                    <div class="text-xs text-gray-500 uppercase font-medium mb-1">System Health</div>
+                    <div class="text-xl font-bold text-green-600">Stable</div>
+                </div>
+            </div>
+
+            <div class="mt-6 space-y-4">
+                <div class="flex items-center justify-between p-3 rounded-lg border border-gray-100">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700">WebSocket Server</span>
+                    </div>
+                    <span
+                        class="text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full">Connected</span>
+                </div>
+                <div class="flex items-center justify-between p-3 rounded-lg border border-gray-100">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium text-gray-700">API Gateway</span>
+                    </div>
+                    <span
+                        class="text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full">Operational</span>
                 </div>
             </div>
         </div>

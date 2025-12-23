@@ -47,6 +47,8 @@ class ServerController extends Controller
             'response_time_ms' => 'required|integer',
             'ip_address' => 'required|string',
             'user_agent' => 'nullable|string',
+            'bytes_uploaded' => 'nullable|integer',
+            'bytes_downloaded' => 'nullable|integer',
         ]);
 
         TunnelRequest::create([
@@ -58,6 +60,18 @@ class ServerController extends Controller
             'ip_address' => $validated['ip_address'],
             'user_agent' => $validated['user_agent'] ?? null,
         ]);
+
+        // Track bandwidth and usage
+        $usageService = app(\App\Services\UsageTrackingService::class);
+        $usageService->trackBandwidth(
+            $tunnel, 
+            $validated['bytes_uploaded'] ?? 0, 
+            $validated['bytes_downloaded'] ?? 0
+        );
+
+        // For simplicity, we count each request as 1 second of "active usage" 
+        // if no other time tracking is implemented yet.
+        $usageService->trackUsageTime($tunnel, 1);
 
         return response()->json([
             'status' => 'logged',
