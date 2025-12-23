@@ -75,7 +75,7 @@ func (tm *TunnelManager) RegisterAgent(subdomain, tunnelID string, conn *websock
 	tm.agents[subdomain] = agent
 	tm.mu.Unlock()
 
-	log.Printf("Agent registered for subdomain: %s (tunnel: %s)", subdomain, tunnelID)
+	//log.Printf("Agent registered for subdomain: %s (tunnel: %s)", subdomain, tunnelID)
 	return agent
 }
 

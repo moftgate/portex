@@ -52,11 +52,6 @@ func (h *ProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	log.Printf("DEBUG: Captured request body for %s %s: %d bytes", r.Method, r.URL.Path, len(body))
-	if len(body) > 0 {
-		log.Printf("DEBUG: Body content: %s", string(body))
-	}
-
 	// Convert headers to map
 	headers := make(map[string]string)
 	for key, values := range r.Header {
@@ -103,11 +98,10 @@ func (h *ProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	duration := time.Since(start)
 
-	log.Printf("Proxied %s %s -> %s (status: %d, time: %v)", r.Method, r.URL.Path, subdomain, resp.StatusCode, duration)
+	//log.Printf("Proxied %s %s -> %s (status: %d, time: %v)", r.Method, r.URL.Path, subdomain, resp.StatusCode, duration)
 
 	// Async log to backend
 	go func() {
-		log.Printf("DEBUG: Logging to backend - request body: %d bytes, response body: %d bytes", len(body), len(resp.Body))
 		err := h.apiClient.LogRequest(
 			agent.TunnelID,
 			r.Method,
@@ -125,8 +119,6 @@ func (h *ProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		)
 		if err != nil {
 			log.Printf("Failed to log request to backend: %v", err)
-		} else {
-			log.Printf("DEBUG: Successfully logged to backend")
 		}
 	}()
 }
@@ -166,7 +158,7 @@ func (h *ProxyHandler) renderOfflinePage(w http.ResponseWriter, subdomain string
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
@@ -176,7 +168,7 @@ func (h *ProxyHandler) renderOfflinePage(w http.ResponseWriter, subdomain string
             justify-content: center;
             padding: 20px;
         }
-        
+
         .container {
             max-width: 600px;
             width: 100%;
@@ -186,7 +178,7 @@ func (h *ProxyHandler) renderOfflinePage(w http.ResponseWriter, subdomain string
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
             text-align: center;
         }
-        
+
         .icon {
             width: 80px;
             height: 80px;
@@ -198,7 +190,7 @@ func (h *ProxyHandler) renderOfflinePage(w http.ResponseWriter, subdomain string
             justify-content: center;
             box-shadow: 0 10px 30px rgba(249, 115, 22, 0.3);
         }
-        
+
         .icon svg {
             width: 40px;
             height: 40px;
@@ -206,7 +198,7 @@ func (h *ProxyHandler) renderOfflinePage(w http.ResponseWriter, subdomain string
             stroke-width: 2;
             fill: none;
         }
-        
+
         h1 {
             font-size: 32px;
             font-weight: 700;
@@ -214,7 +206,7 @@ func (h *ProxyHandler) renderOfflinePage(w http.ResponseWriter, subdomain string
             margin-bottom: 16px;
             letter-spacing: -0.02em;
         }
-        
+
         .subdomain {
             font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
             color: #F97316;
@@ -226,14 +218,14 @@ func (h *ProxyHandler) renderOfflinePage(w http.ResponseWriter, subdomain string
             display: inline-block;
             margin-bottom: 24px;
         }
-        
+
         p {
             font-size: 16px;
             color: #6b7280;
             line-height: 1.6;
             margin-bottom: 16px;
         }
-        
+
         .reasons {
             background: #f9fafb;
             border-radius: 16px;
@@ -241,7 +233,7 @@ func (h *ProxyHandler) renderOfflinePage(w http.ResponseWriter, subdomain string
             margin: 32px 0;
             text-align: left;
         }
-        
+
         .reasons h3 {
             font-size: 14px;
             font-weight: 600;
@@ -250,11 +242,11 @@ func (h *ProxyHandler) renderOfflinePage(w http.ResponseWriter, subdomain string
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
-        
+
         .reasons ul {
             list-style: none;
         }
-        
+
         .reasons li {
             font-size: 14px;
             color: #6b7280;
@@ -262,7 +254,7 @@ func (h *ProxyHandler) renderOfflinePage(w http.ResponseWriter, subdomain string
             padding-left: 28px;
             position: relative;
         }
-        
+
         .reasons li:before {
             content: "•";
             position: absolute;
@@ -271,7 +263,7 @@ func (h *ProxyHandler) renderOfflinePage(w http.ResponseWriter, subdomain string
             font-weight: bold;
             font-size: 18px;
         }
-        
+
         .cta {
             display: inline-block;
             background: linear-gradient(135deg, #F97316 0%, #FB923C 100%);
@@ -284,32 +276,32 @@ func (h *ProxyHandler) renderOfflinePage(w http.ResponseWriter, subdomain string
             transition: all 0.3s ease;
             box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
         }
-        
+
         .cta:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
         }
-        
+
         .footer {
             margin-top: 40px;
             padding-top: 24px;
             border-top: 1px solid #e5e7eb;
         }
-        
+
         .footer p {
             font-size: 13px;
             color: #9ca3af;
         }
-        
+
         @media (max-width: 640px) {
             .container {
                 padding: 40px 24px;
             }
-            
+
             h1 {
                 font-size: 24px;
             }
-            
+
             .subdomain {
                 font-size: 14px;
             }
@@ -323,13 +315,13 @@ func (h *ProxyHandler) renderOfflinePage(w http.ResponseWriter, subdomain string
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
         </div>
-        
+
         <h1>Tunnel Offline</h1>
-        
+
         <div class="subdomain">` + subdomain + `.` + h.domain + `</div>
-        
+
         <p>This tunnel is currently not available. The agent may be offline or the tunnel has been stopped.</p>
-        
+
         <div class="reasons">
             <h3>Possible Reasons</h3>
             <ul>
@@ -339,9 +331,9 @@ func (h *ProxyHandler) renderOfflinePage(w http.ResponseWriter, subdomain string
                 <li>The local service is not accessible</li>
             </ul>
         </div>
-        
+
         <a href="https://` + h.domain + `" class="cta">Go to Dashboard</a>
-        
+
         <div class="footer">
             <p>Powered by <strong>Portex</strong> · Secure Tunnel Service</p>
         </div>
