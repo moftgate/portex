@@ -378,17 +378,43 @@
         .terminal-body {
             padding: var(--spacing-lg);
             font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
-            font-size: var(--font-size-sm);
-            line-height: 1.8;
+            font-size: 13px;
+            line-height: 1.6;
         }
 
         .terminal-line {
             display: flex;
             align-items: center;
             gap: var(--spacing-sm);
-            margin-bottom: var(--spacing-sm);
+            margin-bottom: 8px;
             opacity: 0;
             animation: terminalLine 0.3s ease forwards;
+        }
+
+        .terminal-text {
+            color: #d1d1d1;
+        }
+
+        .terminal-orange {
+            color: #FF6B2C;
+            font-weight: bold;
+        }
+
+        .terminal-green {
+            color: #00D4AA;
+        }
+
+        .terminal-blue {
+            color: #2D5BFF;
+        }
+
+        .terminal-white {
+            color: #FFFFFF;
+            font-weight: bold;
+        }
+
+        .terminal-muted {
+            color: #8A8A8A;
         }
 
         @keyframes terminalLine {
@@ -397,42 +423,11 @@
             }
         }
 
-        .terminal-prompt {
-            color: #00D4AA;
-            font-weight: 600;
-        }
-
-        .terminal-command {
-            color: #FFFFFF;
-        }
-
-        .terminal-output {
-            color: #8A8A8A;
-        }
-
-        .terminal-success {
-            color: #00D4AA;
-        }
-
-        .terminal-icon {
-            font-size: var(--font-size-lg);
-        }
-
-        .terminal-highlight {
-            color: #FFFFFF;
-            font-weight: 500;
-        }
-
-        .terminal-muted {
-            color: #5A5A5A;
-            font-size: var(--font-size-xs);
-        }
-
         .terminal-cursor {
             display: inline-block;
             width: 8px;
             height: 16px;
-            background: #00D4AA;
+            background: #FF6B2C;
             animation: blink 1s step-end infinite;
         }
 
@@ -988,7 +983,6 @@
                         <a href="{{ route('dashboard') }}" class="btn btn-secondary">Dashboard</a>
                     @else
                         <a href="{{ route('login') }}" class="btn btn-secondary">Sign In</a>
-                        <a href="{{ route('register') }}" class="btn btn-primary">Get Started</a>
                     @endauth
                 </div>
             </div>
@@ -1013,13 +1007,6 @@
                     Built with Go for maximum performance and reliability.
                 </p>
                 <div class="hero-actions">
-                    <a href="{{ route('register') }}" class="btn btn-primary btn-large">
-                        Start for Free
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                    </a>
                     <a href="#how-it-works" class="btn btn-secondary btn-large">
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                             <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="2" />
@@ -1044,34 +1031,66 @@
                 </div>
             </div>
             <div class="hero-visual">
-                <div class="terminal-window">
-                    <div class="terminal-header">
-                        <div class="terminal-buttons">
-                            <span class="terminal-button terminal-button-red"></span>
-                            <span class="terminal-button terminal-button-yellow"></span>
-                            <span class="terminal-button terminal-button-green"></span>
-                        </div>
-                        <div class="terminal-title">terminal</div>
+                <div class="terminal-body">
+                    <div class="terminal-line" style="animation-delay: 0.2s">
+                        <span class="terminal-green">$</span>
+                        <span class="terminal-command">portex share ./my-project --pin 1234</span>
                     </div>
-                    <div class="terminal-body">
-                        <div class="terminal-line">
-                            <span class="terminal-prompt">$</span>
-                            <span class="terminal-command">portex start --port 3000</span>
-                        </div>
-                        <div class="terminal-line terminal-output">
-                            <span class="terminal-success">✓</span> Connected to Portex server
-                        </div>
-                        <div class="terminal-line terminal-output">
-                            <span class="terminal-success">✓</span> Tunnel established
-                        </div>
-                        <div class="terminal-line terminal-output terminal-highlight">
-                            <span class="terminal-icon">🌐</span> https://<span
-                                class="gradient-text">myapp.portex.space</span>
-                        </div>
-                        <div class="terminal-line terminal-output">
-                            <span class="terminal-muted">Forwarding to localhost:3000</span>
-                        </div>
-                        <div class="terminal-cursor"></div>
+                    <div class="terminal-line" style="animation-delay: 1s">
+                        <span
+                            class="terminal-muted">────────────────────────────────────────────────────────────</span>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 1.2s">
+                        <span class="terminal-orange"> PORTEX</span> <span class="terminal-muted">1.0.0</span>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 1.4s">
+                        <span class="terminal-muted">
+                            ────────────────────────────────────────────────────────────</span>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 1.6s">
+                        <span class="terminal-text"> Status </span> <span class="terminal-green">Online</span>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 1.8s">
+                        <span class="terminal-text"> Account </span> <span
+                            class="terminal-muted">pk_Zb5gs02XP8mC...</span>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 2s">
+                        <span class="terminal-text"> Usage </span> <span class="terminal-muted">1h 45m / 3h 0m
+                            (58.3%)</span>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 2.2s">
+                        <span class="terminal-muted"> </span>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 2.4s">
+                        <span class="terminal-orange"> ACTIVE TUNNEL</span>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 2.6s">
+                        <span class="terminal-white"> https://my-project.portex.space</span>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 2.8s">
+                        <span class="terminal-muted"> ↳ forwarding to internal local server</span>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 3s">
+                        <span class="terminal-muted"> </span>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 3.2s">
+                        <span class="terminal-text"> </span> <span class="terminal-white">SCAN FOR MOBILE</span>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 3.4s">
+                        <span class="terminal-muted"> [ QR Code Generated ]</span>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 3.6s">
+                        <span class="terminal-muted"> </span>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 3.8s">
+                        <span class="terminal-muted">
+                            ────────────────────────────────────────────────────────────</span>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 4s">
+                        <span class="terminal-muted"> Press Ctrl+C to stop</span>
+                    </div>
+                    <div class="terminal-line" style="animation-delay: 4.2s">
+                        <span class="terminal-cursor"></span>
                     </div>
                 </div>
             </div>
@@ -1087,84 +1106,89 @@
                     efficiently</p>
             </div>
             <div class="features-grid">
-                <div class="feature-card">
+                <div class="feature-card animate-on-scroll">
                     <div class="feature-icon feature-icon-orange">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                            <path d="M13 10V3L4 14h7v7l9-11h-7z" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round" />
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                         </svg>
                     </div>
-                    <h3 class="feature-title">Lightning Fast</h3>
-                    <p class="feature-description">Built with Go for maximum performance. Handle thousands of
-                        concurrent connections with minimal latency.</p>
+                    <h3 class="feature-title">PIN Protection</h3>
+                    <p class="feature-description">Secure your tunnels with a 4-digit PIN. Perfect for private demos,
+                        client reviews, or sensitive internal tools.</p>
                 </div>
-                <div class="feature-card">
+
+                <div class="feature-card animate-on-scroll" style="animation-delay: 0.1s">
                     <div class="feature-icon feature-icon-blue">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                            <rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor"
-                                stroke-width="2" />
-                            <path d="M7 11V7a5 5 0 0110 0v4" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" />
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="12" y1="8" x2="12" y2="16"></line>
+                            <line x1="8" y1="12" x2="16" y2="12"></line>
                         </svg>
                     </div>
-                    <h3 class="feature-title">Secure by Default</h3>
-                    <p class="feature-description">End-to-end encryption with optional basic authentication. Your data
-                        stays private and secure.</p>
+                    <h3 class="feature-title">Fast Directory Sharing</h3>
+                    <p class="feature-description">Instantly host any local directory with a single command. `portex
+                        share .` makes file sharing and static hosting effortless.</p>
                 </div>
-                <div class="feature-card">
+
+                <div class="feature-card animate-on-scroll" style="animation-delay: 0.2s">
                     <div class="feature-icon feature-icon-green">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
-                            <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
                         </svg>
                     </div>
-                    <h3 class="feature-title">Auto-Reconnect</h3>
-                    <p class="feature-description">Agents automatically reconnect on connection loss. Never worry about
-                        downtime again.</p>
+                    <h3 class="feature-title">Traffic Inspector</h3>
+                    <p class="feature-description">Real-time HTTP request logging with request/response capture. Replay
+                        requests or copy them as cURL with one click.</p>
                 </div>
-                <div class="feature-card">
+
+                <div class="feature-card animate-on-scroll">
                     <div class="feature-icon feature-icon-orange">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Scan to Test</h3>
+                    <p class="feature-description">The agent generates a QR code for every tunnel. Scan with your phone
+                        to test mobile responsiveness instantly.</p>
+                </div>
+
+                <div class="feature-card animate-on-scroll" style="animation-delay: 0.1s">
+                    <div class="feature-icon feature-icon-blue">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="2" y1="12" x2="22" y2="12"></line>
                             <path
-                                d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"
-                                stroke="currentColor" stroke-width="2" />
-                            <polyline points="3.27 6.96 12 12.01 20.73 6.96" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round" />
-                            <line x1="12" y1="22.08" x2="12" y2="12" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" />
+                                d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
+                            </path>
                         </svg>
                     </div>
-                    <h3 class="feature-title">Custom Domains</h3>
-                    <p class="feature-description">Use your own custom subdomains and domains. Brand your tunnels the
-                        way you want.</p>
+                    <h3 class="feature-title">Custom Subdomains</h3>
+                    <p class="feature-description">Reserve your own subdomains or connect custom domains. Your tunnels,
+                        your branding, your way.</p>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon feature-icon-blue">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                            <path d="M3 3v18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" />
-                            <path d="M18 17l-5-5-4 4-3-3" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                    </div>
-                    <h3 class="feature-title">Real-time Analytics</h3>
-                    <p class="feature-description">Track requests, response times, and tunnel usage in real-time with
-                        beautiful dashboards.</p>
-                </div>
-                <div class="feature-card">
+
+                <div class="feature-card animate-on-scroll" style="animation-delay: 0.2s">
                     <div class="feature-icon feature-icon-green">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                            <rect x="2" y="3" width="20" height="14" rx="2" stroke="currentColor"
-                                stroke-width="2" />
-                            <line x1="8" y1="21" x2="16" y2="21" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" />
-                            <line x1="12" y1="17" x2="12" y2="21" stroke="currentColor"
-                                stroke-width="2" />
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
                         </svg>
                     </div>
-                    <h3 class="feature-title">Beautiful Dashboard</h3>
-                    <p class="feature-description">Manage your tunnels with an intuitive, modern web interface.
-                        Everything at your fingertips.</p>
+                    <h3 class="feature-title">High Performance</h3>
+                    <p class="feature-description">Built with Go for maximum reliability. Handle high-traffic loads
+                        with minimal overhead and lightning-fast speeds.</p>
                 </div>
             </div>
         </div>
@@ -1225,22 +1249,25 @@
                 <div class="step">
                     <div class="step-number">03</div>
                     <div class="step-content">
-                        <h3 class="step-title">Start Tunneling</h3>
-                        <p class="step-description">Expose your local service to the internet with a single command.
-                            That's it!</p>
+                        <h3 class="step-title">Share Anything</h3>
+                        <p class="step-description">Need to share a static site or a file? Just use the share command
+                            to
+                            instantly host it.</p>
                         <div class="code-block">
                             <div class="code-header">
-                                <span class="code-lang">bash</span>
+                                <span class="code-lang">CLI</span>
                                 <button class="code-copy" onclick="copyCode(this)">
-                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                        <rect x="5" y="5" width="9" height="9" rx="1"
-                                            stroke="currentColor" stroke-width="1.5" />
-                                        <path d="M3 11V3a1 1 0 011-1h8" stroke="currentColor" stroke-width="1.5" />
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="9" y="9" width="13" height="13" rx="2"
+                                            ry="2"></rect>
+                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                                     </svg>
                                     Copy
                                 </button>
                             </div>
-                            <pre><code>portex start --port 3000 --subdomain myapp</code></pre>
+                            <pre><code>portex share ./my-site --subdomain dev</code></pre>
                         </div>
                     </div>
                 </div>
@@ -1269,6 +1296,18 @@
                     </div>
                 </div>
                 <div class="comparison-row">
+                    <div class="comparison-cell comparison-feature">PIN Protection</div>
+                    <div class="comparison-cell"><span class="check">✓</span></div>
+                    <div class="comparison-cell"><span class="cross">✗</span></div>
+                    <div class="comparison-cell"><span class="cross">✗</span></div>
+                </div>
+                <div class="comparison-row">
+                    <div class="comparison-cell comparison-feature">Mobile QR Testing</div>
+                    <div class="comparison-cell"><span class="check">✓</span></div>
+                    <div class="comparison-cell"><span class="cross">✗</span></div>
+                    <div class="comparison-cell"><span class="check">✓</span></div>
+                </div>
+                <div class="comparison-row">
                     <div class="comparison-cell comparison-feature">Self-hosted</div>
                     <div class="comparison-cell"><span class="check">✓</span></div>
                     <div class="comparison-cell"><span class="cross">✗</span></div>
@@ -1281,12 +1320,6 @@
                     <div class="comparison-cell"><span class="cross">✗</span></div>
                 </div>
                 <div class="comparison-row">
-                    <div class="comparison-cell comparison-feature">Custom domains</div>
-                    <div class="comparison-cell"><span class="check">✓</span></div>
-                    <div class="comparison-cell"><span class="check">✓</span></div>
-                    <div class="comparison-cell"><span class="check">✓</span></div>
-                </div>
-                <div class="comparison-row">
                     <div class="comparison-cell comparison-feature">Real-time analytics</div>
                     <div class="comparison-cell"><span class="check">✓</span></div>
                     <div class="comparison-cell"><span class="check">✓</span></div>
@@ -1294,12 +1327,6 @@
                 </div>
                 <div class="comparison-row">
                     <div class="comparison-cell comparison-feature">Open source</div>
-                    <div class="comparison-cell"><span class="check">✓</span></div>
-                    <div class="comparison-cell"><span class="cross">✗</span></div>
-                    <div class="comparison-cell"><span class="cross">✗</span></div>
-                </div>
-                <div class="comparison-row">
-                    <div class="comparison-cell comparison-feature">No bandwidth limits</div>
                     <div class="comparison-cell"><span class="check">✓</span></div>
                     <div class="comparison-cell"><span class="cross">✗</span></div>
                     <div class="comparison-cell"><span class="cross">✗</span></div>
@@ -1315,13 +1342,6 @@
                 <h2 class="cta-title">Ready to get started?</h2>
                 <p class="cta-description">Join thousands of developers using Portex to expose their local services</p>
                 <div class="cta-actions">
-                    <a href="{{ route('register') }}" class="btn btn-primary btn-large">
-                        Start for Free
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                    </a>
                     <a href="#how-it-works" class="btn btn-secondary btn-large">
                         Read Documentation
                     </a>

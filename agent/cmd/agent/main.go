@@ -377,46 +377,27 @@ var startCmd = &cobra.Command{
 		// Modern ngrok-style output
 		fmt.Println()
 		fmt.Println("\033[1;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m")
-		fmt.Println("\033[1;32m  Portex Agent - Tunnel Active\033[0m")
-		fmt.Println("\033[1;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m")
-		fmt.Println()
-		fmt.Printf("  \033[1mSession Status\033[0m                 online\n")
-		fmt.Printf("  \033[1mAccount\033[0m                        %s\n", cfg.Server.APIKey[:20]+"...")
+		// Clear screen and show modern minimal header
+		fmt.Print("\033[H\033[2J")
+		fmt.Println("\033[1;38;5;208m  PORTEX\033[0m \033[38;5;244m1.0.0\033[0m")
+		fmt.Println("\033[38;5;238m  ────────────────────────────────────────────────────────────\033[0m")
 
-		// Show tier
-		if usageStats.IsPremium {
-			fmt.Printf("  \033[1mTier\033[0m                           \033[1;33m✨ Premium\033[0m\n")
-		} else {
-			fmt.Printf("  \033[1mTier\033[0m                           Free\n")
-		}
-
-		fmt.Printf("  \033[1mVersion\033[0m                        1.0.0\n")
-		fmt.Println()
-
-		// Show usage stats for free tier
+		fmt.Printf("  \033[1mStatus\033[0m        \033[32mOnline\033[0m\n")
+		fmt.Printf("  \033[1mAccount\033[0m       \033[38;5;248m%s\033[0m\n", cfg.Server.APIKey[:15]+"...")
 		if !usageStats.IsPremium && usageStats.UsedFormatted != "" {
-			fmt.Println("  \033[1;33mUsage Today\033[0m")
-			fmt.Printf("  %s / %s used (\033[1m%.1f%%\033[0m)\n",
-				usageStats.UsedFormatted,
-				usageStats.LimitFormatted,
-				usageStats.PercentageUsed)
-
-			// Warning if close to limit
-			if usageStats.PercentageUsed >= 80 {
-				fmt.Printf("  \033[1;31m⚠️  %s remaining - Upgrade to Premium!\033[0m\n", usageStats.RemainingFormatted)
-			} else {
-				fmt.Printf("  %s remaining\n", usageStats.RemainingFormatted)
-			}
-			fmt.Println()
+			fmt.Printf("  \033[1mUsage\033[0m         \033[38;5;248m%s / %s (%.1f%%)\033[0m\n",
+				usageStats.UsedFormatted, usageStats.LimitFormatted, usageStats.PercentageUsed)
 		}
+		fmt.Println()
 
-		fmt.Println("  \033[1;33mForwarding\033[0m")
-		fmt.Printf("  %s \033[1;34m->\033[0m http://localhost:%d\n", tunnelResp.Tunnel.PublicURL, tunnelResp.Tunnel.LocalPort)
+		fmt.Println("  \033[1;38;5;208mACTIVE TUNNEL\033[0m")
+		fmt.Printf("  \033[1;37m%s\033[0m\n", tunnelResp.Tunnel.PublicURL)
+		fmt.Printf("  \033[38;5;244m↳ forwarding to http://localhost:%d\033[0m\n", tunnelResp.Tunnel.LocalPort)
 		fmt.Println()
 
 		// Show QR Code for mobile testing
 		if strings.HasPrefix(tunnelResp.Tunnel.PublicURL, "http") {
-			fmt.Println("  \033[1;33mScan for Mobile Testing\033[0m")
+			fmt.Println("  \033[1mSCAN FOR MOBILE\033[0m")
 			config := qrterminal.Config{
 				Level:     qrterminal.L,
 				Writer:    os.Stdout,
@@ -429,12 +410,12 @@ var startCmd = &cobra.Command{
 		}
 
 		if loginURL != "" {
-			fmt.Println("  \033[1;35mWeb Interface\033[0m")
-			fmt.Printf("  %s\n", loginURL)
+			fmt.Println("  \033[1mDASHBOARD\033[0m")
+			fmt.Printf("  \033[34m%s\033[0m\n", loginURL)
 			fmt.Println()
 		}
-		fmt.Println("\033[1;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m")
-		fmt.Println()
+
+		fmt.Println("\033[38;5;238m  ────────────────────────────────────────────────────────────\033[0m")
 		fmt.Println("\033[1;90m  Press Ctrl+C to stop\033[0m")
 		fmt.Println()
 		forwarderInst := forwarder.New(

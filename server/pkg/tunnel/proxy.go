@@ -123,6 +123,17 @@ func (h *ProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	//log.Printf("Proxied %s %s -> %s (status: %d, time: %v)", r.Method, r.URL.Path, subdomain, resp.StatusCode, duration)
 
+	// Limit body logging size to 100KB to avoid API failures with large files (like videos)
+	limit := 100 * 1024
+	reqBodyToLog := body
+	if len(reqBodyToLog) > limit {
+		reqBodyToLog = reqBodyToLog[:limit]
+	}
+	respBodyToLog := resp.Body
+	if len(respBodyToLog) > limit {
+		respBodyToLog = respBodyToLog[:limit]
+	}
+
 	// Async log to backend
 	go func() {
 		err := h.apiClient.LogRequest(
@@ -134,9 +145,9 @@ func (h *ProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			strings.Split(r.RemoteAddr, ":")[0],
 			r.UserAgent(),
 			headers,        // request_headers
-			body,           // request_body
+			reqBodyToLog,   // request_body
 			resp.Headers,   // response_headers
-			resp.Body,      // response_body
+			respBodyToLog,  // response_body
 			len(body),      // bytes_uploaded
 			len(resp.Body), // bytes_downloaded
 		)
