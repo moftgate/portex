@@ -4,312 +4,514 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portex - Secure Tunnel Service | ngrok Alternative</title>
+    <title>Portex - High-Speed Secure Tunneling | ngrok Alternative</title>
     <meta name="description"
-        content="Self-hosted tunnel service that exposes local services to the internet. Fast, secure, and easy to use. The perfect ngrok, bore, and localtunnel alternative.">
+        content="Securely expose your local services to the internet with Portex. High-performance, PIN-protected tunnels with live traffic inspection.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;800&display=swap"
         rel="stylesheet">
     <style>
-        /* ===== CSS Variables (Netbird-inspired colors) ===== */
         :root {
-            /* Primary Colors from Netbird */
-            --color-primary: #FF6B2C;
-            --color-secondary: #2D5BFF;
-            --color-accent: #00D4AA;
+            /* Netbird Palette */
+            --primary: #FF6B2C;
+            --primary-soft: rgba(255, 107, 44, 0.1);
+            --secondary: #2D5BFF;
+            --accent: #00D4AA;
 
-            /* Gradient variations */
-            --gradient-primary: linear-gradient(135deg, #FF6B2C 0%, #FF8F6B 100%);
-            --gradient-secondary: linear-gradient(135deg, #2D5BFF 0%, #5B7FFF 100%);
-            --gradient-accent: linear-gradient(135deg, #00D4AA 0%, #00F5C4 100%);
+            --bg: #FFFFFF;
+            --bg-muted: #F8F9FA;
+            --border: #E5E7EB;
 
-            /* Neutral colors */
-            --color-bg: #FFFFFF;
-            --color-bg-secondary: #F8F9FA;
-            --color-bg-tertiary: #F1F3F5;
-            --color-text: #1A1A1A;
-            --color-text-secondary: #6B7280;
-            --color-text-muted: #9CA3AF;
-            --color-border: #E5E7EB;
+            --text: #0F172A;
+            --text-muted: #64748B;
 
-            /* Spacing */
-            --spacing-xs: 0.5rem;
-            --spacing-sm: 1rem;
-            --spacing-md: 1.5rem;
-            --spacing-lg: 2rem;
-            --spacing-xl: 3rem;
-            --spacing-2xl: 4rem;
-            --spacing-3xl: 6rem;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
 
-            /* Typography */
-            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            --font-size-xs: 0.75rem;
-            --font-size-sm: 0.875rem;
-            --font-size-base: 1rem;
-            --font-size-lg: 1.125rem;
-            --font-size-xl: 1.25rem;
-            --font-size-2xl: 1.5rem;
-            --font-size-3xl: 2rem;
-            --font-size-4xl: 2.5rem;
-            --font-size-5xl: 3rem;
-
-            /* Border radius */
-            --radius-sm: 0.375rem;
-            --radius-md: 0.5rem;
-            --radius-lg: 0.75rem;
-            --radius-xl: 1rem;
-            --radius-2xl: 1.5rem;
-
-            /* Shadows */
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-
-            /* Transitions */
-            --transition-fast: 150ms ease;
-            --transition-base: 250ms ease;
-            --transition-slow: 350ms ease;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
 
-        /* ===== Reset & Base ===== */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        html {
-            scroll-behavior: smooth;
-        }
-
         body {
-            font-family: var(--font-family);
-            font-size: var(--font-size-base);
+            font-family: 'Inter', sans-serif;
+            color: var(--text);
+            background: var(--bg);
             line-height: 1.6;
-            color: var(--color-text);
-            background-color: var(--color-bg);
             -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
         }
 
-        /* ===== Container ===== */
+        h1,
+        h2,
+        h3,
+        .brand {
+            font-family: 'Outfit', sans-serif;
+        }
+
         .container {
-            max-width: 1280px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 0 var(--spacing-lg);
+            padding: 0 1.5rem;
         }
 
-        /* ===== Navigation ===== */
-        .nav {
+        /* --- Navigation --- */
+        nav {
             position: fixed;
             top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
+            width: 100%;
             background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--color-border);
-            transition: all var(--transition-base);
+            border-bottom: 1px solid var(--border);
+            z-index: 100;
         }
 
         .nav-content {
+            height: 72px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            height: 72px;
         }
 
-        .nav-logo {
+        .brand {
             display: flex;
             align-items: center;
-            gap: var(--spacing-sm);
-            font-size: var(--font-size-xl);
-            font-weight: 700;
-            color: var(--color-text);
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text);
             text-decoration: none;
         }
 
-        .nav-logo-text {
-            background: var(--gradient-primary);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        .brand-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--primary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            transform: rotate(-5deg);
         }
 
         .nav-links {
             display: flex;
             align-items: center;
-            gap: var(--spacing-md);
+            gap: 2rem;
         }
 
         .nav-link {
-            color: var(--color-text-secondary);
             text-decoration: none;
+            color: var(--text-muted);
+            font-size: 0.95rem;
             font-weight: 500;
-            font-size: var(--font-size-sm);
-            transition: color var(--transition-fast);
-            padding: var(--spacing-xs) var(--spacing-sm);
-            border-radius: var(--radius-md);
+            transition: color 0.2s;
         }
 
         .nav-link:hover {
-            color: var(--color-primary);
+            color: var(--primary);
         }
 
-        /* ===== Buttons ===== */
         .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: var(--spacing-xs);
-            padding: 0.625rem 1.25rem;
-            font-size: var(--font-size-sm);
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-lg);
             font-weight: 600;
             text-decoration: none;
-            border-radius: var(--radius-lg);
-            transition: all var(--transition-base);
-            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
             border: none;
-            white-space: nowrap;
+            cursor: pointer;
         }
 
         .btn-primary {
-            background: var(--gradient-primary);
+            background: var(--primary);
             color: white;
-            box-shadow: 0 4px 12px rgba(255, 107, 44, 0.25);
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(255, 107, 44, 0.35);
+            box-shadow: 0 10px 20px -5px rgba(255, 107, 44, 0.4);
         }
 
-        .btn-secondary {
-            background: var(--color-bg-secondary);
-            color: var(--color-text);
-            border: 1px solid var(--color-border);
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
         }
 
-        .btn-secondary:hover {
-            background: var(--color-bg-tertiary);
-            border-color: var(--color-text-muted);
+        .btn-outline:hover {
+            background: var(--bg-muted);
         }
 
-        .btn-large {
-            padding: 0.875rem 1.75rem;
-            font-size: var(--font-size-base);
-        }
-
-        /* ===== Hero Section ===== */
+        /* --- Hero --- */
         .hero {
-            padding-top: 140px;
-            padding-bottom: var(--spacing-3xl);
-            background: linear-gradient(180deg, #FFFFFF 0%, #F8F9FA 100%);
-        }
-
-        .hero-content {
-            max-width: 800px;
-            margin: 0 auto;
+            padding: 160px 0 100px;
             text-align: center;
+            background: radial-gradient(circle at 50% -20%, rgba(255, 107, 44, 0.08) 0%, transparent 60%);
         }
 
-        .hero-badge {
+        .pill-badge {
             display: inline-flex;
             align-items: center;
-            gap: var(--spacing-xs);
-            padding: 0.5rem 1rem;
-            background: var(--color-bg-secondary);
-            border: 1px solid var(--color-border);
-            border-radius: 999px;
-            font-size: var(--font-size-sm);
-            color: var(--color-text-secondary);
-            margin-bottom: var(--spacing-lg);
-            animation: fadeInUp 0.6s ease;
-        }
-
-        .badge-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--gradient-accent);
-            animation: pulse 2s ease infinite;
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.5;
-            }
-        }
-
-        .hero-title {
-            font-size: var(--font-size-5xl);
-            font-weight: 800;
-            line-height: 1.1;
-            margin-bottom: var(--spacing-md);
-            color: var(--color-text);
-            animation: fadeInUp 0.6s ease 0.1s backwards;
-        }
-
-        .gradient-text {
-            background: var(--gradient-primary);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .hero-description {
-            font-size: var(--font-size-xl);
-            color: var(--color-text-secondary);
-            margin-bottom: var(--spacing-xl);
-            line-height: 1.6;
-            animation: fadeInUp 0.6s ease 0.2s backwards;
-        }
-
-        .hero-actions {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: var(--spacing-md);
-            margin-bottom: var(--spacing-2xl);
-            animation: fadeInUp 0.6s ease 0.3s backwards;
-        }
-
-        .hero-stats {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: var(--spacing-2xl);
-            padding-top: var(--spacing-xl);
-            border-top: 1px solid var(--color-border);
-            animation: fadeInUp 0.6s ease 0.4s backwards;
-        }
-
-        .stat {
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: var(--font-size-3xl);
+            gap: 8px;
+            padding: 6px 16px;
+            background: var(--primary-soft);
+            color: var(--primary);
+            border-radius: 99px;
+            font-size: 0.85rem;
             font-weight: 700;
-            background: var(--gradient-primary);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: var(--spacing-xs);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
         }
 
-        .stat-label {
-            font-size: var(--font-size-sm);
-            color: var(--color-text-muted);
+        .hero h1 {
+            font-size: 4.5rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            line-height: 1;
+            margin-bottom: 1.5rem;
+            color: var(--text);
         }
 
+        .hero h1 span {
+            color: var(--primary);
+            position: relative;
+        }
+
+        .hero-desc {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            max-width: 650px;
+            margin: 0 auto 2.5rem;
+        }
+
+        /* --- Terminal --- */
+        .preview {
+            max-width: 900px;
+            margin: 4rem auto 0;
+            position: relative;
+        }
+
+        .terminal {
+            background: #1e1e1e;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            text-align: left;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .terminal-header {
+            padding: 12px 18px;
+            background: #2d2d2d;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .dot-r {
+            background: #ff5f56;
+        }
+
+        .dot-y {
+            background: #ffbd2e;
+        }
+
+        .dot-g {
+            background: #27c93f;
+        }
+
+        .terminal-body {
+            padding: 24px;
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+            font-size: 13px;
+        }
+
+        .t-line {
+            margin-bottom: 8px;
+            color: #d1d1d1;
+        }
+
+        .t-orange {
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .t-green {
+            color: var(--accent);
+        }
+
+        .t-muted {
+            color: #666;
+        }
+
+        .t-white {
+            color: #fff;
+            font-weight: bold;
+        }
+
+        /* --- Features --- */
+        .section-header {
+            text-align: center;
+            margin-bottom: 5rem;
+        }
+
+        .section-header h2 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        .features {
+            padding: 100px 0;
+            background: white;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .feature-card {
+            padding: 2.5rem;
+            background: var(--bg-muted);
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            background: white;
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+
+        .f-icon {
+            width: 56px;
+            height: 56px;
+            background: white;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+            color: var(--primary);
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card p {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        /* --- Steps --- */
+        .how {
+            padding: 120px 0;
+            background: var(--bg-muted);
+        }
+
+        .steps-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .step-item {
+            display: flex;
+            gap: 40px;
+            margin-bottom: 4rem;
+        }
+
+        .step-count {
+            width: 48px;
+            height: 48px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            flex-shrink: 0;
+            font-size: 1.25rem;
+        }
+
+        .step-item h3 {
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .step-item p {
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        .code-box {
+            background: white;
+            padding: 1.25rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            font-family: monospace;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .code-box span {
+            color: var(--primary);
+            font-weight: 600;
+            margin-right: 8px;
+        }
+
+        /* --- Comparison --- */
+        .table-wrap {
+            background: white;
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: var(--bg-muted);
+            padding: 24px;
+            text-align: left;
+            border-bottom: 2px solid var(--border);
+            font-weight: 800;
+            font-size: 1.1rem;
+        }
+
+        td {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+            font-weight: 500;
+        }
+
+        .check {
+            color: var(--accent);
+            font-weight: 800;
+        }
+
+        .cross {
+            color: #e5e7eb;
+        }
+
+        /* --- Footer --- */
+        footer {
+            padding: 100px 0 50px;
+            border-top: 1px solid var(--border);
+            background: white;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 60px;
+            margin-bottom: 80px;
+        }
+
+        .footer-logo-area p {
+            margin-top: 20px;
+            color: var(--text-muted);
+            max-width: 250px;
+        }
+
+        .footer-col h4 {
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+        }
+
+        .footer-links-list {
+            list-style: none;
+        }
+
+        .footer-links-list li {
+            margin-bottom: 15px;
+        }
+
+        .footer-links-list a {
+            text-decoration: none;
+            color: var(--text-muted);
+            transition: color 0.2s;
+        }
+
+        .footer-links-list a:hover {
+            color: var(--primary);
+        }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            padding-top: 30px;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 1024px) {
+            .hero h1 {
+                font-size: 3.5rem;
+            }
+
+            .feature-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .footer-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.75rem;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-desc {
+                font-size: 1.1rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+
+        /* Animations */
         @keyframes fadeInUp {
             from {
                 opacity: 0;
@@ -322,952 +524,169 @@
             }
         }
 
-        /* ===== Hero Visual (Terminal) ===== */
-        .hero-visual {
-            max-width: 900px;
-            margin: var(--spacing-3xl) auto 0;
-            animation: fadeInUp 0.8s ease 0.5s backwards;
-        }
-
-        .terminal-window {
-            background: #1A1A1A;
-            border-radius: var(--radius-xl);
-            overflow: hidden;
-            box-shadow: var(--shadow-xl);
-        }
-
-        .terminal-header {
-            display: flex;
-            align-items: center;
-            padding: var(--spacing-md);
-            background: #2A2A2A;
-            border-bottom: 1px solid #3A3A3A;
-        }
-
-        .terminal-buttons {
-            display: flex;
-            gap: var(--spacing-xs);
-        }
-
-        .terminal-button {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-        }
-
-        .terminal-button-red {
-            background: #FF5F56;
-        }
-
-        .terminal-button-yellow {
-            background: #FFBD2E;
-        }
-
-        .terminal-button-green {
-            background: #27C93F;
-        }
-
-        .terminal-title {
-            flex: 1;
-            text-align: center;
-            color: #8A8A8A;
-            font-size: var(--font-size-sm);
-            font-weight: 500;
-        }
-
-        .terminal-body {
-            padding: var(--spacing-lg);
-            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
-            font-size: 13px;
-            line-height: 1.6;
-        }
-
-        .terminal-line {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-sm);
-            margin-bottom: 8px;
+        .animate {
+            animation: fadeInUp 0.8s ease forwards;
             opacity: 0;
-            animation: terminalLine 0.3s ease forwards;
         }
 
-        .terminal-text {
-            color: #d1d1d1;
+        .delay-1 {
+            animation-delay: 0.2s;
         }
 
-        .terminal-orange {
-            color: #FF6B2C;
-            font-weight: bold;
+        .delay-2 {
+            animation-delay: 0.4s;
         }
 
-        .terminal-green {
-            color: #00D4AA;
-        }
-
-        .terminal-blue {
-            color: #2D5BFF;
-        }
-
-        .terminal-white {
-            color: #FFFFFF;
-            font-weight: bold;
-        }
-
-        .terminal-muted {
-            color: #8A8A8A;
-        }
-
-        @keyframes terminalLine {
-            to {
-                opacity: 1;
-            }
-        }
-
-        .terminal-cursor {
-            display: inline-block;
-            width: 8px;
-            height: 16px;
-            background: #FF6B2C;
-            animation: blink 1s step-end infinite;
-        }
-
-        @keyframes blink {
-            50% {
-                opacity: 0;
-            }
-        }
-
-        /* ===== Section Styles ===== */
-        section {
-            padding: var(--spacing-3xl) 0;
-        }
-
-        .section-header {
-            text-align: center;
-            max-width: 800px;
-            margin: 0 auto var(--spacing-2xl);
-        }
-
-        .section-title {
-            font-size: var(--font-size-4xl);
-            font-weight: 800;
-            margin-bottom: var(--spacing-md);
-            color: var(--color-text);
-        }
-
-        .section-description {
-            font-size: var(--font-size-lg);
-            color: var(--color-text-secondary);
-        }
-
-        /* ===== Features Section ===== */
-        .features {
-            background: var(--color-bg);
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: var(--spacing-lg);
-        }
-
-        .feature-card {
-            padding: var(--spacing-xl);
-            background: var(--color-bg-secondary);
-            border: 1px solid var(--color-border);
-            border-radius: var(--radius-xl);
-            transition: all var(--transition-base);
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        .feature-card.animate-in {
-            animation: fadeInUp 0.6s ease forwards;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-lg);
-            border-color: var(--color-primary);
-        }
-
-        .feature-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: var(--radius-lg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: var(--spacing-md);
-        }
-
-        .feature-icon-orange {
-            background: linear-gradient(135deg, rgba(255, 107, 44, 0.1) 0%, rgba(255, 143, 107, 0.1) 100%);
-            color: var(--color-primary);
-        }
-
-        .feature-icon-blue {
-            background: linear-gradient(135deg, rgba(45, 91, 255, 0.1) 0%, rgba(91, 127, 255, 0.1) 100%);
-            color: var(--color-secondary);
-        }
-
-        .feature-icon-green {
-            background: linear-gradient(135deg, rgba(0, 212, 170, 0.1) 0%, rgba(0, 245, 196, 0.1) 100%);
-            color: var(--color-accent);
-        }
-
-        .feature-title {
-            font-size: var(--font-size-xl);
-            font-weight: 700;
-            margin-bottom: var(--spacing-sm);
-            color: var(--color-text);
-        }
-
-        .feature-description {
-            color: var(--color-text-secondary);
-            line-height: 1.6;
-        }
-
-        /* ===== How It Works Section ===== */
-        .how-it-works {
-            background: var(--color-bg-secondary);
-        }
-
-        .steps {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        .step {
-            display: grid;
-            grid-template-columns: 80px 1fr;
-            gap: var(--spacing-xl);
-            margin-bottom: var(--spacing-2xl);
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        .step.animate-in {
-            animation: fadeInUp 0.6s ease forwards;
-        }
-
-        .step:last-child {
-            margin-bottom: 0;
-        }
-
-        .step-number {
-            font-size: var(--font-size-3xl);
-            font-weight: 800;
-            background: var(--gradient-primary);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .step-title {
-            font-size: var(--font-size-2xl);
-            font-weight: 700;
-            margin-bottom: var(--spacing-sm);
-            color: var(--color-text);
-        }
-
-        .step-description {
-            color: var(--color-text-secondary);
-            margin-bottom: var(--spacing-md);
-            line-height: 1.6;
-        }
-
-        .code-block {
-            background: #1A1A1A;
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-            box-shadow: var(--shadow-md);
-        }
-
-        .code-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: var(--spacing-sm) var(--spacing-md);
-            background: #2A2A2A;
-            border-bottom: 1px solid #3A3A3A;
-        }
-
-        .code-lang {
-            font-size: var(--font-size-xs);
-            color: #8A8A8A;
-            text-transform: uppercase;
-            font-weight: 600;
-            letter-spacing: 0.05em;
-        }
-
-        .code-copy {
-            display: flex;
-            align-items: center;
-            gap: 0.375rem;
-            padding: 0.375rem 0.75rem;
-            background: transparent;
-            border: 1px solid #3A3A3A;
-            border-radius: var(--radius-sm);
-            color: #8A8A8A;
-            font-size: var(--font-size-xs);
-            font-weight: 500;
-            cursor: pointer;
-            transition: all var(--transition-fast);
-        }
-
-        .code-copy:hover {
-            background: #3A3A3A;
-            color: #FFFFFF;
-        }
-
-        .code-block pre {
-            padding: var(--spacing-md);
-            margin: 0;
-            overflow-x: auto;
-        }
-
-        .code-block code {
-            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
-            font-size: var(--font-size-sm);
-            color: #FFFFFF;
-            line-height: 1.6;
-        }
-
-        /* ===== Comparison Section ===== */
-        .comparison {
-            background: var(--color-bg);
-        }
-
-        .comparison-table {
-            max-width: 900px;
-            margin: 0 auto;
-            background: var(--color-bg-secondary);
-            border: 1px solid var(--color-border);
-            border-radius: var(--radius-xl);
-            overflow: hidden;
-        }
-
-        .comparison-header {
-            display: grid;
-            grid-template-columns: 2fr repeat(3, 1fr);
-            gap: var(--spacing-md);
-            padding: var(--spacing-lg);
-            background: var(--color-bg-tertiary);
-            border-bottom: 2px solid var(--color-border);
-        }
-
-        .comparison-row {
-            display: grid;
-            grid-template-columns: 2fr repeat(3, 1fr);
-            gap: var(--spacing-md);
-            padding: var(--spacing-lg);
-            border-bottom: 1px solid var(--color-border);
-            transition: background var(--transition-fast);
-            opacity: 0;
-            transform: translateY(10px);
-        }
-
-        .comparison-row.animate-in {
-            animation: fadeInUp 0.4s ease forwards;
-        }
-
-        .comparison-row:last-child {
-            border-bottom: none;
-        }
-
-        .comparison-row:hover {
-            background: rgba(255, 107, 44, 0.03);
-        }
-
-        .comparison-cell {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .comparison-feature {
-            justify-content: flex-start;
-            font-weight: 600;
-            color: var(--color-text);
-        }
-
-        .comparison-logo {
-            font-weight: 700;
-            font-size: var(--font-size-lg);
-            background: var(--gradient-primary);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .comparison-logo-alt {
-            background: linear-gradient(135deg, #6B7280 0%, #9CA3AF 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .check {
-            color: var(--color-accent);
-            font-size: var(--font-size-xl);
-            font-weight: 700;
-        }
-
-        .cross {
-            color: var(--color-text-muted);
-            font-size: var(--font-size-xl);
-        }
-
-        /* ===== CTA Section ===== */
-        .cta {
-            background: linear-gradient(135deg, #FF6B2C 0%, #FF8F6B 100%);
-            color: white;
-        }
-
-        .cta-content {
-            text-align: center;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .cta-title {
-            font-size: var(--font-size-4xl);
-            font-weight: 800;
-            margin-bottom: var(--spacing-md);
-        }
-
-        .cta-description {
-            font-size: var(--font-size-xl);
-            margin-bottom: var(--spacing-xl);
-            opacity: 0.95;
-        }
-
-        .cta-actions {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: var(--spacing-md);
-        }
-
-        .cta .btn-primary {
-            background: white;
-            color: var(--color-primary);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .cta .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-        }
-
-        .cta .btn-secondary {
-            background: rgba(255, 255, 255, 0.15);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            backdrop-filter: blur(10px);
-        }
-
-        .cta .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.25);
-            border-color: rgba(255, 255, 255, 0.5);
-        }
-
-        /* ===== Footer ===== */
-        .footer {
-            background: var(--color-bg-secondary);
-            padding: var(--spacing-3xl) 0 var(--spacing-xl);
-        }
-
-        .footer-content {
-            display: grid;
-            grid-template-columns: 2fr 3fr;
-            gap: var(--spacing-2xl);
-            margin-bottom: var(--spacing-2xl);
-            padding-bottom: var(--spacing-2xl);
-            border-bottom: 1px solid var(--color-border);
-        }
-
-        .footer-logo {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-sm);
-            font-size: var(--font-size-xl);
-            font-weight: 700;
-            margin-bottom: var(--spacing-md);
-        }
-
-        .footer-logo span {
-            background: var(--gradient-primary);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .footer-tagline {
-            color: var(--color-text-secondary);
-            font-size: var(--font-size-sm);
-        }
-
-        .footer-links {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: var(--spacing-xl);
-        }
-
-        .footer-heading {
-            font-size: var(--font-size-sm);
-            font-weight: 700;
-            color: var(--color-text);
-            margin-bottom: var(--spacing-md);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .footer-link {
-            display: block;
-            color: var(--color-text-secondary);
-            text-decoration: none;
-            font-size: var(--font-size-sm);
-            margin-bottom: var(--spacing-sm);
-            transition: color var(--transition-fast);
-        }
-
-        .footer-link:hover {
-            color: var(--color-primary);
-        }
-
-        .footer-bottom {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .footer-copyright {
-            color: var(--color-text-muted);
-            font-size: var(--font-size-sm);
-        }
-
-        .footer-legal {
-            display: flex;
-            gap: var(--spacing-lg);
-        }
-
-        /* ===== Responsive Design ===== */
-        @media (max-width: 1024px) {
-            .hero-title {
-                font-size: var(--font-size-4xl);
-            }
-
-            .section-title {
-                font-size: var(--font-size-3xl);
-            }
-        }
-
-        @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-            }
-
-            .hero {
-                padding-top: 100px;
-            }
-
-            .hero-title {
-                font-size: var(--font-size-3xl);
-            }
-
-            .hero-description {
-                font-size: var(--font-size-lg);
-            }
-
-            .hero-actions {
-                flex-direction: column;
-                width: 100%;
-            }
-
-            .hero-actions .btn {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .hero-stats {
-                flex-direction: column;
-                gap: var(--spacing-lg);
-            }
-
-            .features-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .step {
-                grid-template-columns: 1fr;
-                gap: var(--spacing-md);
-            }
-
-            .comparison-header,
-            .comparison-row {
-                grid-template-columns: 1.5fr repeat(3, 1fr);
-                gap: var(--spacing-sm);
-                padding: var(--spacing-md);
-                font-size: var(--font-size-sm);
-            }
-
-            .comparison-logo {
-                font-size: var(--font-size-base);
-            }
-
-            .footer-content {
-                grid-template-columns: 1fr;
-            }
-
-            .footer-links {
-                grid-template-columns: 1fr;
-            }
-
-            .footer-bottom {
-                flex-direction: column;
-                gap: var(--spacing-md);
-                text-align: center;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 0 var(--spacing-md);
-            }
-
-            .hero-title {
-                font-size: var(--font-size-2xl);
-            }
-
-            .section-title {
-                font-size: var(--font-size-2xl);
-            }
-
-            .cta-title {
-                font-size: var(--font-size-2xl);
-            }
+        .delay-3 {
+            animation-delay: 0.6s;
         }
     </style>
 </head>
 
 <body>
-    <!-- Navigation -->
-    <nav class="nav">
-        <div class="container">
-            <div class="nav-content">
-                <div class="nav-logo">
-                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <rect width="32" height="32" rx="8" fill="url(#logo-gradient)" />
-                        <path d="M16 8L24 12V20L16 24L8 20V12L16 8Z" stroke="white" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M16 16L24 12M16 16L8 12M16 16V24" stroke="white" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round" />
-                        <defs>
-                            <linearGradient id="logo-gradient" x1="0" y1="0" x2="32"
-                                y2="32">
-                                <stop offset="0%" stop-color="#FF6B2C" />
-                                <stop offset="100%" stop-color="#FF8F6B" />
-                            </linearGradient>
-                        </defs>
-                    </svg>
-                    <span class="nav-logo-text">Portex</span>
-                </div>
-                <div class="nav-links">
-                    <a href="#features" class="nav-link">Features</a>
-                    <a href="#how-it-works" class="nav-link">How It Works</a>
-                    <a href="#comparison" class="nav-link">Comparison</a>
-                    @auth
-                        <a href="{{ route('dashboard') }}" class="btn btn-secondary">Dashboard</a>
-                    @else
-                        <a href="{{ route('login') }}" class="btn btn-secondary">Sign In</a>
-                    @endauth
-                </div>
+    <nav>
+        <div class="container nav-content">
+            <a href="/" class="brand">
+                <div class="brand-icon">P</div>
+                Portex
+            </a>
+            <div class="nav-links">
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#how-it-works" class="nav-link">Guide</a>
+                <a href="#comparison" class="nav-link">Comparison</a>
+            </div>
+            <div class="auth-btns">
+                @auth
+                    <a href="{{ route('dashboard') }}" class="btn btn-primary">Dashboard</a>
+                @else
+                    <a href="{{ route('login') }}" class="btn btn-outline">Sign In</a>
+                    <a href="{{ route('login') }}" class="btn btn-primary">Start Tunneling</a>
+                @endauth
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="hero">
+    <header class="hero">
         <div class="container">
-            <div class="hero-content">
-                <div class="hero-badge">
-                    <span class="badge-dot"></span>
-                    <span>Self-hosted tunnel service</span>
-                </div>
-                <h1 class="hero-title">
-                    Expose your local services
-                    <span class="gradient-text">to the internet</span>
-                </h1>
-                <p class="hero-description">
-                    Fast, secure, and easy-to-use tunnel service. The perfect alternative to ngrok, bore, and
-                    localtunnel.
-                    Built with Go for maximum performance and reliability.
-                </p>
-                <div class="hero-actions">
-                    <a href="#how-it-works" class="btn btn-secondary btn-large">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="2" />
-                            <path d="M10 10L13 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                        </svg>
-                        Watch Demo
-                    </a>
-                </div>
-                <div class="hero-stats">
-                    <div class="stat">
-                        <div class="stat-value">99.9%</div>
-                        <div class="stat-label">Uptime</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-value">&lt;50ms</div>
-                        <div class="stat-label">Latency</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-value">10K+</div>
-                        <div class="stat-label">Active Tunnels</div>
-                    </div>
-                </div>
+            <div class="pill-badge animate">Ngrok Alternative for Pro Developers</div>
+            <h1 class="animate delay-1">Expose local services <span>instantly</span><br>to the internet.</h1>
+            <p class="hero-desc animate delay-2">Create secure tunnels for your web apps, APIs, and webhooks. No
+                firewall setup, no complex configs. Just one command to go live.</p>
+            <div class="hero-actions animate delay-3">
+                <a href="#how-it-works" class="btn btn-primary btn-lg">Start Tunneling Now</a>
+                <a href="#solutions" class="btn btn-outline btn-lg">Explore Solutions</a>
             </div>
-            <div class="hero-visual">
-                <div class="terminal-body">
-                    <div class="terminal-line" style="animation-delay: 0.2s">
-                        <span class="terminal-green">$</span>
-                        <span class="terminal-command">portex share ./my-project --pin 1234</span>
+
+            <div class="preview animate delay-3">
+                <div class="terminal">
+                    <div class="terminal-header">
+                        <div class="dot dot-r"></div>
+                        <div class="dot dot-y"></div>
+                        <div class="dot dot-g"></div>
                     </div>
-                    <div class="terminal-line" style="animation-delay: 1s">
-                        <span
-                            class="terminal-muted">────────────────────────────────────────────────────────────</span>
-                    </div>
-                    <div class="terminal-line" style="animation-delay: 1.2s">
-                        <span class="terminal-orange"> PORTEX</span> <span class="terminal-muted">1.0.0</span>
-                    </div>
-                    <div class="terminal-line" style="animation-delay: 1.4s">
-                        <span class="terminal-muted">
-                            ────────────────────────────────────────────────────────────</span>
-                    </div>
-                    <div class="terminal-line" style="animation-delay: 1.6s">
-                        <span class="terminal-text"> Status </span> <span class="terminal-green">Online</span>
-                    </div>
-                    <div class="terminal-line" style="animation-delay: 1.8s">
-                        <span class="terminal-text"> Account </span> <span
-                            class="terminal-muted">pk_Zb5gs02XP8mC...</span>
-                    </div>
-                    <div class="terminal-line" style="animation-delay: 2s">
-                        <span class="terminal-text"> Usage </span> <span class="terminal-muted">1h 45m / 3h 0m
-                            (58.3%)</span>
-                    </div>
-                    <div class="terminal-line" style="animation-delay: 2.2s">
-                        <span class="terminal-muted"> </span>
-                    </div>
-                    <div class="terminal-line" style="animation-delay: 2.4s">
-                        <span class="terminal-orange"> ACTIVE TUNNEL</span>
-                    </div>
-                    <div class="terminal-line" style="animation-delay: 2.6s">
-                        <span class="terminal-white"> https://my-project.portex.space</span>
-                    </div>
-                    <div class="terminal-line" style="animation-delay: 2.8s">
-                        <span class="terminal-muted"> ↳ forwarding to internal local server</span>
-                    </div>
-                    <div class="terminal-line" style="animation-delay: 3s">
-                        <span class="terminal-muted"> </span>
-                    </div>
-                    <div class="terminal-line" style="animation-delay: 3.2s">
-                        <span class="terminal-text"> </span> <span class="terminal-white">SCAN FOR MOBILE</span>
-                    </div>
-                    <div class="terminal-line" style="animation-delay: 3.4s">
-                        <span class="terminal-muted"> [ QR Code Generated ]</span>
-                    </div>
-                    <div class="terminal-line" style="animation-delay: 3.6s">
-                        <span class="terminal-muted"> </span>
-                    </div>
-                    <div class="terminal-line" style="animation-delay: 3.8s">
-                        <span class="terminal-muted">
-                            ────────────────────────────────────────────────────────────</span>
-                    </div>
-                    <div class="terminal-line" style="animation-delay: 4s">
-                        <span class="terminal-muted"> Press Ctrl+C to stop</span>
-                    </div>
-                    <div class="terminal-line" style="animation-delay: 4.2s">
-                        <span class="terminal-cursor"></span>
+                    <div class="terminal-body">
+                        <div class="t-line">$ portex start --port 8000 --subdomain myapp --pin 1234</div>
+                        <div class="t-line t-muted">────────────────────────────────────────────────────────────</div>
+                        <div class="t-line"><span class="t-orange"> PORTEX</span> <span class="t-muted">1.0.0</span>
+                        </div>
+                        <div class="t-line t-muted"> ────────────────────────────────────────────────────────────</div>
+                        <div class="t-line"> Status <span class="t-green">Online</span></div>
+                        <div class="t-line"> Account <span class="t-muted">pk_aras_prod_...</span></div>
+                        <div class="t-line"> Usage <span class="t-muted">1h 45m / 3h 0m (58.3%)</span></div>
+                        <div class="t-line"></div>
+                        <div class="t-line t-orange"> ACTIVE TUNNEL</div>
+                        <div class="t-line t-white"> https://myapp.portex.space</div>
+                        <div class="t-line t-muted"> ↳ forwarding to http://localhost:8000</div>
+                        <div class="t-line"></div>
+                        <div class="t-line t-white"> SCAN FOR MOBILE</div>
+                        <div class="t-line t-muted"> [ QR CODE GENERATED ]</div>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </header>
 
-    <!-- Features Section -->
     <section id="features" class="features">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">Built for developers, <span class="gradient-text">by developers</span></h2>
-                <p class="section-description">Everything you need to expose your local services securely and
-                    efficiently</p>
+                <h2>Why Developers Love Portex</h2>
+                <p class="hero-desc">Experience the next generation of secure local service sharing.</p>
             </div>
-            <div class="features-grid">
-                <div class="feature-card animate-on-scroll">
-                    <div class="feature-icon feature-icon-orange">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="feature-title">PIN Protection</h3>
-                    <p class="feature-description">Secure your tunnels with a 4-digit PIN. Perfect for private demos,
-                        client reviews, or sensitive internal tools.</p>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="f-icon">🌐</div>
+                    <h3>Webhook Testing</h3>
+                    <p>Receive webhooks from Stripe, GitHub, or Shopify directly on your local dev environment.</p>
                 </div>
-
-                <div class="feature-card animate-on-scroll" style="animation-delay: 0.1s">
-                    <div class="feature-icon feature-icon-blue">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                            <line x1="12" y1="8" x2="12" y2="16"></line>
-                            <line x1="8" y1="12" x2="16" y2="12"></line>
-                        </svg>
-                    </div>
-                    <h3 class="feature-title">Fast Directory Sharing</h3>
-                    <p class="feature-description">Instantly host any local directory with a single command. `portex
-                        share .` makes file sharing and static hosting effortless.</p>
+                <div class="feature-card">
+                    <div class="f-icon">�</div>
+                    <h3>PIN-Bound Security</h3>
+                    <p>The only tunnel service with session-based PIN protection to keep your previews private.</p>
                 </div>
-
-                <div class="feature-card animate-on-scroll" style="animation-delay: 0.2s">
-                    <div class="feature-icon feature-icon-green">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
-                        </svg>
-                    </div>
-                    <h3 class="feature-title">Traffic Inspector</h3>
-                    <p class="feature-description">Real-time HTTP request logging with request/response capture. Replay
-                        requests or copy them as cURL with one click.</p>
+                <div class="feature-card">
+                    <div class="f-icon">�</div>
+                    <h3>Ephemeral Tunnels</h3>
+                    <p>Start a tunnel for a quick demo and vanish instantly. No persistent footprints left behind.</p>
                 </div>
-
-                <div class="feature-card animate-on-scroll">
-                    <div class="feature-icon feature-icon-orange">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                        </svg>
-                    </div>
-                    <h3 class="feature-title">Scan to Test</h3>
-                    <p class="feature-description">The agent generates a QR code for every tunnel. Scan with your phone
-                        to test mobile responsiveness instantly.</p>
+                <div class="feature-card">
+                    <div class="f-icon">⚡</div>
+                    <h3>High Performance</h3>
+                    <p>Portex is optimized for low-latency TCP forwarding, ensuring your APIs respond instantly.</p>
                 </div>
-
-                <div class="feature-card animate-on-scroll" style="animation-delay: 0.1s">
-                    <div class="feature-icon feature-icon-blue">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <line x1="2" y1="12" x2="22" y2="12"></line>
-                            <path
-                                d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
-                            </path>
-                        </svg>
-                    </div>
-                    <h3 class="feature-title">Custom Subdomains</h3>
-                    <p class="feature-description">Reserve your own subdomains or connect custom domains. Your tunnels,
-                        your branding, your way.</p>
+                <div class="feature-card">
+                    <div class="f-icon">�</div>
+                    <h3>Static Hosting</h3>
+                    <p>Need to share a build? Host any directory as a live site with a single `share` command.</p>
                 </div>
-
-                <div class="feature-card animate-on-scroll" style="animation-delay: 0.2s">
-                    <div class="feature-icon feature-icon-green">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-                        </svg>
-                    </div>
-                    <h3 class="feature-title">High Performance</h3>
-                    <p class="feature-description">Built with Go for maximum reliability. Handle high-traffic loads
-                        with minimal overhead and lightning-fast speeds.</p>
+                <div class="feature-card">
+                    <div class="f-icon">📊</div>
+                    <h3>Deep Inspection</h3>
+                    <p>Inspect every request and response in detail. Replay or copy requests as cURL with ease.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- How It Works Section -->
-    <section id="how-it-works" class="how-it-works">
+    <section id="how-it-works" class="how">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">Get started in <span class="gradient-text">3 simple steps</span></h2>
-                <p class="section-description">From zero to production in minutes</p>
+                <h2>Getting Started</h2>
+                <p class="hero-desc">From terminal to global in seconds.</p>
             </div>
-            <div class="steps">
-                <div class="step">
-                    <div class="step-number">01</div>
-                    <div class="step-content">
-                        <h3 class="step-title">Install the Agent</h3>
-                        <p class="step-description">Download and install the Portex agent on your machine. Available
-                            for macOS, Linux, and Windows.</p>
-                        <div class="code-block">
-                            <div class="code-header">
-                                <span class="code-lang">bash</span>
-                                <button class="code-copy" onclick="copyCode(this)">
-                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                        <rect x="5" y="5" width="9" height="9" rx="1"
-                                            stroke="currentColor" stroke-width="1.5" />
-                                        <path d="M3 11V3a1 1 0 011-1h8" stroke="currentColor" stroke-width="1.5" />
-                                    </svg>
-                                    Copy
-                                </button>
-                            </div>
-                            <pre><code>curl -L https://portex.space/install.sh | bash</code></pre>
+
+            <div class="steps-container">
+                <div class="step-item">
+                    <div class="step-count">1</div>
+                    <div>
+                        <h3>Download & Install</h3>
+                        <p>Get the Portex binary for macOS, Linux, or Windows and add it to your PATH.</p>
+                        <div class="code-box">
+                            <div><span>$</span> curl -fsSL https://portex.space/install.sh | bash</div>
                         </div>
                     </div>
                 </div>
-                <div class="step">
-                    <div class="step-number">02</div>
-                    <div class="step-content">
-                        <h3 class="step-title">Authenticate</h3>
-                        <p class="step-description">Connect your agent to the Portex server using your API credentials
-                            from the dashboard.</p>
-                        <div class="code-block">
-                            <div class="code-header">
-                                <span class="code-lang">bash</span>
-                                <button class="code-copy" onclick="copyCode(this)">
-                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                        <rect x="5" y="5" width="9" height="9" rx="1"
-                                            stroke="currentColor" stroke-width="1.5" />
-                                        <path d="M3 11V3a1 1 0 011-1h8" stroke="currentColor" stroke-width="1.5" />
-                                    </svg>
-                                    Copy
-                                </button>
-                            </div>
-                            <pre><code>portex auth --api-key YOUR_KEY --api-secret YOUR_SECRET</code></pre>
+
+                <div class="step-item">
+                    <div class="step-count">2</div>
+                    <div>
+                        <h3>Link Account</h3>
+                        <p>Connect your agent to the dashboard using the browser or API keys.</p>
+                        <div class="code-box">
+                            <div><span>$</span> portex login</div>
                         </div>
                     </div>
                 </div>
-                <div class="step">
-                    <div class="step-number">03</div>
-                    <div class="step-content">
-                        <h3 class="step-title">Share Anything</h3>
-                        <p class="step-description">Need to share a static site or a file? Just use the share command
-                            to
-                            instantly host it.</p>
-                        <div class="code-block">
-                            <div class="code-header">
-                                <span class="code-lang">CLI</span>
-                                <button class="code-copy" onclick="copyCode(this)">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
-                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                        stroke-linecap="round" stroke-linejoin="round">
-                                        <rect x="9" y="9" width="13" height="13" rx="2"
-                                            ry="2"></rect>
-                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                                    </svg>
-                                    Copy
-                                </button>
-                            </div>
-                            <pre><code>portex share ./my-site --subdomain dev</code></pre>
+
+                <div class="step-item">
+                    <div class="step-count">3</div>
+                    <div>
+                        <h3>Go Live</h3>
+                        <p>Start a tunnel for a local port or share an entire directory.</p>
+                        <div class="code-box" style="margin-bottom: 20px;">
+                            <div><span>$</span> portex start -p 8080 --pin 1234</div>
+                        </div>
+                        <div class="code-box">
+                            <div><span>$</span> portex share ./dist -s my-site</div>
                         </div>
                     </div>
                 </div>
@@ -1275,190 +694,101 @@
         </div>
     </section>
 
-    <!-- Comparison Section -->
-    <section id="comparison" class="comparison">
+    <section id="comparison" class="features" style="background: var(--bg-muted);">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">Why choose <span class="gradient-text">Portex</span>?</h2>
-                <p class="section-description">See how we compare to other tunnel services</p>
+                <h2>Better Than The Rest</h2>
+                <p class="hero-desc">How Portex stacks up against traditional tunnel services.</p>
             </div>
-            <div class="comparison-table">
-                <div class="comparison-header">
-                    <div class="comparison-cell"></div>
-                    <div class="comparison-cell">
-                        <div class="comparison-logo">Portex</div>
-                    </div>
-                    <div class="comparison-cell">
-                        <div class="comparison-logo comparison-logo-alt">ngrok</div>
-                    </div>
-                    <div class="comparison-cell">
-                        <div class="comparison-logo comparison-logo-alt">Pinggy</div>
-                    </div>
-                </div>
-                <div class="comparison-row">
-                    <div class="comparison-cell comparison-feature">PIN Protection</div>
-                    <div class="comparison-cell"><span class="check">✓</span></div>
-                    <div class="comparison-cell"><span class="cross">✗</span></div>
-                    <div class="comparison-cell"><span class="cross">✗</span></div>
-                </div>
-                <div class="comparison-row">
-                    <div class="comparison-cell comparison-feature">Mobile QR Testing</div>
-                    <div class="comparison-cell"><span class="check">✓</span></div>
-                    <div class="comparison-cell"><span class="cross">✗</span></div>
-                    <div class="comparison-cell"><span class="check">✓</span></div>
-                </div>
-                <div class="comparison-row">
-                    <div class="comparison-cell comparison-feature">Self-hosted</div>
-                    <div class="comparison-cell"><span class="check">✓</span></div>
-                    <div class="comparison-cell"><span class="cross">✗</span></div>
-                    <div class="comparison-cell"><span class="cross">✗</span></div>
-                </div>
-                <div class="comparison-row">
-                    <div class="comparison-cell comparison-feature">Unlimited tunnels</div>
-                    <div class="comparison-cell"><span class="check">✓</span></div>
-                    <div class="comparison-cell"><span class="cross">✗</span></div>
-                    <div class="comparison-cell"><span class="cross">✗</span></div>
-                </div>
-                <div class="comparison-row">
-                    <div class="comparison-cell comparison-feature">Real-time analytics</div>
-                    <div class="comparison-cell"><span class="check">✓</span></div>
-                    <div class="comparison-cell"><span class="check">✓</span></div>
-                    <div class="comparison-cell"><span class="cross">✗</span></div>
-                </div>
-                <div class="comparison-row">
-                    <div class="comparison-cell comparison-feature">Open source</div>
-                    <div class="comparison-cell"><span class="check">✓</span></div>
-                    <div class="comparison-cell"><span class="cross">✗</span></div>
-                    <div class="comparison-cell"><span class="cross">✗</span></div>
-                </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Portex</th>
+                            <th>ngrok</th>
+                            <th>Pinggy</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Static File Sharing</td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="check">✓</span></td>
+                        </tr>
+                        <tr>
+                            <td>PIN Protection</td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="cross">✗</span></td>
+                        </tr>
+                        <tr>
+                            <td>QR Mobile Testing</td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="check">✓</span></td>
+                        </tr>
+                        <tr>
+                            <td>Copy as cURL</td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="cross">✗</span></td>
+                        </tr>
+                        <tr>
+                            <td>Self-Hosted Ready</td>
+                            <td><span class="check">✓</span></td>
+                            <td><span class="cross">✗</span></td>
+                            <td><span class="cross">✗</span></td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </section>
 
-    <!-- CTA Section -->
-    <section class="cta">
+    <footer>
         <div class="container">
-            <div class="cta-content">
-                <h2 class="cta-title">Ready to get started?</h2>
-                <p class="cta-description">Join thousands of developers using Portex to expose their local services</p>
-                <div class="cta-actions">
-                    <a href="#how-it-works" class="btn btn-secondary btn-large">
-                        Read Documentation
+            <div class="footer-grid">
+                <div class="footer-logo-area">
+                    <a href="/" class="brand">
+                        <div class="brand-icon">P</div>
+                        Portex
                     </a>
+                    <p>The secure way to share your local environment with the world.</p>
                 </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-brand">
-                    <div class="footer-logo">
-                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <rect width="32" height="32" rx="8" fill="url(#footer-logo-gradient)" />
-                            <path d="M16 8L24 12V20L16 24L8 20V12L16 8Z" stroke="white" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round" />
-                            <path d="M16 16L24 12M16 16L8 12M16 16V24" stroke="white" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round" />
-                            <defs>
-                                <linearGradient id="footer-logo-gradient" x1="0" y1="0"
-                                    x2="32" y2="32">
-                                    <stop offset="0%" stop-color="#FF6B2C" />
-                                    <stop offset="100%" stop-color="#FF8F6B" />
-                                </linearGradient>
-                            </defs>
-                        </svg>
-                        <span>Portex</span>
-                    </div>
-                    <p class="footer-tagline">Fast, secure, and self-hosted tunnel service</p>
+                <div class="footer-col">
+                    <h4>Product</h4>
+                    <ul class="footer-links-list">
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#how-it-works">Guide</a></li>
+                        <li><a href="#comparison">Pricing</a></li>
+                    </ul>
                 </div>
-                <div class="footer-links">
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Product</h4>
-                        <a href="#features" class="footer-link">Features</a>
-                        <a href="{{ route('dashboard') }}" class="footer-link">Dashboard</a>
-                        <a href="#how-it-works" class="footer-link">Documentation</a>
-                    </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Company</h4>
-                        <a href="#" class="footer-link">About</a>
-                        <a href="#" class="footer-link">Blog</a>
-                        <a href="#" class="footer-link">Contact</a>
-                    </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Resources</h4>
-                        <a href="#" class="footer-link">Community</a>
-                        <a href="#" class="footer-link">Support</a>
-                        <a href="#" class="footer-link">GitHub</a>
-                    </div>
+                <div class="footer-col">
+                    <h4>Security</h4>
+                    <ul class="footer-links-list">
+                        <li><a href="#">Ephemeral Sessions</a></li>
+                        <li><a href="#">Traffic Privacy</a></li>
+                        <li><a href="#">Reporting</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Company</h4>
+                    <ul class="footer-links-list">
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Contact</a></li>
+                        <li><a href="#">Support</a></li>
+                    </ul>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p class="footer-copyright">© 2024 Portex. All rights reserved.</p>
-                <div class="footer-legal">
-                    <a href="#" class="footer-link">Privacy Policy</a>
-                    <a href="#" class="footer-link">Terms of Service</a>
-                </div>
+                <p>&copy; 2024 Portex Space. All rights reserved.</p>
+                <p>Designed with ❤️ for developers.</p>
             </div>
         </div>
     </footer>
-
-    <script>
-        // Smooth scroll
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
-
-        // Copy code functionality
-        function copyCode(button) {
-            const codeBlock = button.closest('.code-block');
-            const code = codeBlock.querySelector('code').textContent;
-            navigator.clipboard.writeText(code).then(() => {
-                button.innerHTML =
-                    '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13.5 4.5L6 12L2.5 8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Copied!';
-                setTimeout(() => {
-                    button.innerHTML =
-                        '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="5" y="5" width="9" height="9" rx="1" stroke="currentColor" stroke-width="1.5"/><path d="M3 11V3a1 1 0 011-1h8" stroke="currentColor" stroke-width="1.5"/></svg>Copy';
-                }, 2000);
-            });
-        }
-
-        // Terminal animation
-        const terminalLines = document.querySelectorAll('.terminal-line');
-        terminalLines.forEach((line, index) => {
-            line.style.animationDelay = `${index * 0.3}s`;
-        });
-
-        // Intersection Observer for animations
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('animate-in');
-                }
-            });
-        }, observerOptions);
-
-        document.querySelectorAll('.feature-card, .step, .comparison-row').forEach(el => {
-            observer.observe(el);
-        });
-    </script>
 </body>
 
 </html>
