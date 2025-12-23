@@ -304,12 +304,19 @@
                     <li><a href="{{ route('docs.architecture') }}"
                             class="{{ request()->routeIs('docs.architecture') ? 'active' : '' }}">How it Works</a>
                     </li>
+
                 </ul>
 
                 <h4>Resources</h4>
                 <ul>
                     <li><a href="{{ route('docs.troubleshooting') }}"
                             class="{{ request()->routeIs('docs.troubleshooting') ? 'active' : '' }}">Troubleshooting</a>
+                    </li>
+                    <li><a href="{{ route('docs.pricing') }}"
+                            class="{{ request()->routeIs('docs.pricing') ? 'active' : '' }}">Pricing</a>
+                    </li>
+                    <li><a href="{{ route('docs.changelog') }}"
+                            class="{{ request()->routeIs('docs.changelog') ? 'active' : '' }}">Changelog</a>
                     </li>
                     <li><a href="{{ route('docs.roadmap') }}"
                             class="{{ request()->routeIs('docs.roadmap') ? 'active' : '' }}">Roadmap</a>
