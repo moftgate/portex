@@ -250,91 +250,94 @@
             }
         }
     </style>
+
+    <script defer src="https://cloud.umami.is/script.js"
+            data-website-id="269e123b-a36d-485b-bec5-378554421aa9"></script>
 </head>
 
 <body>
-    <nav>
-        <div class="container nav-inner">
-            <a href="/" class="logo">
-                <svg width="24" height="24" viewBox="0 0 32 32" fill="none"
-                    xmlns="http://www.w3.org/2000/svg">
-                    <rect x="2" y="2" width="28" height="28" rx="8" fill="#0F172A" />
-                    <circle cx="16" cy="16" r="6" stroke="#FF6B2C" stroke-width="3" />
-                    <path d="M22 16H27" stroke="#FF6B2C" stroke-width="3" stroke-linecap="round" />
-                </svg>
-                Portex
-            </a>
-            <div class="nav-links" style="display: flex; gap: 20px; align-items: center;">
-                <a href="https://github.com/orgs/portex-space/repositories" target="_blank"
-                    style="text-decoration: none; color: var(--slate); font-weight: 500; font-size: 14px;">GitHub</a>
-                <a href="/"
-                    style="text-decoration: none; color: var(--slate); font-weight: 500; font-size: 14px;">Back to
-                    Home</a>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container">
-        <div class="docs-layout">
-            <aside class="sidebar">
-                <h4>Getting Started</h4>
-                <ul>
-                    <li><a href="{{ route('docs.index') }}"
-                            class="{{ request()->routeIs('docs.index') ? 'active' : '' }}">Introduction</a></li>
-                    <li><a href="{{ route('docs.installation') }}"
-                            class="{{ request()->routeIs('docs.installation') ? 'active' : '' }}">Installation</a></li>
-                </ul>
-
-                <h4>Usage</h4>
-                <ul>
-                    <li><a href="{{ route('docs.commands') }}"
-                            class="{{ request()->routeIs('docs.commands') ? 'active' : '' }}">CLI Commands Guide</a>
-                    </li>
-                    <li><a href="{{ route('docs.security') }}"
-                            class="{{ request()->routeIs('docs.security') ? 'active' : '' }}">Security & PINs</a></li>
-                    <li><a href="{{ route('docs.use-cases') }}"
-                            class="{{ request()->routeIs('docs.use-cases') ? 'active' : '' }}">Use Cases</a></li>
-                </ul>
-
-                <h4>Advanced</h4>
-                <ul>
-                    <li><a href="{{ route('docs.dashboard') }}"
-                            class="{{ request()->routeIs('docs.dashboard') ? 'active' : '' }}">Monitoring & Logs</a>
-                    </li>
-                    <li><a href="{{ route('docs.architecture') }}"
-                            class="{{ request()->routeIs('docs.architecture') ? 'active' : '' }}">How it Works</a>
-                    </li>
-
-                </ul>
-
-                <h4>Resources</h4>
-                <ul>
-                    <li><a href="{{ route('docs.troubleshooting') }}"
-                            class="{{ request()->routeIs('docs.troubleshooting') ? 'active' : '' }}">Troubleshooting</a>
-                    </li>
-                    <li><a href="{{ route('docs.pricing') }}"
-                            class="{{ request()->routeIs('docs.pricing') ? 'active' : '' }}">Pricing</a>
-                    </li>
-                    <li><a href="{{ route('docs.changelog') }}"
-                            class="{{ request()->routeIs('docs.changelog') ? 'active' : '' }}">Changelog</a>
-                    </li>
-                    <li><a href="{{ route('docs.roadmap') }}"
-                            class="{{ request()->routeIs('docs.roadmap') ? 'active' : '' }}">Roadmap</a>
-                    </li>
-                </ul>
-            </aside>
-
-            <main class="content">
-                @yield('content')
-            </main>
+<nav>
+    <div class="container nav-inner">
+        <a href="/" class="logo">
+            <svg width="24" height="24" viewBox="0 0 32 32" fill="none"
+                 xmlns="http://www.w3.org/2000/svg">
+                <rect x="2" y="2" width="28" height="28" rx="8" fill="#0F172A"/>
+                <circle cx="16" cy="16" r="6" stroke="#FF6B2C" stroke-width="3"/>
+                <path d="M22 16H27" stroke="#FF6B2C" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+            Portex
+        </a>
+        <div class="nav-links" style="display: flex; gap: 20px; align-items: center;">
+            <a href="https://github.com/orgs/portex-space/repositories" target="_blank"
+               style="text-decoration: none; color: var(--slate); font-weight: 500; font-size: 14px;">GitHub</a>
+            <a href="/"
+               style="text-decoration: none; color: var(--slate); font-weight: 500; font-size: 14px;">Back to
+                Home</a>
         </div>
     </div>
+</nav>
 
-    <footer>
-        <div class="container">
-            <p>&copy; 2025 Portex Project. Open source and developer-focused.</p>
-        </div>
-    </footer>
+<div class="container">
+    <div class="docs-layout">
+        <aside class="sidebar">
+            <h4>Getting Started</h4>
+            <ul>
+                <li><a href="{{ route('docs.index') }}"
+                       class="{{ request()->routeIs('docs.index') ? 'active' : '' }}">Introduction</a></li>
+                <li><a href="{{ route('docs.installation') }}"
+                       class="{{ request()->routeIs('docs.installation') ? 'active' : '' }}">Installation</a></li>
+            </ul>
+
+            <h4>Usage</h4>
+            <ul>
+                <li><a href="{{ route('docs.commands') }}"
+                       class="{{ request()->routeIs('docs.commands') ? 'active' : '' }}">CLI Commands Guide</a>
+                </li>
+                <li><a href="{{ route('docs.security') }}"
+                       class="{{ request()->routeIs('docs.security') ? 'active' : '' }}">Security & PINs</a></li>
+                <li><a href="{{ route('docs.use-cases') }}"
+                       class="{{ request()->routeIs('docs.use-cases') ? 'active' : '' }}">Use Cases</a></li>
+            </ul>
+
+            <h4>Advanced</h4>
+            <ul>
+                <li><a href="{{ route('docs.dashboard') }}"
+                       class="{{ request()->routeIs('docs.dashboard') ? 'active' : '' }}">Monitoring & Logs</a>
+                </li>
+                <li><a href="{{ route('docs.architecture') }}"
+                       class="{{ request()->routeIs('docs.architecture') ? 'active' : '' }}">How it Works</a>
+                </li>
+
+            </ul>
+
+            <h4>Resources</h4>
+            <ul>
+                <li><a href="{{ route('docs.troubleshooting') }}"
+                       class="{{ request()->routeIs('docs.troubleshooting') ? 'active' : '' }}">Troubleshooting</a>
+                </li>
+                {{-- <li><a href="{{ route('docs.pricing') }}"
+                        class="{{ request()->routeIs('docs.pricing') ? 'active' : '' }}">Pricing</a>
+                 </li>--}}
+                <li><a href="{{ route('docs.changelog') }}"
+                       class="{{ request()->routeIs('docs.changelog') ? 'active' : '' }}">Changelog</a>
+                </li>
+                <li><a href="{{ route('docs.roadmap') }}"
+                       class="{{ request()->routeIs('docs.roadmap') ? 'active' : '' }}">Roadmap</a>
+                </li>
+            </ul>
+        </aside>
+
+        <main class="content">
+            @yield('content')
+        </main>
+    </div>
+</div>
+
+<footer>
+    <div class="container">
+        <p>&copy; 2025 Portex Project. Open source and developer-focused.</p>
+    </div>
+</footer>
 </body>
 
 </html>

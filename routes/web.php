@@ -12,6 +12,8 @@ Route::get('/', function () {
 Route::prefix('solutions')->group(function () {
     Route::view('/webhooks', 'solutions.webhooks')->name('solutions.webhooks');
     Route::view('/mobile', 'solutions.mobile')->name('solutions.mobile');
+    Route::view('/static', 'solutions.static')->name('solutions.static');
+    Route::view('/ci-cd', 'solutions.ci-cd')->name('solutions.ci-cd');
 });
 
 Route::prefix('docs')->group(function () {

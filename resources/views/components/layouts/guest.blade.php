@@ -30,27 +30,30 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
     </style>
+
+    <script defer src="https://cloud.umami.is/script.js"
+            data-website-id="269e123b-a36d-485b-bec5-378554421aa9"></script>
 </head>
 
 <body class="antialiased bg-gray-50">
-    <div class="min-h-screen flex items-center justify-center p-4">
-        <div class="w-full max-w-md">
-            <!-- Logo -->
-            <div class="text-center mb-8">
-                <div class="inline-flex items-center gap-2 mb-6">
-                    <svg class="w-8 h-8" style="color: var(--color-primary);" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                    <span class="text-2xl font-semibold" style="color: var(--color-neutral);">Portex</span>
-                </div>
-            </div>
-
-            <!-- Card -->
-            <div class="bg-white rounded-lg border border-gray-200 p-8">
-                {{ $slot }}
+<div class="min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+        <!-- Logo -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center gap-2 mb-6">
+                <svg class="w-8 h-8" style="color: var(--color-primary);" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
+                <span class="text-2xl font-semibold" style="color: var(--color-neutral);">Portex</span>
             </div>
         </div>
+
+        <!-- Card -->
+        <div class="bg-white rounded-lg border border-gray-200 p-8">
+            {{ $slot }}
+        </div>
     </div>
+</div>
 </body>
 
 </html>

@@ -89,6 +89,65 @@
             color: var(--orange);
         }
 
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 220px;
+            box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            padding: 12px;
+            z-index: 100;
+            border: 1px solid var(--border);
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* Bridge the gap for smoother hover */
+        .dropdown::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            height: 10px;
+            display: none;
+        }
+
+        .dropdown:hover::after,
+        .dropdown.active::after {
+            display: block;
+        }
+
+        .dropdown.active .dropdown-content {
+            display: block;
+        }
+
+        .dropdown-content a {
+            margin: 0 !important;
+            padding: 10px 16px;
+            display: block;
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--slate);
+            text-decoration: none;
+        }
+
+        .dropdown-content a:hover {
+            background: var(--light);
+            color: var(--orange);
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
         .btn {
             display: inline-block;
             padding: 12px 24px;
@@ -172,43 +231,76 @@
             }
         }
     </style>
+
+
+    <script defer src="https://cloud.umami.is/script.js"
+            data-website-id="269e123b-a36d-485b-bec5-378554421aa9"></script>
 </head>
 
 <body>
-    <nav>
-        <div class="container nav-inner">
-            <a href="/" class="logo">
-                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                    <rect x="2" y="2" width="28" height="28" rx="8" fill="#0F172A" />
-                    <circle cx="16" cy="16" r="6" stroke="#FF6B2C" stroke-width="3" />
-                    <path d="M22 16H27" stroke="#FF6B2C" stroke-width="3" stroke-linecap="round" />
-                </svg>
-                Portex
-            </a>
-            <div class="nav-links">
-                <a href="/">Home</a>
-                <a href="{{ route('docs.index') }}">Docs</a>
-                <a href="#solutions">Solutions</a>
-                <a href="/#pricing">Pricing</a>
-                <a href="{{ route('login') }}" class="btn btn-primary" style="color: white; margin-left: 20px;">Sign
-                    in</a>
-            </div>
-        </div>
-    </nav>
-
-    @yield('content')
-
-    <footer class="footer">
-        <div class="container">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <p style="color: var(--slate); font-size: 14px;">© 2024 Portex Space. Open source and secure.</p>
-                <div class="nav-links" style="margin: 0;">
-                    <a href="https://github.com/orgs/portex-space/repositories" target="_blank">GitHub</a>
-                    <a href="{{ route('docs.index') }}">Documentation</a>
+<nav>
+    <div class="container nav-inner">
+        <a href="/" class="logo">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <rect x="2" y="2" width="28" height="28" rx="8" fill="#0F172A"/>
+                <circle cx="16" cy="16" r="6" stroke="#FF6B2C" stroke-width="3"/>
+                <path d="M22 16H27" stroke="#FF6B2C" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+            Portex
+        </a>
+        <div class="nav-links">
+            <a href="/#guide">Guide</a>
+            <div class="dropdown">
+                <a href="#" onclick="return false;">Solutions ▾</a>
+                <div class="dropdown-content">
+                    <a href="{{ route('solutions.webhooks') }}">Webhook Debugging</a>
+                    <a href="{{ route('solutions.mobile') }}">Mobile Development</a>
+                    <a href="{{ route('solutions.static') }}">Static Hosting</a>
+                    <a href="{{ route('solutions.ci-cd') }}">CI/CD Integration</a>
                 </div>
             </div>
+            <a href="/#features">Features</a>
+            <a href="{{ route('docs.index') }}">Docs</a>
+            <a href="https://github.com/orgs/portex-space/repositories" target="_blank">GitHub</a>
+            @auth
+                <a href="{{ route('dashboard') }}" class="btn btn-primary"
+                   style="margin-left: 32px; color: white;">Dashboard</a>
+            @else
+                <a href="{{ route('login') }}" class="btn btn-primary" style="margin-left: 32px; color: white;">Sign
+                    in</a>
+            @endauth
         </div>
-    </footer>
+    </div>
+</nav>
+
+@yield('content')
+
+<footer class="footer">
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <p style="color: var(--slate); font-size: 14px;">© 2024 Portex Space. Open source and secure.</p>
+            <div class="nav-links" style="margin: 0;">
+                <a href="https://github.com/orgs/portex-space/repositories" target="_blank">GitHub</a>
+                <a href="{{ route('docs.index') }}">Documentation</a>
+            </div>
+        </div>
+    </div>
+</footer>
+<script>
+    // Dropdown Click Handle
+    document.querySelector('.dropdown > a').addEventListener('click', function (e) {
+        e.preventDefault();
+        this.parentElement.classList.toggle('active');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function (e) {
+        if (!e.target.closest('.dropdown')) {
+            const dropdown = document.querySelector('.dropdown');
+            if (dropdown) dropdown.classList.remove('active');
+        }
+    });
+</script>
 </body>
 
 </html>

@@ -33,17 +33,20 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
     </style>
+
+    <script defer src="https://cloud.umami.is/script.js"
+            data-website-id="269e123b-a36d-485b-bec5-378554421aa9"></script>
 </head>
 
 <body class="antialiased bg-gray-50">
-    <div class="min-h-screen">
-        @include('components.layouts.navigation')
+<div class="min-h-screen">
+    @include('components.layouts.navigation')
 
-        <!-- Page Content -->
-        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            {{ $slot }}
-        </main>
-    </div>
+    <!-- Page Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {{ $slot }}
+    </main>
+</div>
 </body>
 
 </html>

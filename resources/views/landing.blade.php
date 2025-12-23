@@ -148,6 +148,62 @@
             color: var(--orange);
         }
 
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 220px;
+            box-shadow: 0 16px 32px -8px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            padding: 12px;
+            z-index: 100;
+            border: 1px solid var(--border);
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* Bridge the gap for smoother hover */
+        .dropdown::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            height: 20px;
+            display: none;
+        }
+
+        .dropdown:hover::after,
+        .dropdown.active::after {
+            display: block;
+        }
+
+        .dropdown.active .dropdown-content {
+            display: block;
+        }
+
+        .dropdown-content a {
+            margin: 0 !important;
+            padding: 10px 16px;
+            display: block;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .dropdown-content a:hover {
+            background: var(--light);
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
         .btn {
             display: inline-block;
             padding: 12px 24px;
@@ -710,10 +766,17 @@
             </a>
             <div class="nav-links">
                 <a href="#guide">Guide</a>
+                <div class="dropdown">
+                    <a href="#" onclick="return false;">Solutions ▾</a>
+                    <div class="dropdown-content">
+                        <a href="{{ route('solutions.webhooks') }}">Webhook Debugging</a>
+                        <a href="{{ route('solutions.mobile') }}">Mobile Development</a>
+                        <a href="{{ route('solutions.static') }}">Static Hosting</a>
+                        <a href="{{ route('solutions.ci-cd') }}">CI/CD Integration</a>
+                    </div>
+                </div>
                 <a href="#features">Features</a>
-                <a href="{{ route('solutions.webhooks') }}">Webhooks</a>
-                <a href="{{ route('solutions.mobile') }}">Mobile</a>
-                <a href="#pricing">Pricing</a>
+                <a href="{{ route('docs.index') }}">Docs</a>
                 <a href="https://github.com/orgs/portex-space/repositories" target="_blank">GitHub</a>
                 @auth
                     <a href="{{ route('dashboard') }}" class="btn btn-primary"
@@ -756,7 +819,8 @@
                     <br>
                     <div class="out-row">Status &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
                             style="color: #28C840;">Online</span></div>
-                    <div class="out-row">Account &nbsp;&nbsp;&nbsp;&nbsp;<span class="out-dim">pk_live_...</span></div>
+                    <div class="out-row">Account &nbsp;&nbsp;&nbsp;&nbsp;<span class="out-dim">pk_live_...</span>
+                    </div>
                     <br>
                     <div class="out-hl">ACTIVE TUNNEL</div>
                     <div class="out-link">https://myapp.portex.space</div>
@@ -1033,7 +1097,7 @@
     </section>
 
     <!-- Pricing Row -->
-    <section id="pricing" class="pricing-section">
+    {{--    <section id="pricing" class="pricing-section">
         <div class="container">
             <div class="section-title">
                 <h2>Simple, Dev-Friendly Pricing</h2>
@@ -1088,7 +1152,7 @@
                 </div>
             </div>
         </div>
-    </section>
+    </section> --}}
 
     <!-- FAQ -->
     <section class="faq-section">
@@ -1144,7 +1208,7 @@
                         <li><a href="{{ route('docs.index') }}">Documentation</a></li>
                         <li><a href="https://github.com/orgs/portex-space/repositories" target="_blank">GitHub</a>
                         </li>
-                        <li><a href="#pricing">Pricing</a></li>
+                        {{-- <li><a href="#pricing">Pricing</a></li> --}}
                     </ul>
                 </div>
                 <div class="footer-links">
@@ -1165,6 +1229,19 @@
                 nav.classList.add('scrolled');
             } else {
                 nav.classList.remove('scrolled');
+            }
+        });
+
+        // Dropdown Click Handle
+        document.querySelector('.dropdown > a').addEventListener('click', function(e) {
+            e.preventDefault();
+            this.parentElement.classList.toggle('active');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.dropdown')) {
+                document.querySelector('.dropdown').classList.remove('active');
             }
         });
     </script>
