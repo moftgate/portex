@@ -130,10 +130,10 @@ class AgentService
         $activeTunnels = $agent->tunnels()->where('status', 'active')->get();
         if ($activeTunnels->count() > 0) {
             $usageService = app(\App\Services\UsageTrackingService::class);
-           
+
             foreach ($activeTunnels as $tunnel) {
-                // Heartbeat happens every 30 seconds
-                $usageService->trackUsageTime($tunnel, 30);
+                // Heartbeat happens every 10 seconds
+                $usageService->trackUsageTime($tunnel, 10);
             }
         }
     }

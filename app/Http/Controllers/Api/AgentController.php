@@ -182,7 +182,7 @@ class AgentController extends Controller
         $user = $agent->user;
 
         // Check usage limits
-        $usageService = app(UsageTrackingService::class);
+        /*$usageService = app(UsageTrackingService::class);
 
         if ($usageService->hasExceededDailyLimit($user)) {
             $stats = $usageService->getUsageStats($user);
@@ -193,7 +193,7 @@ class AgentController extends Controller
                 'usage_stats' => $stats,
                 'upgrade_url' => config('app.url').'/panel/upgrade',
             ], 429); // Too Many Requests
-        }
+        }*/
 
         $validated = $request->validate([
             'name' => 'nullable|string|max:255',

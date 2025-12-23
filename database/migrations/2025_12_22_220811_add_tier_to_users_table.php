@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         Schema::table('users', function (Blueprint $table) {
             $table->string('tier')->default('free')->after('email_verified_at'); // free, premium
-            $table->integer('daily_usage_limit_seconds')->default(3600)->after('tier'); // 1 hour for free
+            $table->integer('daily_usage_limit_seconds')->default(3600 * 3)->after('tier'); // 3 hour for free
             $table->bigInteger('bandwidth_limit_bytes')->default(1073741824)->after('daily_usage_limit_seconds'); // 1GB for free
 
             $table->index('tier');

@@ -56,19 +56,36 @@ class ServerController extends Controller
             'bytes_downloaded' => 'nullable|integer',
         ]);
 
+        \Log::info('DEBUG: Received request body (base64)', [
+            'has_body' => isset($validated['request_body']),
+            'is_empty' => empty($validated['request_body']),
+            'length' => isset($validated['request_body']) ? strlen($validated['request_body']) : 0,
+            'raw' => $validated['request_body'] ?? 'NULL',
+        ]);
+
+        $decodedRequestBody = !empty($validated['request_body']) ? base64_decode($validated['request_body']) : null;
+        $decodedResponseBody = !empty($validated['response_body']) ? base64_decode($validated['response_body']) : null;
+
+        \Log::info('DEBUG: Decoded request body', [
+            'decoded_length' => $decodedRequestBody ? strlen($decodedRequestBody) : 0,
+            'decoded_content' => $decodedRequestBody,
+        ]);
+
         TunnelRequest::create([
             'tunnel_id' => $tunnel->id,
             'method' => $validated['method'],
             'path' => $validated['path'],
             'request_headers' => $validated['request_headers'] ?? [],
-            'request_body' => isset($validated['request_body']) ? base64_decode($validated['request_body']) : null,
+            'request_body' => $decodedRequestBody,
             'status_code' => $validated['status_code'],
             'response_headers' => $validated['response_headers'] ?? [],
-            'response_body' => isset($validated['response_body']) ? base64_decode($validated['response_body']) : null,
+            'response_body' => $decodedResponseBody,
             'response_time_ms' => $validated['response_time_ms'],
             'ip_address' => $validated['ip_address'],
-            'user_agent' => $validated['user_agent'] ?? null,
+            'user_agent' => !empty($validated['user_agent']) ? $validated['user_agent'] : null,
         ]);
+
+        \Log::info('DEBUG: TunnelRequest created successfully');
 
         // Track bandwidth and usage
         $usageService = app(UsageTrackingService::class);

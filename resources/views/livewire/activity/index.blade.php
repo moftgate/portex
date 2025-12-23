@@ -1,17 +1,17 @@
 <?php
 
 use App\Models\TunnelRequest;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Livewire\Volt\Component;
 use Livewire\WithPagination;
-use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 new class extends Component {
     use WithPagination;
 
     public ?string $selectedRequestId = null;
+
     public string $search = '';
 
     public function selectRequest($id)
@@ -47,7 +47,19 @@ new class extends Component {
         $url = $tunnel->public_url . $request->path;
 
         $headers = collect($request->request_headers)
-            ->forget(['host', 'content-length']) // Let Http client handle these
+            ->filter(function ($v, $k) {
+                $lowered = strtolower($k);
+                return !in_array($lowered, [
+                    'host',
+                    'content-length',
+                    'connection',
+                    'upgrade',
+                    'x-real-ip',
+                    'x-forwarded-for',
+                    'x-forwarded-proto',
+                    'accept-encoding', // Let Http client handle compression
+                ]);
+            })
             ->toArray();
 
         $http = \Illuminate\Support\Facades\Http::withHeaders($headers);
@@ -55,8 +67,9 @@ new class extends Component {
         try {
             $response = match (strtoupper($request->method)) {
                 'GET' => $http->get($url),
-                'POST' => $http->withBody($request->request_body, $request->request_headers['content-type'] ?? 'application/json')->post($url),
-                'PUT' => $http->withBody($request->request_body, $request->request_headers['content-type'] ?? 'application/json')->put($url),
+                'POST' => $http->withBody($request->request_body, $request->request_headers['content-type'] ?? ($request->request_headers['Content-Type'] ?? 'application/json'))->post($url),
+                'PUT' => $http->withBody($request->request_body, $request->request_headers['content-type'] ?? ($request->request_headers['Content-Type'] ?? 'application/json'))->put($url),
+                'PATCH' => $http->withBody($request->request_body, $request->request_headers['content-type'] ?? ($request->request_headers['Content-Type'] ?? 'application/json'))->patch($url),
                 'DELETE' => $http->delete($url),
                 default => $http->send($request->method, $url),
             };
@@ -81,7 +94,8 @@ new class extends Component {
                 $query->where(function ($q) {
                     $q->where('path', 'like', "%{$this->search}%")
                         ->orWhere('method', 'like', "%{$this->search}%")
-                        ->orWhere('ip_address', 'like', "%{$this->search}%");
+                        ->orWhere('ip_address', 'like', "%{$this->search}%")
+                        ->orWhere('user_agent', 'like', "%{$this->search}%");
                 });
             })
             ->with('tunnel')
@@ -128,6 +142,7 @@ new class extends Component {
             ->get()
             ->mapWithKeys(function ($item) {
                 $labels = [2 => '2xx', 3 => '3xx', 4 => '4xx', 5 => '5xx'];
+
                 return [$labels[$item->category] ?? 'Other' => $item->count];
             })
             ->toArray();
@@ -261,14 +276,17 @@ new class extends Component {
                 <p class="text-sm text-gray-600 mt-1">Real-time analytics and detailed request logs</p>
             </div>
             <div class="flex items-center gap-4">
-                <button wire:click="clearLogs" wire:confirm="Are you sure you want to clear all request logs?"
-                    class="text-xs font-bold text-gray-500 hover:text-red-600 flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 hover:bg-red-50 rounded-lg transition-colors border border-gray-100">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                    Clear Logs
-                </button>
+                @if (is_admin())
+                    <button wire:click="clearLogs" wire:confirm="Are you sure you want to clear all request logs?"
+                        class="text-xs font-bold text-gray-500 hover:text-red-600 flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 hover:bg-red-50 rounded-lg transition-colors border border-gray-100">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                        Clear Logs
+                    </button>
+                @endif
+
                 <div
                     class="flex items-center gap-2 text-xs font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full border border-gray-200">
                     <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
@@ -357,10 +375,15 @@ new class extends Component {
                             </div>
                             <div class="flex items-center gap-2 mb-1.5">
                                 <span
-                                    class="text-[10px] font-black font-mono w-10 text-center py-0.5 rounded @if ($request->status_code >= 500) bg-red-100 text-red-700 @elseif($request->status_code >= 400) bg-orange-100 text-orange-700 @elseif($request->status_code >= 300) bg-blue-100 text-blue-700 @else bg-green-100 text-green-700 @endif">
+                                    class="px-2 py-0.5 rounded text-[10px] font-black tracking-wider border
+                                    @if ($request->method === 'GET') bg-blue-50 text-blue-600 border-blue-100
+                                    @elseif($request->method === 'POST') bg-green-50 text-green-600 border-green-100
+                                    @elseif($request->method === 'PUT' || $request->method === 'PATCH') bg-orange-50 text-orange-600 border-orange-100
+                                    @elseif($request->method === 'DELETE') bg-red-50 text-red-600 border-red-100
+                                    @else bg-gray-50 text-gray-600 border-gray-100 @endif">
                                     {{ $request->method }}
                                 </span>
-                                <span class="text-sm font-semibold truncate text-gray-800 font-mono">
+                                <span class="text-xs font-mono font-bold truncate text-gray-800 flex-1">
                                     {{ $request->path }}
                                 </span>
                             </div>
@@ -371,6 +394,9 @@ new class extends Component {
                                 <span class="text-gray-500">{{ $request->response_time_ms }}ms</span>
                                 <span class="text-gray-200">|</span>
                                 <span class="text-gray-500">{{ $request->ip_address }}</span>
+                                <span class="text-gray-200">|</span>
+                                <span class="text-gray-500 truncate max-w-[80px]"
+                                    title="{{ $request->user_agent }}">{{ $request->user_agent ?? 'Unknown Client' }}</span>
                             </div>
                         </button>
                     @empty
@@ -447,7 +473,8 @@ new class extends Component {
                             </div>
                             <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
                                 <div class="text-[10px] uppercase text-gray-400 font-bold tracking-widest mb-2">
-                                    Duration</div>
+                                    Duration
+                                </div>
                                 <div class="text-3xl font-black text-gray-900">
                                     {{ $selectedRequest->response_time_ms }}<span
                                         class="text-sm ml-1 text-gray-400 font-medium">ms</span>
@@ -455,15 +482,32 @@ new class extends Component {
                             </div>
                             <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
                                 <div class="text-[10px] uppercase text-gray-400 font-bold tracking-widest mb-2">Client
-                                    IP</div>
+                                    IP
+                                </div>
                                 <div class="text-base font-bold text-gray-900 mt-2 font-mono">
                                     {{ $selectedRequest->ip_address }}</div>
                             </div>
                             <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
                                 <div class="text-[10px] uppercase text-gray-400 font-bold tracking-widest mb-2">
-                                    Timestamp</div>
+                                    Timestamp
+                                </div>
                                 <div class="text-xs font-bold text-gray-900 mt-3 font-mono">
                                     {{ $selectedRequest->created_at->format('Y-m-d H:i:s.v') }}</div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4
+                                class="text-xs font-bold uppercase text-gray-400 tracking-widest mb-3 flex items-center gap-2">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                        d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                </svg>
+                                User Agent
+                            </h4>
+                            <div
+                                class="bg-white rounded-2xl p-5 font-mono text-[10px] text-gray-600 leading-relaxed border border-gray-100 shadow-sm">
+                                {{ $selectedRequest->user_agent ?? 'Unknown User Agent' }}
                             </div>
                         </div>
 
@@ -533,10 +577,35 @@ new class extends Component {
                                 </h4>
                                 <div
                                     class="bg-gray-900 rounded-2xl p-6 font-mono text-xs text-white shadow-xl ring-1 ring-white/10 overflow-x-auto min-h-[100px] max-h-[400px]">
-                                    @if ($selectedRequest->request_body)
-                                        <pre class="whitespace-pre-wrap">{{ $selectedRequest->request_body }}</pre>
+                                    @if ($selectedRequest->request_body !== null && $selectedRequest->request_body !== '')
+                                        @php
+                                            $isJson = false;
+                                            $jsonBody = $selectedRequest->request_body;
+                                            if (
+                                                str_starts_with(trim($selectedRequest->request_body), '{') ||
+                                                str_starts_with(trim($selectedRequest->request_body), '[')
+                                            ) {
+                                                $decoded = json_decode($selectedRequest->request_body);
+                                                if (json_last_error() === JSON_ERROR_NONE) {
+                                                    $jsonBody = json_encode(
+                                                        $decoded,
+                                                        JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES,
+                                                    );
+                                                    $isJson = true;
+                                                }
+                                            }
+                                        @endphp
+                                        <pre class="whitespace-pre-wrap">{{ $jsonBody }}</pre>
                                     @else
-                                        <span class="text-gray-500 italic">No request body</span>
+                                        <div
+                                            class="flex flex-col items-center justify-center h-full py-4 text-gray-500 italic">
+                                            <svg class="w-6 h-6 mb-2 opacity-20" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            No request body
+                                        </div>
                                     @endif
                                 </div>
                             </div>
@@ -554,10 +623,35 @@ new class extends Component {
                                 </h4>
                                 <div
                                     class="bg-gray-900 rounded-2xl p-6 font-mono text-xs text-green-400 shadow-xl ring-1 ring-white/10 overflow-x-auto min-h-[100px] max-h-[400px]">
-                                    @if ($selectedRequest->response_body)
-                                        <pre class="whitespace-pre-wrap">{{ $selectedRequest->response_body }}</pre>
+                                    @if ($selectedRequest->response_body !== null && $selectedRequest->response_body !== '')
+                                        @php
+                                            $isJson = false;
+                                            $jsonBody = $selectedRequest->response_body;
+                                            if (
+                                                str_starts_with(trim($selectedRequest->response_body), '{') ||
+                                                str_starts_with(trim($selectedRequest->response_body), '[')
+                                            ) {
+                                                $decoded = json_decode($selectedRequest->response_body);
+                                                if (json_last_error() === JSON_ERROR_NONE) {
+                                                    $jsonBody = json_encode(
+                                                        $decoded,
+                                                        JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES,
+                                                    );
+                                                    $isJson = true;
+                                                }
+                                            }
+                                        @endphp
+                                        <pre class="whitespace-pre-wrap">{{ $jsonBody }}</pre>
                                     @else
-                                        <span class="text-gray-500 italic">No response body</span>
+                                        <div
+                                            class="flex flex-col items-center justify-center h-full py-4 text-gray-500 italic">
+                                            <svg class="w-6 h-6 mb-2 opacity-20" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            No response body
+                                        </div>
                                     @endif
                                 </div>
                             </div>

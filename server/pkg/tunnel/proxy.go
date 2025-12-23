@@ -52,6 +52,11 @@ func (h *ProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
+	log.Printf("DEBUG: Captured request body for %s %s: %d bytes", r.Method, r.URL.Path, len(body))
+	if len(body) > 0 {
+		log.Printf("DEBUG: Body content: %s", string(body))
+	}
+
 	// Convert headers to map
 	headers := make(map[string]string)
 	for key, values := range r.Header {
@@ -102,6 +107,7 @@ func (h *ProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// Async log to backend
 	go func() {
+		log.Printf("DEBUG: Logging to backend - request body: %d bytes, response body: %d bytes", len(body), len(resp.Body))
 		err := h.apiClient.LogRequest(
 			agent.TunnelID,
 			r.Method,
@@ -119,6 +125,8 @@ func (h *ProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		)
 		if err != nil {
 			log.Printf("Failed to log request to backend: %v", err)
+		} else {
+			log.Printf("DEBUG: Successfully logged to backend")
 		}
 	}()
 }
