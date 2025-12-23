@@ -507,16 +507,20 @@ func init() {
 	startCmd.Flags().StringVar(&pin, "pin", "", "PIN protection (4 digits)")
 	startCmd.MarkFlagRequired("port")
 
+	// Share command flags
+	shareCmd.Flags().StringVarP(&subdomain, "subdomain", "s", "", "Custom subdomain (optional)")
+	shareCmd.Flags().StringVar(&pin, "pin", "", "PIN protection (4 digits)")
+
 	// Add commands to root
 	rootCmd.AddCommand(loginCmd)
 	rootCmd.AddCommand(startCmd)
 	rootCmd.AddCommand(logoutCmd)
-	rootCmd.AddCommand(staticCmd)
+	rootCmd.AddCommand(shareCmd)
 }
 
-var staticCmd = &cobra.Command{
-	Use:   "static [directory]",
-	Short: "Serve a static directory over a tunnel",
+var shareCmd = &cobra.Command{
+	Use:   "share [directory]",
+	Short: "Share a local directory over a tunnel",
 	Long:  `Serve a local directory as a web server and expose it to the internet using a Portex tunnel.`,
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
