@@ -480,6 +480,141 @@
             font-size: 15px;
         }
 
+        /* Use Cases / Visual Sections */
+        .use-case-section {
+            padding: 120px 0;
+            overflow: hidden;
+        }
+
+        .use-case-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            align-items: center;
+            gap: 80px;
+            margin-bottom: 120px;
+        }
+
+        .use-case-row.reverse {
+            direction: rtl;
+        }
+
+        .use-case-row.reverse>* {
+            direction: ltr;
+        }
+
+        .use-case-content h3 {
+            font-size: 36px;
+            margin-bottom: 24px;
+            letter-spacing: -0.02em;
+        }
+
+        .use-case-content p {
+            font-size: 18px;
+            color: var(--slate);
+            margin-bottom: 32px;
+        }
+
+        .use-case-visual img {
+            width: 100%;
+            border-radius: 24px;
+            box-shadow: 0 32px 64px -16px rgba(0, 0, 0, 0.15);
+            border: 1px solid var(--border);
+        }
+
+        /* Pricing Section */
+        .pricing-section {
+            padding: 120px 0;
+            background: var(--light);
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 32px;
+            max-width: 900px;
+            margin: 60px auto 0;
+        }
+
+        .pricing-card {
+            background: white;
+            padding: 48px;
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .pricing-card.popular {
+            border-color: var(--orange);
+            box-shadow: 0 24px 48px -12px rgba(255, 107, 44, 0.15);
+            transform: scale(1.05);
+        }
+
+        .price {
+            font-size: 48px;
+            font-weight: 800;
+            margin: 24px 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .price span {
+            font-size: 16px;
+            color: var(--slate);
+            font-weight: 400;
+        }
+
+        .pricing-features {
+            list-style: none;
+            text-align: left;
+            margin: 40px 0;
+        }
+
+        .pricing-features li {
+            margin-bottom: 16px;
+            color: #334155;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .pricing-features svg {
+            color: var(--orange);
+        }
+
+        /* FAQ */
+        .faq-section {
+            padding: 120px 0;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            margin-bottom: 32px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 32px;
+        }
+
+        .faq-item h4 {
+            font-size: 20px;
+            margin-bottom: 12px;
+        }
+
+        .faq-item p {
+            color: var(--slate);
+            font-size: 16px;
+        }
+
+        @media (max-width: 900px) {
+            .use-case-row {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
         /* Footer */
         footer {
             padding: 80px 0 40px;
@@ -576,6 +711,9 @@
             <div class="nav-links">
                 <a href="#guide">Guide</a>
                 <a href="#features">Features</a>
+                <a href="{{ route('solutions.webhooks') }}">Webhooks</a>
+                <a href="{{ route('solutions.mobile') }}">Mobile</a>
+                <a href="#pricing">Pricing</a>
                 <a href="https://github.com/orgs/portex-space/repositories" target="_blank">GitHub</a>
                 @auth
                     <a href="{{ route('dashboard') }}" class="btn btn-primary"
@@ -746,6 +884,66 @@
         </div>
     </section>
 
+    <!-- Use Case: Webhooks -->
+    <section class="use-case-section">
+        <div class="container">
+            <div class="use-case-row">
+                <div class="use-case-content">
+                    <div class="badge">Developers Love This</div>
+                    <h3>Debug Webhooks in Real‑Time</h3>
+                    <p>Stop deploying to staging just to see a Stripe or GitHub webhook payload. Expose your local port
+                        and watch internal traffic flow live in your dashboard.</p>
+                    <ul class="pricing-features" style="margin-top: 0;">
+                        <li><svg width="20" height="20" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <path d="M20 6L9 17L4 12" />
+                            </svg> Inspect Full Request Payloads</li>
+                        <li><svg width="20" height="20" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <path d="M20 6L9 17L4 12" />
+                            </svg> Replay Webhooks with One Click</li>
+                        <li><svg width="20" height="20" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <path d="M20 6L9 17L4 12" />
+                            </svg> Response Time Monitoring</li>
+                    </ul>
+                    <a href="{{ route('solutions.webhooks') }}" class="btn btn-outline">Learn More about Webhooks</a>
+                </div>
+                <div class="use-case-visual">
+                    <img src="/landing_webhooks.png" alt="Webhook Debugging Visual">
+                </div>
+            </div>
+
+            <!-- Use Case: Mobile -->
+            <div class="use-case-row reverse">
+                <div class="use-case-content">
+                    <div class="badge">Mobile & IoT</div>
+                    <h3>Test on Physical Devices Instantly</h3>
+                    <p>Scanning a QR code is all it takes to connect your mobile device to your local API. No more
+                        fiddling with local IP addresses or WiFi settings.</p>
+                    <ul class="pricing-features" style="margin-top: 0;">
+                        <li><svg width="20" height="20" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <path d="M20 6L9 17L4 12" />
+                            </svg> Automatic QR Code Generation</li>
+                        <li><svg width="20" height="20" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <path d="M20 6L9 17L4 12" />
+                            </svg> Cross-Device Testing over HTTPS</li>
+                        <li><svg width="20" height="20" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <path d="M20 6L9 17L4 12" />
+                            </svg> Works through Firewalls & Corporate VPNs</li>
+                    </ul>
+                    <a href="{{ route('solutions.mobile') }}" class="btn btn-primary">Learn More about Mobile Dev</a>
+                </div>
+                <div class="use-case-visual">
+                    <img src="/landing_mobile.png" alt="Mobile Testing Visual">
+                </div>
+            </div>
+        </div>
+    </section>
+
     <section id="features" class="features-section">
         <div class="container">
             <div class="section-title">
@@ -834,6 +1032,94 @@
         </div>
     </section>
 
+    <!-- Pricing Row -->
+    <section id="pricing" class="pricing-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>Simple, Dev-Friendly Pricing</h2>
+                <p>Start for free, upgrade when you need custom domains and team features.</p>
+            </div>
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <h3>Free Beta</h3>
+                    <div class="price">$0<span>/mo</span></div>
+                    <ul class="pricing-features">
+                        <li><svg width="18" height="18" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M20 6L9 17L4 12" />
+                            </svg> Unlimited Tunnels</li>
+                        <li><svg width="18" height="18" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M20 6L9 17L4 12" />
+                            </svg> Custom Subdomains</li>
+                        <li><svg width="18" height="18" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M20 6L9 17L4 12" />
+                            </svg> 50 Recent Request Logs</li>
+                        <li><svg width="18" height="18" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M20 6L9 17L4 12" />
+                            </svg> Static File Sharing</li>
+                    </ul>
+                    <a href="#guide" class="btn btn-outline" style="width: 100%;">Get Started</a>
+                </div>
+                <div class="pricing-card popular">
+                    <h3>Pro Plan (Coming Soon)</h3>
+                    <div class="price">$7<span>/mo</span></div>
+                    <ul class="pricing-features">
+                        <li><svg width="18" height="18" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M20 6L9 17L4 12" />
+                            </svg> Everything in Free</li>
+                        <li><svg width="18" height="18" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M20 6L9 17L4 12" />
+                            </svg> Reserved Subdomains</li>
+                        <li><svg width="18" height="18" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M20 6L9 17L4 12" />
+                            </svg> Unlimited History</li>
+                        <li><svg width="18" height="18" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M20 6L9 17L4 12" />
+                            </svg> Priority Support</li>
+                    </ul>
+                    <a href="#" class="btn btn-primary" style="width: 100%;">Soon</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="faq-section">
+        <div class="container">
+            <div class="section-title" style="margin-bottom: 60px;">
+                <h2>Common Questions</h2>
+            </div>
+            <div class="faq-item">
+                <h4>How is Portex different from ngrok?</h4>
+                <p>Portex is built with the modern stack (Go + Laravel) and offers a more developer-centric experience.
+                    We include features like static file sharing and PIN protection out of the box, with a focus on open
+                    source transparency.</p>
+            </div>
+            <div class="faq-item">
+                <h4>Is my local server exposed securely?</h4>
+                <p>Yes. All traffic is encrypted with TLS. You can also add a 4-digit PIN to your tunnel (<code>--pin
+                        1234</code>) to ensure only authorized visitors can access your service.</p>
+            </div>
+            <div class="faq-item">
+                <h4>Can I use it for static builds?</h4>
+                <p>Definitely! Use <code>portex share ./dist</code> to instantly host and tunnel any directory without
+                    needing to configure Nginx, Apache, or a Node.js server.</p>
+            </div>
+            <div class="faq-item">
+                <h4>Do I need an account to start?</h4>
+                <p>No account is required for basic usage. You can run one tunnel as a guest. Logging in unlocks
+                    dashboard tracking, persistent subdomains, and analytics.</p>
+            </div>
+        </div>
+    </section>
+
 
 
     <footer>
@@ -856,8 +1142,9 @@
                     <ul>
                         <li><a href="#guide">Download</a></li>
                         <li><a href="{{ route('docs.index') }}">Documentation</a></li>
-                        <li><a href="https://github.com/orgs/portex-space/repositories" target="_blank">GitHub</a></li>
-                        <li><a href="#">Pricing</a></li>
+                        <li><a href="https://github.com/orgs/portex-space/repositories" target="_blank">GitHub</a>
+                        </li>
+                        <li><a href="#pricing">Pricing</a></li>
                     </ul>
                 </div>
                 <div class="footer-links">

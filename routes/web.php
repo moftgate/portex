@@ -9,6 +9,11 @@ Route::get('/', function () {
     return view('landing');
 })->name('home');
 
+Route::prefix('solutions')->group(function () {
+    Route::view('/webhooks', 'solutions.webhooks')->name('solutions.webhooks');
+    Route::view('/mobile', 'solutions.mobile')->name('solutions.mobile');
+});
+
 Route::prefix('docs')->group(function () {
     Route::view('/', 'docs.index')->name('docs.index');
     Route::view('/installation', 'docs.installation')->name('docs.installation');
@@ -18,7 +23,6 @@ Route::prefix('docs')->group(function () {
     Route::view('/architecture', 'docs.architecture')->name('docs.architecture');
     Route::view('/use-cases', 'docs.use-cases')->name('docs.use-cases');
     Route::view('/troubleshooting', 'docs.troubleshooting')->name('docs.troubleshooting');
-    Route::view('/api', 'docs.api')->name('docs.api');
     Route::view('/roadmap', 'docs.roadmap')->name('docs.roadmap');
     Route::view('/changelog', 'docs.changelog')->name('docs.changelog');
     Route::view('/pricing', 'docs.pricing')->name('docs.pricing');
