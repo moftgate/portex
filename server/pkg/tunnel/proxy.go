@@ -110,6 +110,10 @@ func (h *ProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			int(duration.Milliseconds()),
 			strings.Split(r.RemoteAddr, ":")[0],
 			r.UserAgent(),
+			headers,        // request_headers
+			body,           // request_body
+			resp.Headers,   // response_headers
+			resp.Body,      // response_body
 			len(body),      // bytes_uploaded
 			len(resp.Body), // bytes_downloaded
 		)

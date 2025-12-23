@@ -33,21 +33,12 @@ new class extends Component {
             ->paginate(10);
     }
 
-    public function createAgent(AgentService $agentService): void
-    {
-        $agent = $agentService->registerAgent(auth()->user(), [
-            'name' => 'Agent ' . now()->format('Y-m-d H:i'),
-        ]);
-
-        $this->newApiKey = $agent->api_key;
-        $this->newApiSecret = $agent->plain_api_secret;
-        $this->showCredentials = true;
-
-        $this->success('Agent created successfully!', position: 'toast-bottom');
-    }
-
     public function delete($id): void
     {
+        if (is_user()) {
+            return;
+        }
+
         $agent = Agent::where('user_id', auth()->id())->findOrFail($id);
         $agent->delete();
 
@@ -193,9 +184,11 @@ new class extends Component {
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
                         Tunnels
                     </th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">
-                        Actions
-                    </th>
+                    @if (is_admin())
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">
+                            Actions
+                        </th>
+                    @endif
                 </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
@@ -230,13 +223,15 @@ new class extends Component {
                                     {{ $agent->tunnels_count }}
                                 </span>
                         </td>
-                        <td class="px-6 py-4 text-right">
-                            <button wire:click="delete('{{ $agent->id }}')"
-                                    wire:confirm="Are you sure? All associated tunnels will be disconnected."
-                                    class="text-sm text-red-600 hover:text-red-700 transition-colors">
-                                Delete
-                            </button>
-                        </td>
+                        @if (is_admin())
+                            <td class="px-6 py-4 text-right">
+                                <button wire:click="delete('{{ $agent->id }}')"
+                                        wire:confirm="Are you sure? All associated tunnels will be disconnected."
+                                        class="text-sm text-red-600 hover:text-red-700 transition-colors">
+                                    Delete
+                                </button>
+                            </td>
+                        @endif
                     </tr>
                 @empty
                     <tr>

@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -65,7 +66,16 @@ func (c *Client) GetActiveTunnels() ([]Tunnel, error) {
 	return result.Tunnels, nil
 }
 
-func (c *Client) LogRequest(tunnelID, method, path string, statusCode, responseTimeMs int, ipAddress, userAgent string, bytesUploaded, bytesDownloaded int) error {
+func (c *Client) LogRequest(
+	tunnelID, method, path string,
+	statusCode, responseTimeMs int,
+	ipAddress, userAgent string,
+	requestHeaders map[string]string,
+	requestBody []byte,
+	responseHeaders map[string]string,
+	responseBody []byte,
+	bytesUploaded, bytesDownloaded int,
+) error {
 	payload := map[string]interface{}{
 		"method":           method,
 		"path":             path,
@@ -73,6 +83,10 @@ func (c *Client) LogRequest(tunnelID, method, path string, statusCode, responseT
 		"response_time_ms": responseTimeMs,
 		"ip_address":       ipAddress,
 		"user_agent":       userAgent,
+		"request_headers":  requestHeaders,
+		"request_body":     base64.StdEncoding.EncodeToString(requestBody),
+		"response_headers": responseHeaders,
+		"response_body":    base64.StdEncoding.EncodeToString(responseBody),
 		"bytes_uploaded":   bytesUploaded,
 		"bytes_downloaded": bytesDownloaded,
 	}

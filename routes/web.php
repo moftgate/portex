@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\Auth\MagicLinkController;
 use App\Http\Controllers\Panel\AgentClaimController;
-use App\Livewire\Auth\Register;
 use Livewire\Volt\Volt;
 
 // Landing page (public)
@@ -12,7 +11,6 @@ Route::get('/', function () {
 
 // Public routes
 Volt::route('/login', 'auth.login')->name('login');
-Route::get('/register', Register::class)->name('register');
 Route::get('/auth/magic/{token}', [MagicLinkController::class, 'login'])->name('auth.magic');
 //Route::get('/panel/agents/claim', [AgentClaimController::class, 'claim'])->name('agents.claim');
 

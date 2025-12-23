@@ -50,11 +50,11 @@ new class extends Component {
                     </div>
                 </div>
                 <div class="w-12 h-12 rounded-lg flex items-center justify-center"
-                     style="background-color: rgba(249, 115, 22, 0.1);">
+                    style="background-color: rgba(249, 115, 22, 0.1);">
                     <svg class="w-6 h-6" style="color: var(--color-primary);" fill="none" stroke="currentColor"
-                         viewBox="0 0 24 24">
+                        viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                            d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                     </svg>
                 </div>
             </div>
@@ -69,11 +69,11 @@ new class extends Component {
                     </div>
                 </div>
                 <div class="w-12 h-12 rounded-lg flex items-center justify-center"
-                     style="background-color: rgba(37, 99, 235, 0.1);">
+                    style="background-color: rgba(37, 99, 235, 0.1);">
                     <svg class="w-6 h-6" style="color: var(--color-secondary);" fill="none" stroke="currentColor"
-                         viewBox="0 0 24 24">
+                        viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+                            d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
                     </svg>
                 </div>
             </div>
@@ -90,7 +90,7 @@ new class extends Component {
                 <div class="w-12 h-12 rounded-lg flex items-center justify-center bg-gray-100">
                     <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                     </svg>
                 </div>
             </div>
@@ -130,8 +130,7 @@ new class extends Component {
                         <div class="mt-1 text-xs text-gray-500">Unlimited tunnel time for Premium users</div>
                     @else
                         <div class="w-full bg-gray-100 rounded-full h-2">
-                            <div
-                                class="h-2 rounded-full transition-all duration-500 {{ $usageStats['percentage_used'] > 90 ? 'bg-red-500' : ($usageStats['percentage_used'] > 75 ? 'bg-orange-500' : 'bg-blue-600') }}"
+                            <div class="h-2 rounded-full transition-all duration-500 {{ $usageStats['percentage_used'] > 90 ? 'bg-red-500' : ($usageStats['percentage_used'] > 75 ? 'bg-orange-500' : 'bg-blue-600') }}"
                                 style="width: {{ min(100, $usageStats['percentage_used']) }}%"></div>
                         </div>
                         <div class="flex justify-between mt-1">
@@ -148,9 +147,9 @@ new class extends Component {
                         <div class="flex gap-3">
                             <div class="flex-shrink-0">
                                 <svg class="h-5 w-5 text-blue-400" fill="none" viewBox="0 0 24 24"
-                                     stroke="currentColor">
+                                    stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                             </div>
 
@@ -159,9 +158,9 @@ new class extends Component {
                                 <p class="text-xs text-blue-600 mt-1">Upgrade to Premium for unlimited tunnel duration
                                     and custom subdomains.</p>
                                 <a href="#"
-                                   class="mt-2 text-xs font-semibold text-blue-800 hover:text-blue-900 flex items-center gap-1">
+                                    class="mt-2 text-xs font-semibold text-blue-800 hover:text-blue-900 flex items-center gap-1">
                                     Upgrade Soon
-                                   <x-icon name="fas.hourglass" class="w-3"/>
+                                    <x-icon name="fas.hourglass" class="w-3" />
                                 </a>
                             </div>
                         </div>
@@ -190,9 +189,9 @@ new class extends Component {
                     <div class="flex items-center gap-3">
                         <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
                             <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor"
-                                 viewBox="0 0 24 24">
+                                viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M5 13l4 4L19 7"/>
+                                    d="M5 13l4 4L19 7" />
                             </svg>
                         </div>
                         <span class="text-sm font-medium text-gray-700">WebSocket Server</span>
@@ -204,9 +203,9 @@ new class extends Component {
                     <div class="flex items-center gap-3">
                         <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
                             <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor"
-                                 viewBox="0 0 24 24">
+                                viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M5 13l4 4L19 7"/>
+                                    d="M5 13l4 4L19 7" />
                             </svg>
                         </div>
                         <span class="text-sm font-medium text-gray-700">API Gateway</span>
@@ -223,8 +222,8 @@ new class extends Component {
         <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
             <h2 class="text-lg font-semibold" style="color: var(--color-neutral);">Recent Tunnels</h2>
             <a href="{{ route('tunnels.index') }}" class="text-sm font-medium transition-colors"
-               style="color: var(--color-secondary);" onmouseover="this.style.opacity='0.8'"
-               onmouseout="this.style.opacity='1'">
+                style="color: var(--color-secondary);" onmouseover="this.style.opacity='0.8'"
+                onmouseout="this.style.opacity='1'">
                 View All →
             </a>
         </div>
@@ -233,71 +232,71 @@ new class extends Component {
             <div class="overflow-x-auto">
                 <table class="w-full">
                     <thead class="bg-gray-50 border-b border-gray-200">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                            Name
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                            Agent
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                            Status
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                            Public URL
-                        </th>
-                    </tr>
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                Name
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                Agent
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                Status
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                Public URL
+                            </th>
+                        </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
-                    @foreach ($recentTunnels as $tunnel)
-                        <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="px-6 py-4">
-                                <div class="font-medium" style="color: var(--color-neutral);">{{ $tunnel->name }}
-                                </div>
-                                <div class="text-sm text-gray-500">{{ $tunnel->subdomain }}</div>
-                            </td>
-                            <td class="px-6 py-4">
-                                @if ($tunnel->agent)
-                                    <div class="flex items-center gap-2">
-                                        <div
-                                            class="w-2 h-2 rounded-full {{ $tunnel->agent->status === 'online' ? 'bg-green-500' : 'bg-gray-400' }}">
-                                        </div>
-                                        <span class="text-sm">{{ $tunnel->agent->name }}</span>
+                        @foreach ($recentTunnels as $tunnel)
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4">
+                                    <div class="font-medium" style="color: var(--color-neutral);">{{ $tunnel->name }}
                                     </div>
-                                @else
-                                    <span class="text-sm text-gray-400">No agent</span>
-                                @endif
-                            </td>
-                            <td class="px-6 py-4">
+                                    <div class="text-sm text-gray-500">{{ $tunnel->subdomain }}</div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    @if ($tunnel->agent)
+                                        <div class="flex items-center gap-2">
+                                            <div
+                                                class="w-2 h-2 rounded-full {{ $tunnel->agent->status === 'online' ? 'bg-green-500' : 'bg-gray-400' }}">
+                                            </div>
+                                            <span class="text-sm">{{ $tunnel->agent->name }}</span>
+                                        </div>
+                                    @else
+                                        <span class="text-sm text-gray-400">No agent</span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4">
                                     <span
                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $tunnel->status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }}">
                                         {{ ucfirst($tunnel->status) }}
                                     </span>
-                            </td>
-                            <td class="px-6 py-4">
-                                <a href="{{ $tunnel->public_url }}" target="_blank"
-                                   class="text-sm transition-colors" style="color: var(--color-secondary);"
-                                   onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
-                                    {{ $tunnel->public_url }}
-                                </a>
-                            </td>
-                        </tr>
-                    @endforeach
+                                </td>
+                                <td class="px-6 py-4">
+                                    <a href="{{ $tunnel->public_url }}" target="_blank"
+                                        class="text-sm transition-colors" style="color: var(--color-secondary);"
+                                        onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+                                        {{ $tunnel->public_url }}
+                                    </a>
+                                </td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
         @else
             <div class="px-6 py-12 text-center">
                 <svg class="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor"
-                     viewBox="0 0 24 24">
+                    viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                        d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                 </svg>
                 <p class="text-gray-500 mb-4">No tunnels yet</p>
                 <a href="{{ route('tunnels.create') }}"
-                   class="inline-flex items-center px-4 py-2 text-sm font-medium text-white rounded-md transition-colors"
-                   style="background-color: var(--color-primary);" onmouseover="this.style.opacity='0.9'"
-                   onmouseout="this.style.opacity='1'">
+                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-white rounded-md transition-colors"
+                    style="background-color: var(--color-primary);" onmouseover="this.style.opacity='0.9'"
+                    onmouseout="this.style.opacity='1'">
                     Create Tunnel
                 </a>
             </div>
@@ -306,52 +305,28 @@ new class extends Component {
 
     <!-- Quick Actions -->
     <div class="grid gap-6 md:grid-cols-2">
-        <!-- Create Tunnel -->
-       {{-- <div class="bg-white rounded-lg border border-gray-200 p-6">
+        <!-- Inspect Traffic -->
+        <div class="bg-white rounded-lg border border-gray-200 p-6">
             <div class="flex items-start gap-4">
-                <div class="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
-                     style="background-color: rgba(249, 115, 22, 0.1);">
-                    <svg class="w-6 h-6" style="color: var(--color-primary);" fill="none" stroke="currentColor"
-                         viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                    </svg>
-                </div>
-              <div class="flex-1">
-                    <h3 class="font-semibold mb-1" style="color: var(--color-neutral);">Create New Tunnel</h3>
-                    <p class="text-sm text-gray-600 mb-4">Expose your local service to the internet</p>
-                    <a href="{{ route('tunnels.create') }}"
-                       class="inline-flex items-center px-4 py-2 text-sm font-medium text-white rounded-md transition-colors"
-                       style="background-color: var(--color-primary);" onmouseover="this.style.opacity='0.9'"
-                       onmouseout="this.style.opacity='1'">
-                        Create
-                    </a>
-                </div>
-            </div>
-        </div>--}}
-
-        <!-- Register Agent -->
-        {{--<div class="bg-white rounded-lg border border-gray-200 p-6">
-            <div class="flex items-start gap-4">
-                <div class="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
-                     style="background-color: rgba(37, 99, 235, 0.1);">
-                    <svg class="w-6 h-6" style="color: var(--color-secondary);" fill="none" stroke="currentColor"
-                         viewBox="0 0 24 24">
+                <div class="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 bg-blue-50">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
                 </div>
                 <div class="flex-1">
-                    <h3 class="font-semibold mb-1" style="color: var(--color-neutral);">Register New Agent</h3>
-                    <p class="text-sm text-gray-600 mb-4">Add a new agent to connect tunnels</p>
-                    <a href="{{ route('agents.index') }}"
-                       class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-md border transition-colors"
-                       style="border-color: var(--color-secondary); color: var(--color-secondary);"
-                       onmouseover="this.style.backgroundColor='rgba(37, 99, 235, 0.05)'"
-                       onmouseout="this.style.backgroundColor='transparent'">
-                        Register
+                    <h3 class="font-semibold mb-1" style="color: var(--color-neutral);">Inspect Traffic</h3>
+                    <p class="text-sm text-gray-600 mb-4">View real-time headers, bodies and replay requests.</p>
+                    <a href="{{ route('activity.index') }}"
+                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-white rounded-md transition-colors"
+                        style="background-color: var(--color-primary);" onmouseover="this.style.opacity='0.9'"
+                        onmouseout="this.style.opacity='1'">
+                        Open Activity Log
                     </a>
                 </div>
             </div>
-        </div>--}}
+        </div>
     </div>
 </div>

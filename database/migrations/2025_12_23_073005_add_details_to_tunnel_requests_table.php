@@ -29,7 +29,7 @@ return new class extends Migration
                 'request_headers',
                 'request_body',
                 'response_headers',
-                'response_body'
+                'response_body',
             ]);
         });
     }

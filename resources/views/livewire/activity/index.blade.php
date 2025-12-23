@@ -12,10 +12,59 @@ new class extends Component {
     use WithPagination;
 
     public ?string $selectedRequestId = null;
+    public string $search = '';
 
     public function selectRequest($id)
     {
         $this->selectedRequestId = $id;
+    }
+
+    public function clearLogs()
+    {
+        $user = auth()->user();
+
+        TunnelRequest::whereHas('tunnel', function (Builder $query) use ($user) {
+            $query->when(is_user(), function (Builder $query) use ($user) {
+                $query->where('user_id', $user->id);
+            });
+        })->delete();
+
+        $this->selectedRequestId = null;
+        $this->dispatch('logs-cleared');
+    }
+
+    public function replayRequest($id)
+    {
+        $request = TunnelRequest::findOrFail($id);
+        $tunnel = $request->tunnel;
+
+        if (!$tunnel) {
+            return;
+        }
+
+        // We use Laravel's Http client to send a request to the public URL
+        // mimicking the original request.
+        $url = $tunnel->public_url . $request->path;
+
+        $headers = collect($request->request_headers)
+            ->forget(['host', 'content-length']) // Let Http client handle these
+            ->toArray();
+
+        $http = \Illuminate\Support\Facades\Http::withHeaders($headers);
+
+        try {
+            $response = match (strtoupper($request->method)) {
+                'GET' => $http->get($url),
+                'POST' => $http->withBody($request->request_body, $request->request_headers['content-type'] ?? 'application/json')->post($url),
+                'PUT' => $http->withBody($request->request_body, $request->request_headers['content-type'] ?? 'application/json')->put($url),
+                'DELETE' => $http->delete($url),
+                default => $http->send($request->method, $url),
+            };
+
+            $this->dispatch('request-replayed', ['status' => $response->status()]);
+        } catch (\Exception $e) {
+            $this->dispatch('request-failed', ['error' => $e->getMessage()]);
+        }
     }
 
     public function getRequestsProperty()
@@ -26,6 +75,13 @@ new class extends Component {
             ->whereHas('tunnel', function (Builder $query) use ($user) {
                 $query->when(is_user(), function (Builder $query) use ($user) {
                     $query->where('user_id', $user->id);
+                });
+            })
+            ->when($this->search, function (Builder $query) {
+                $query->where(function ($q) {
+                    $q->where('path', 'like', "%{$this->search}%")
+                        ->orWhere('method', 'like', "%{$this->search}%")
+                        ->orWhere('ip_address', 'like', "%{$this->search}%");
                 });
             })
             ->with('tunnel')
@@ -204,12 +260,22 @@ new class extends Component {
                 <h1 class="text-3xl font-bold tracking-tight" style="color: var(--color-neutral);">Traffic Activity</h1>
                 <p class="text-sm text-gray-600 mt-1">Real-time analytics and detailed request logs</p>
             </div>
-            <div class="flex items-center gap-2 text-xs font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                Monitoring Live Traffic
+            <div class="flex items-center gap-4">
+                <button wire:click="clearLogs" wire:confirm="Are you sure you want to clear all request logs?"
+                    class="text-xs font-bold text-gray-500 hover:text-red-600 flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 hover:bg-red-50 rounded-lg transition-colors border border-gray-100">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    Clear Logs
+                </button>
+                <div
+                    class="flex items-center gap-2 text-xs font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full border border-gray-200">
+                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                    Monitoring Live Traffic
+                </div>
             </div>
         </div>
-
         <!-- Charts Grid -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
             <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex flex-col h-64">
@@ -248,24 +314,36 @@ new class extends Component {
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[650px]">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[750px] mb-12">
             <div
                 class="lg:col-span-4 bg-white rounded-2xl border border-gray-100 overflow-hidden flex flex-col shadow-sm">
-                <div class="px-5 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500">Activity Log</h3>
-                    <div wire:loading wire:target="selectRequest">
-                        <svg class="animate-spin h-4 w-4 text-orange-500" xmlns="http://www.w3.org/2000/svg"
-                            fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor"
-                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                            </path>
+                <div class="px-5 py-4 border-b border-gray-100 bg-gray-50/50 flex flex-col gap-3">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500">Activity Log</h3>
+                        <div wire:loading wire:target="selectRequest, search, clearLogs">
+                            <svg class="animate-spin h-4 w-4 text-orange-500" xmlns="http://www.w3.org/2000/svg"
+                                fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <input wire:model.live.debounce.300ms="search" type="text"
+                            placeholder="Filter by path, method or IP..."
+                            class="w-full pl-8 pr-4 py-1.5 text-xs border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                        <svg class="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                     </div>
                 </div>
 
-                <div class="flex-1 overflow-y-auto divide-y divide-gray-50" wire:poll.5s>
+                <div class="flex-1 overflow-y-auto divide-y divide-gray-50 bg-white" wire:poll.10s>
                     @forelse($requests as $request)
                         <button wire:click="selectRequest('{{ $request->id }}')"
                             class="w-full text-left px-5 py-3.5 transition-all hover:bg-gray-50/80 group {{ $selectedRequestId === $request->id ? 'bg-orange-50/50 ring-1 ring-inset ring-orange-100' : '' }}">
@@ -296,7 +374,7 @@ new class extends Component {
                             </div>
                         </button>
                     @empty
-                        <div class="p-12 text-center">
+                        <div class="p-12 text-center bg-white h-full flex flex-col items-center justify-center">
                             <div
                                 class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor"
@@ -305,7 +383,7 @@ new class extends Component {
                                         d="M13 10V3L4 14h7v7l9-11h-7z" />
                                 </svg>
                             </div>
-                            <p class="text-xs font-semibold text-gray-400 uppercase tracking-widest">Waiting for traffic
+                            <p class="text-xs font-semibold text-gray-400 uppercase tracking-widest">No entries found
                             </p>
                         </div>
                     @endforelse
@@ -326,80 +404,167 @@ new class extends Component {
                             <h2 class="text-base font-mono font-bold text-gray-900 truncate">
                                 {{ $selectedRequest->path }}</h2>
                         </div>
-                        <a href="{{ route('tunnels.show', $selectedRequest->tunnel_id) }}"
-                            class="text-xs font-bold text-orange-600 hover:text-orange-700 flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 rounded-lg transition-colors">
-                            Inspect Tunnel
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                    d="M9 5l7 7-7 7" />
-                            </svg>
-                        </a>
+                        <div class="flex items-center gap-3">
+                            <button wire:click="replayRequest('{{ $selectedRequest->id }}')"
+                                wire:loading.attr="disabled"
+                                class="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 rounded-lg transition-colors border border-blue-100">
+                                <svg wire:loading.remove wire:target="replayRequest" class="w-3.5 h-3.5"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                                <svg wire:loading wire:target="replayRequest"
+                                    class="animate-spin h-3.5 w-3.5 text-blue-600" xmlns="http://www.w3.org/2000/svg"
+                                    fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10"
+                                        stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                    </path>
+                                </svg>
+                                <span>Replay</span>
+                            </button>
+                            <a href="{{ route('tunnels.show', $selectedRequest->tunnel_id) }}"
+                                class="text-xs font-bold text-orange-600 hover:text-orange-700 flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 rounded-lg transition-colors border border-orange-100">
+                                Inspect Tunnel
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                        d="M9 5l7 7-7 7" />
+                                </svg>
+                            </a>
+                        </div>
                     </div>
 
-                    <div class="flex-1 overflow-y-auto p-8 space-y-8">
+                    <div class="flex-1 overflow-y-auto p-8 space-y-8 bg-[#FAFAFA]">
                         <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
-                            <div class="bg-gray-50/50 p-5 rounded-2xl border border-gray-100">
-                                <div class="text-[10px] uppercase text-gray-400 font-bold tracking-widest mb-2">Result
+                            <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+                                <div class="text-[10px] uppercase text-gray-400 font-bold tracking-widest mb-2">Status
                                 </div>
                                 <div
                                     class="text-3xl font-black @if ($selectedRequest->status_code >= 500) text-red-600 @elseif($selectedRequest->status_code >= 400) text-orange-600 @else text-green-600 @endif">
                                     {{ $selectedRequest->status_code }}
                                 </div>
                             </div>
-                            <div class="bg-gray-50/50 p-5 rounded-2xl border border-gray-100">
+                            <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
                                 <div class="text-[10px] uppercase text-gray-400 font-bold tracking-widest mb-2">
                                     Duration</div>
                                 <div class="text-3xl font-black text-gray-900">
                                     {{ $selectedRequest->response_time_ms }}<span
-                                        class="text-sm ml-1 text-gray-400">ms</span>
+                                        class="text-sm ml-1 text-gray-400 font-medium">ms</span>
                                 </div>
                             </div>
-                            <div class="bg-gray-50/50 p-5 rounded-2xl border border-gray-100">
+                            <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
                                 <div class="text-[10px] uppercase text-gray-400 font-bold tracking-widest mb-2">Client
                                     IP</div>
-                                <div class="text-xl font-bold text-gray-900 mt-2">
-                                    {{ $selectedRequest->ip_address }}
-                                </div>
+                                <div class="text-base font-bold text-gray-900 mt-2 font-mono">
+                                    {{ $selectedRequest->ip_address }}</div>
                             </div>
-                            <div class="bg-gray-50/50 p-5 rounded-2xl border border-gray-100">
+                            <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
                                 <div class="text-[10px] uppercase text-gray-400 font-bold tracking-widest mb-2">
                                     Timestamp</div>
-                                <div class="text-sm font-bold text-gray-900 mt-3 font-mono">
-                                    {{ $selectedRequest->created_at->format('H:i:s.v') }}
+                                <div class="text-xs font-bold text-gray-900 mt-3 font-mono">
+                                    {{ $selectedRequest->created_at->format('Y-m-d H:i:s.v') }}</div>
+                            </div>
+                        </div>
+
+                        <!-- Request Details -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <!-- Request Headers -->
+                            <div>
+                                <h4
+                                    class="text-xs font-bold uppercase text-gray-400 tracking-widest mb-3 flex items-center gap-2">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                            d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                                    </svg>
+                                    Request Headers
+                                </h4>
+                                <div
+                                    class="bg-white rounded-2xl p-6 font-mono text-xs border border-gray-100 shadow-sm space-y-1 overflow-x-auto max-h-[300px]">
+                                    @foreach ($selectedRequest->request_headers ?? [] as $key => $values)
+                                        <div class="flex items-start gap-4 ring-1 ring-gray-50 py-1">
+                                            <span
+                                                class="text-gray-400 font-bold w-32 flex-shrink-0">{{ $key }}:</span>
+                                            <span
+                                                class="text-gray-800 break-all">{{ is_array($values) ? implode(', ', $values) : $values }}</span>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            <!-- Response Headers -->
+                            <div>
+                                <h4
+                                    class="text-xs font-bold uppercase text-gray-400 tracking-widest mb-3 flex items-center gap-2">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                            d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                                    </svg>
+                                    Response Headers
+                                </h4>
+                                <div
+                                    class="bg-white rounded-2xl p-6 font-mono text-xs border border-gray-100 shadow-sm space-y-1 overflow-x-auto max-h-[300px]">
+                                    @foreach ($selectedRequest->response_headers ?? [] as $key => $values)
+                                        <div class="flex items-start gap-4 ring-1 ring-gray-50 py-1">
+                                            <span
+                                                class="text-gray-400 font-bold w-32 flex-shrink-0">{{ $key }}:</span>
+                                            <span
+                                                class="text-gray-800 break-all">{{ is_array($values) ? implode(', ', $values) : $values }}</span>
+                                        </div>
+                                    @endforeach
                                 </div>
                             </div>
                         </div>
 
-                        <div>
-                            <h4 class="text-xs font-bold uppercase text-gray-400 tracking-widest mb-3">User Agent</h4>
-                            <div
-                                class="bg-gray-50 rounded-xl p-5 font-mono text-xs text-gray-600 leading-relaxed border border-gray-100">
-                                {{ $selectedRequest->user_agent }}
-                            </div>
-                        </div>
-
-                        <div>
-                            <h4 class="text-xs font-bold uppercase text-gray-400 tracking-widest mb-3">Request Headers
-                            </h4>
-                            <div
-                                class="bg-gray-900 rounded-2xl p-6 font-mono text-xs text-green-400 space-y-2 overflow-x-auto shadow-xl ring-1 ring-white/10">
-                                <div class="flex items-start gap-4"><span
-                                        class="text-blue-400 font-bold w-24 flex-shrink-0">Host:</span> <span
-                                        class="text-white">{{ $selectedRequest->tunnel?->subdomain ?? 'deleted' }}.portex.io</span>
+                        <!-- Bodies Section -->
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <!-- Request Body -->
+                            <div>
+                                <h4
+                                    class="text-xs font-bold uppercase text-gray-400 tracking-widest mb-3 flex items-center gap-2">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                    </svg>
+                                    Request Body
+                                </h4>
+                                <div
+                                    class="bg-gray-900 rounded-2xl p-6 font-mono text-xs text-white shadow-xl ring-1 ring-white/10 overflow-x-auto min-h-[100px] max-h-[400px]">
+                                    @if ($selectedRequest->request_body)
+                                        <pre class="whitespace-pre-wrap">{{ $selectedRequest->request_body }}</pre>
+                                    @else
+                                        <span class="text-gray-500 italic">No request body</span>
+                                    @endif
                                 </div>
-                                <div class="flex items-start gap-4"><span
-                                        class="text-blue-400 font-bold w-24 flex-shrink-0">Remote-Addr:</span> <span
-                                        class="text-white">{{ $selectedRequest->ip_address }}</span></div>
-                                <div class="flex items-start gap-4"><span
-                                        class="text-blue-400 font-bold w-24 flex-shrink-0">Accept:</span> <span
-                                        class="text-white">*/*</span></div>
-                                <div class="flex items-start gap-4"><span
-                                        class="text-blue-400 font-bold w-24 flex-shrink-0">X-Request-ID:</span> <span
-                                        class="text-orange-400">{{ $selectedRequest->id }}</span></div>
+                            </div>
+
+                            <!-- Response Body -->
+                            <div>
+                                <h4
+                                    class="text-xs font-bold uppercase text-gray-400 tracking-widest mb-3 flex items-center gap-2">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    </svg>
+                                    Response Body
+                                </h4>
+                                <div
+                                    class="bg-gray-900 rounded-2xl p-6 font-mono text-xs text-green-400 shadow-xl ring-1 ring-white/10 overflow-x-auto min-h-[100px] max-h-[400px]">
+                                    @if ($selectedRequest->response_body)
+                                        <pre class="whitespace-pre-wrap">{{ $selectedRequest->response_body }}</pre>
+                                    @else
+                                        <span class="text-gray-500 italic">No response body</span>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     </div>
                 @else
+                    <!-- Empty State -->
                     <div class="flex-1 flex flex-col items-center justify-center p-20 text-center">
                         <div
                             class="w-32 h-32 bg-gray-50 rounded-full flex items-center justify-center mb-6 ring-4 ring-gray-50/50">
@@ -416,5 +581,22 @@ new class extends Component {
                 @endif
             </div>
         </div>
+
+        <script>
+            document.addEventListener('livewire:init', () => {
+                Livewire.on('logs-cleared', () => {
+                    // Refresh charts? Activity log is polled anyway.
+                });
+
+                Livewire.on('request-replayed', (event) => {
+                    // Simple toast or notification
+                    alert('Request replayed! Remote server returned: ' + event[0].status);
+                });
+
+                Livewire.on('request-failed', (event) => {
+                    alert('Replay failed: ' + event[0].error);
+                });
+            });
+        </script>
     </div>
 </div>

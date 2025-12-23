@@ -16,6 +16,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $ip_address
  * @property string|null $user_agent
  * @property \Illuminate\Support\Carbon $created_at
+ * @property array<array-key, mixed>|null $request_headers
+ * @property string|null $request_body
+ * @property array<array-key, mixed>|null $response_headers
+ * @property string|null $response_body
  * @property-read string $formatted_response_time
  * @property-read string $status_color
  * @property-read \App\Models\Tunnel $tunnel
@@ -27,6 +31,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TunnelRequest whereIpAddress($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TunnelRequest whereMethod($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TunnelRequest wherePath($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TunnelRequest whereRequestBody($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TunnelRequest whereRequestHeaders($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TunnelRequest whereResponseBody($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TunnelRequest whereResponseHeaders($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TunnelRequest whereResponseTimeMs($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TunnelRequest whereStatusCode($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|TunnelRequest whereTunnelId($value)
@@ -50,7 +58,11 @@ class TunnelRequest extends Model
         'tunnel_id',
         'method',
         'path',
+        'request_headers',
+        'request_body',
         'status_code',
+        'response_headers',
+        'response_body',
         'response_time_ms',
         'ip_address',
         'user_agent',
@@ -63,6 +75,8 @@ class TunnelRequest extends Model
      */
     protected $casts = [
         'created_at' => 'datetime',
+        'request_headers' => 'array',
+        'response_headers' => 'array',
     ];
 
     /**

@@ -13,6 +13,10 @@ new class extends Component {
 
     public function mount(Tunnel $tunnel)
     {
+        if (!is_admin() && $this->tunnel->user_id !== auth()->id()) {
+            abort(404);
+        }
+
         $this->tunnel = $tunnel;
     }
 
@@ -49,16 +53,16 @@ new class extends Component {
                     <ol class="flex items-center space-x-2">
                         <li>
                             <a href="{{ route('tunnels.index') }}"
-                                class="text-sm font-medium text-gray-500 hover:text-gray-700">Tunnels</a>
+                               class="text-sm font-medium text-gray-500 hover:text-gray-700">Tunnels</a>
                         </li>
                         <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd"
-                                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                                clip-rule="evenodd" />
+                                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                  clip-rule="evenodd"/>
                         </svg>
                         <li>
                             <span class="text-sm font-bold"
-                                style="color: var(--color-neutral);">{{ $tunnel->name }}</span>
+                                  style="color: var(--color-neutral);">{{ $tunnel->name }}</span>
                         </li>
                     </ol>
                 </nav>
@@ -86,14 +90,14 @@ new class extends Component {
                 <div class="px-4 py-3 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
                     <h3 class="text-xs font-bold uppercase tracking-wider text-gray-500">Live Requests</h3>
                     <div wire:loading wire:target="selectRequest">
-                        <x-loading class="loading-xs" />
+                        <x-loading class="loading-xs"/>
                     </div>
                 </div>
 
                 <div class="flex-1 overflow-y-auto divide-y divide-gray-100" wire:poll.3s>
                     @forelse($requests as $request)
                         <button wire:click="selectRequest('{{ $request->id }}')"
-                            class="w-full text-left px-4 py-3 transition-colors hover:bg-gray-50 {{ $selectedRequestId === $request->id ? 'bg-orange-50 ring-1 ring-inset ring-orange-200' : '' }}">
+                                class="w-full text-left px-4 py-3 transition-colors hover:bg-gray-50 {{ $selectedRequestId === $request->id ? 'bg-orange-50 ring-1 ring-inset ring-orange-200' : '' }}">
                             <div class="flex items-center justify-between mb-1">
                                 <span
                                     class="text-xs font-mono font-bold @if ($request->status_code >= 400) text-red-600 @elseif($request->status_code >= 300) text-blue-600 @else text-green-600 @endif">
@@ -114,9 +118,9 @@ new class extends Component {
                     @empty
                         <div class="p-8 text-center">
                             <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
+                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
-                                    d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                      d="M13 10V3L4 14h7v7l9-11h-7z"/>
                             </svg>
                             <p class="text-xs text-gray-500">Waiting for requests...</p>
                         </div>
@@ -200,9 +204,9 @@ new class extends Component {
 
                         <div class="p-4 bg-orange-50 border border-orange-100 rounded-lg flex items-center gap-3">
                             <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
+                                 viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
                             <p class="text-xs text-orange-800 font-medium">Body inspection and custom headers will be
                                 available in the next update.</p>
@@ -212,7 +216,7 @@ new class extends Component {
                     <div class="flex-1 flex flex-col items-center justify-center p-12 text-center text-gray-500">
                         <svg class="w-20 h-20 mb-4 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
-                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
                         <h3 class="text-lg font-medium" style="color: var(--color-neutral);">Inspect a request</h3>
                         <p class="text-sm max-w-xs mx-auto mt-2">Select a request from the list on the left to view
