@@ -9,6 +9,17 @@ Route::get('/', function () {
     return view('landing');
 })->name('home');
 
+Route::prefix('docs')->group(function () {
+    Route::view('/', 'docs.index')->name('docs.index');
+    Route::view('/installation', 'docs.installation')->name('docs.installation');
+    Route::view('/commands', 'docs.commands')->name('docs.commands');
+    Route::view('/security', 'docs.security')->name('docs.security');
+    Route::view('/dashboard', 'docs.dashboard')->name('docs.dashboard');
+    Route::view('/architecture', 'docs.architecture')->name('docs.architecture');
+});
+// Main docs redirect to index
+Route::get('/docs-old', fn() => redirect()->route('docs.index'))->name('docs');
+
 // Public routes
 Volt::route('/login', 'auth.login')->name('login');
 Volt::route('/tunnels/pin/{tunnel}', 'tunnels.pin-entry')->name('tunnels.pin');

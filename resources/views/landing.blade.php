@@ -33,13 +33,13 @@
     <!-- JSON-LD Structured Data -->
     <script type="application/ld+json">
     {
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
+      "@@context": "https://schema.org",
+      "@@type": "SoftwareApplication",
       "name": "Portex",
       "operatingSystem": "Windows, macOS, Linux",
       "applicationCategory": "DeveloperApplication",
       "offers": {
-        "@type": "Offer",
+        "@@type": "Offer",
         "price": "0",
         "priceCurrency": "USD"
       },
@@ -576,7 +576,7 @@
             <div class="nav-links">
                 <a href="#guide">Guide</a>
                 <a href="#features">Features</a>
-                <a href="#solutions">Solutions</a>
+                <a href="https://github.com/portex-space" target="_blank">GitHub</a>
                 @auth
                     <a href="{{ route('dashboard') }}" class="btn btn-primary"
                         style="margin-left: 32px; color: white;">Dashboard</a>
@@ -597,7 +597,7 @@
 
             <div style="display: flex; gap: 16px; justify-content: center;">
                 <a href="#guide" class="btn btn-primary">Get Started</a>
-                <a href="https://github.com/portex/portex" class="btn btn-outline" target="_blank">Documentation</a>
+                <a href="{{ route('docs.index') }}" class="btn btn-outline">Documentation</a>
             </div>
 
             <div class="terminal-window">
@@ -854,8 +854,9 @@
                 <div class="footer-links">
                     <h5>Product</h5>
                     <ul>
-                        <li><a href="#">Download</a></li>
-                        <li><a href="#">Documentation</a></li>
+                        <li><a href="#guide">Download</a></li>
+                        <li><a href="{{ route('docs.index') }}">Documentation</a></li>
+                        <li><a href="https://github.com/portex-space" target="_blank">GitHub</a></li>
                         <li><a href="#">Pricing</a></li>
                     </ul>
                 </div>
