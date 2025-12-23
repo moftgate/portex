@@ -9,6 +9,7 @@ use App\Models\Tunnel;
 use App\Models\User;
 use App\Services\AgentService;
 use App\Services\TunnelService;
+use App\Services\UsageTrackingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -181,7 +182,7 @@ class AgentController extends Controller
         $user = $agent->user;
 
         // Check usage limits
-        $usageService = app(\App\Services\UsageTrackingService::class);
+        $usageService = app(UsageTrackingService::class);
 
         if ($usageService->hasExceededDailyLimit($user)) {
             $stats = $usageService->getUsageStats($user);
@@ -293,7 +294,7 @@ class AgentController extends Controller
         $agent = $request->agent;
         $user = $agent->user;
 
-        $usageService = app(\App\Services\UsageTrackingService::class);
+        $usageService = app(UsageTrackingService::class);
         $stats = $usageService->getUsageStats($user);
 
         return response()->json($stats);

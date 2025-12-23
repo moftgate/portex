@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
+use App\Models\Agent;
 use App\Models\Tunnel;
 use App\Models\User;
-use Carbon\Carbon;
 
 class UsageTrackingService
 {
@@ -17,8 +17,19 @@ class UsageTrackingService
             return false; // Premium users have no limit
         }
 
-        $todayUsage = $this->getTodayUsageSeconds($user);
-        return $todayUsage >= $user->daily_usage_limit_seconds;
+        $stats = $this->getUsageStats($user);
+
+        // Check time limit
+        if ($stats['used_seconds'] >= $user->daily_usage_limit_seconds) {
+            return true;
+        }
+
+        // Check bandwidth limit
+        if ($stats['total_bandwidth'] >= $user->bandwidth_limit_bytes) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -26,14 +37,7 @@ class UsageTrackingService
      */
     public function getTodayUsageSeconds(User $user): int
     {
-        return $user->agents()
-            ->with('tunnels')
-            ->get()
-            ->flatMap->tunnels
-            ->sum(function ($tunnel) {
-                $this->resetUsageIfNeeded($tunnel);
-                return $tunnel->usage_seconds_today ?? 0;
-            });
+        return Agent::firstWhere('user_id', $user->id)?->total_usage_seconds ?? 0;
     }
 
     /**
@@ -46,8 +50,9 @@ class UsageTrackingService
         }
 
         $used = $this->getTodayUsageSeconds($user);
+
         $remaining = $user->daily_usage_limit_seconds - $used;
-        
+
         return max(0, $remaining);
     }
 
@@ -60,6 +65,12 @@ class UsageTrackingService
         $tunnel->increment('bytes_downloaded', $bytesDownloaded);
         $tunnel->increment('total_requests');
         $tunnel->update(['last_activity_at' => now()]);
+
+        if ($tunnel->agent) {
+            $tunnel->agent->increment('bytes_uploaded', $bytesUploaded);
+            $tunnel->agent->increment('bytes_downloaded', $bytesDownloaded);
+            $tunnel->agent->increment('total_requests');
+        }
     }
 
     /**
@@ -67,25 +78,15 @@ class UsageTrackingService
      */
     public function trackUsageTime(Tunnel $tunnel, int $seconds): void
     {
-        $this->resetUsageIfNeeded($tunnel);
-        
         $tunnel->increment('usage_seconds_today', $seconds);
-        $tunnel->update([
-            'usage_reset_date' => today(),
-            'last_activity_at' => now(),
-        ]);
-    }
 
-    /**
-     * Reset usage if it's a new day
-     */
-    protected function resetUsageIfNeeded(Tunnel $tunnel): void
-    {
-        if ($tunnel->usage_reset_date === null || ! $tunnel->usage_reset_date->isToday()) {
-            $tunnel->update([
-                'usage_seconds_today' => 0,
-                'usage_reset_date' => today(),
-            ]);
+        $tunnel->update([
+            'last_activity_at' => now(),
+            'status' => 'active',
+        ]);
+
+        if ($tunnel->agent) {
+            $tunnel->agent->increment('total_usage_seconds', $seconds);
         }
     }
 
@@ -95,6 +96,7 @@ class UsageTrackingService
     public function getUsageStats(User $user): array
     {
         $usedSeconds = $this->getTodayUsageSeconds($user);
+
         $limitSeconds = $user->daily_usage_limit_seconds;
         $remainingSeconds = $this->getRemainingSeconds($user);
 
@@ -102,7 +104,7 @@ class UsageTrackingService
             ->with('tunnels')
             ->get()
             ->flatMap->tunnels
-            ->sum(fn($t) => $t->bytes_uploaded + $t->bytes_downloaded);
+            ->sum(fn ($t) => $t->bytes_uploaded + $t->bytes_downloaded);
 
         return [
             'tier' => $user->tier,
@@ -127,12 +129,14 @@ class UsageTrackingService
         if ($seconds >= 3600) {
             $hours = floor($seconds / 3600);
             $minutes = floor(($seconds % 3600) / 60);
+
             return "{$hours}h {$minutes}m";
         }
 
         if ($seconds >= 60) {
             $minutes = floor($seconds / 60);
             $secs = $seconds % 60;
+
             return "{$minutes}m {$secs}s";
         }
 
@@ -146,7 +150,7 @@ class UsageTrackingService
     {
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];
         $power = $bytes > 0 ? floor(log($bytes, 1024)) : 0;
-        
-        return round($bytes / pow(1024, $power), 2) . ' ' . $units[$power];
+
+        return round($bytes / pow(1024, $power), 2).' '.$units[$power];
     }
 }

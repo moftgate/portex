@@ -65,7 +65,7 @@ func (c *Client) GetActiveTunnels() ([]Tunnel, error) {
 	return result.Tunnels, nil
 }
 
-func (c *Client) LogRequest(tunnelID, method, path string, statusCode, responseTimeMs int, ipAddress, userAgent string) error {
+func (c *Client) LogRequest(tunnelID, method, path string, statusCode, responseTimeMs int, ipAddress, userAgent string, bytesUploaded, bytesDownloaded int) error {
 	payload := map[string]interface{}{
 		"method":           method,
 		"path":             path,
@@ -73,6 +73,8 @@ func (c *Client) LogRequest(tunnelID, method, path string, statusCode, responseT
 		"response_time_ms": responseTimeMs,
 		"ip_address":       ipAddress,
 		"user_agent":       userAgent,
+		"bytes_uploaded":   bytesUploaded,
+		"bytes_downloaded": bytesDownloaded,
 	}
 
 	body, err := json.Marshal(payload)

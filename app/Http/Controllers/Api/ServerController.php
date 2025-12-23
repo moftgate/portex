@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Tunnel;
 use App\Models\TunnelRequest;
+use App\Services\UsageTrackingService;
 use Illuminate\Http\Request;
 
 class ServerController extends Controller
@@ -62,16 +63,16 @@ class ServerController extends Controller
         ]);
 
         // Track bandwidth and usage
-        $usageService = app(\App\Services\UsageTrackingService::class);
+        $usageService = app(UsageTrackingService::class);
         $usageService->trackBandwidth(
-            $tunnel, 
-            $validated['bytes_uploaded'] ?? 0, 
+            $tunnel,
+            $validated['bytes_uploaded'] ?? 0,
             $validated['bytes_downloaded'] ?? 0
         );
 
-        // For simplicity, we count each request as 1 second of "active usage" 
+        // For simplicity, we count each request as 1 second of "active usage"
         // if no other time tracking is implemented yet.
-        $usageService->trackUsageTime($tunnel, 1);
+        //$usageService->trackUsageTime($tunnel, 1);
 
         return response()->json([
             'status' => 'logged',

@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"portex/agent/pkg/config"
 	"portex/agent/pkg/deviceid"
@@ -427,9 +428,21 @@ var startCmd = &cobra.Command{
 		}
 
 		fmt.Println()
-		fmt.Println("✅ Tunnel is now active and forwarding traffic!")
-		fmt.Println("   Press Ctrl+C to stop")
-		fmt.Println()
+
+		// Start heartbeat goroutine
+		go func() {
+			for {
+				time.Sleep(10 * time.Second)
+				req, _ := http.NewRequest("POST", cfg.Server.URL+"/api/agent/heartbeat", nil)
+				req.Header.Set("Authorization", fmt.Sprintf("Bearer %s:%s", cfg.Server.APIKey, cfg.Server.APISecret))
+				req.Header.Set("Accept", "application/json")
+
+				resp, err := http.DefaultClient.Do(req)
+				if err == nil {
+					resp.Body.Close()
+				}
+			}
+		}()
 
 		// Keep running
 		select {}

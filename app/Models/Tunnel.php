@@ -24,10 +24,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property array<array-key, mixed>|null $metadata
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property int $bytes_uploaded
+ * @property int $bytes_downloaded
+ * @property int $total_requests
+ * @property \Illuminate\Support\Carbon|null $last_activity_at
+ * @property int $usage_seconds_today
  * @property-read \App\Models\Agent|null $agent
  * @property-read string $public_url
  * @property-read string $status_badge
- * @property-read int $total_requests
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\TunnelRequest> $requests
  * @property-read int|null $requests_count
  * @property-read \App\Models\User $user
@@ -40,9 +44,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Tunnel whereAuthEnabled($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Tunnel whereAuthPassword($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Tunnel whereAuthUsername($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tunnel whereBytesDownloaded($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tunnel whereBytesUploaded($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Tunnel whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Tunnel whereCustomDomain($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Tunnel whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tunnel whereLastActivityAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Tunnel whereLocalPort($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Tunnel whereMaxConnections($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Tunnel whereMetadata($value)
@@ -50,7 +57,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Tunnel whereProtocol($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Tunnel whereStatus($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Tunnel whereSubdomain($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tunnel whereTotalRequests($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Tunnel whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tunnel whereUsageSecondsToday($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Tunnel whereUserId($value)
  * @mixin \Eloquent
  */
@@ -81,7 +90,6 @@ class Tunnel extends Model
         'total_requests',
         'last_activity_at',
         'usage_seconds_today',
-        'usage_reset_date',
     ];
 
     /**
@@ -93,7 +101,6 @@ class Tunnel extends Model
         'auth_enabled' => 'boolean',
         'metadata' => 'array',
         'last_activity_at' => 'datetime',
-        'usage_reset_date' => 'date',
     ];
 
     /**

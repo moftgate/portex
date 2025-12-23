@@ -57,7 +57,7 @@ new class extends Component {
             <h1 class="text-2xl font-semibold" style="color: var(--color-neutral);">Tunnels</h1>
             <p class="text-sm text-gray-600 mt-1">Manage your active tunnels</p>
         </div>
-        <a href="{{ route('tunnels.create') }}"
+        {{--<a href="{{ route('tunnels.create') }}"
             class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-md transition-colors"
             style="background-color: var(--color-primary);" onmouseover="this.style.opacity='0.9'"
             onmouseout="this.style.opacity='1'">
@@ -65,7 +65,7 @@ new class extends Component {
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
             Create Tunnel
-        </a>
+        </a>--}}
     </div>
 
     <!-- Search -->

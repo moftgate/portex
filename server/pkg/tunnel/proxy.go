@@ -110,6 +110,8 @@ func (h *ProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			int(duration.Milliseconds()),
 			strings.Split(r.RemoteAddr, ":")[0],
 			r.UserAgent(),
+			len(body),      // bytes_uploaded
+			len(resp.Body), // bytes_downloaded
 		)
 		if err != nil {
 			log.Printf("Failed to log request to backend: %v", err)

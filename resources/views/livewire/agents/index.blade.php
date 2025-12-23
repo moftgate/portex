@@ -70,7 +70,7 @@ new class extends Component {
             <h1 class="text-2xl font-semibold" style="color: var(--color-neutral);">Agents</h1>
             <p class="text-sm text-gray-600 mt-1">Manage your connected agents</p>
         </div>
-        <button wire:click="createAgent"
+        {{--<button wire:click="createAgent"
                 class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white rounded-md transition-colors"
                 style="background-color: var(--color-primary);" onmouseover="this.style.opacity='0.9'"
                 onmouseout="this.style.opacity='1'" wire:loading.attr="disabled">
@@ -79,7 +79,7 @@ new class extends Component {
             </svg>
             <span wire:loading.remove wire:target="createAgent">Register Agent</span>
             <span wire:loading wire:target="createAgent">Creating...</span>
-        </button>
+        </button>--}}
     </div>
 
     <!-- Search -->
@@ -247,12 +247,12 @@ new class extends Component {
                                       d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
                             </svg>
                             <p class="text-gray-500 mb-4">No agents found</p>
-                            <button wire:click="createAgent"
+                            {{--<button wire:click="createAgent"
                                     class="inline-flex items-center px-4 py-2 text-sm font-medium text-white rounded-md transition-colors"
                                     style="background-color: var(--color-primary);"
                                     onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
                                 Register your first agent
-                            </button>
+                            </button>--}}
                         </td>
                     </tr>
                 @endforelse

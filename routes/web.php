@@ -21,10 +21,11 @@ Route::middleware(['auth'])->prefix('panel')->group(function () {
     Volt::route('/', 'dashboard.index')->name('dashboard');
 
     Volt::route('/tunnels', 'tunnels.index')->name('tunnels.index');
-    Volt::route('/tunnels/create', 'tunnels.create')->name('tunnels.create');
+    //Volt::route('/tunnels/create', 'tunnels.create')->name('tunnels.create');
     Volt::route('/tunnels/{tunnel}', 'tunnels.show')->name('tunnels.show');
     Volt::route('/agents', 'agents.index')->name('agents.index');
     Volt::route('/activity', 'activity.index')->name('activity.index');
+    //Volt::route('/upgrade', 'panel.upgrade')->name('panel.upgrade');
 
     Route::post('/logout', function () {
         auth()->logout();
