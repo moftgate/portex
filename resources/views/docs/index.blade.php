@@ -1,4 +1,4 @@
-@extends('docs.layout')
+@extends('components.layouts.docs')
 
 @section('title', 'Welcome to Portex')
 
@@ -35,7 +35,7 @@
     <div class="callout">
         <span>Quick Note</span>
         Portex is built for developers. Our agent is open source, and you can find all our repositories on <a
-            href="https://github.com/portex-space" target="_blank"
+            href="https://github.com/orgs/portex-space/repositories" target="_blank"
             style="color: var(--orange); font-weight: 600; text-decoration: none;">GitHub</a>.
     </div>
 @endsection

@@ -576,7 +576,7 @@
             <div class="nav-links">
                 <a href="#guide">Guide</a>
                 <a href="#features">Features</a>
-                <a href="https://github.com/portex-space" target="_blank">GitHub</a>
+                <a href="https://github.com/orgs/portex-space/repositories" target="_blank">GitHub</a>
                 @auth
                     <a href="{{ route('dashboard') }}" class="btn btn-primary"
                         style="margin-left: 32px; color: white;">Dashboard</a>
@@ -856,7 +856,7 @@
                     <ul>
                         <li><a href="#guide">Download</a></li>
                         <li><a href="{{ route('docs.index') }}">Documentation</a></li>
-                        <li><a href="https://github.com/portex-space" target="_blank">GitHub</a></li>
+                        <li><a href="https://github.com/orgs/portex-space/repositories" target="_blank">GitHub</a></li>
                         <li><a href="#">Pricing</a></li>
                     </ul>
                 </div>

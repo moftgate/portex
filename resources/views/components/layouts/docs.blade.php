@@ -265,7 +265,7 @@
                 Portex
             </a>
             <div class="nav-links" style="display: flex; gap: 20px; align-items: center;">
-                <a href="https://github.com/portex-space" target="_blank"
+                <a href="https://github.com/orgs/portex-space/repositories" target="_blank"
                     style="text-decoration: none; color: var(--slate); font-weight: 500; font-size: 14px;">GitHub</a>
                 <a href="/"
                     style="text-decoration: none; color: var(--slate); font-weight: 500; font-size: 14px;">Back to
@@ -292,6 +292,8 @@
                     </li>
                     <li><a href="{{ route('docs.security') }}"
                             class="{{ request()->routeIs('docs.security') ? 'active' : '' }}">Security & PINs</a></li>
+                    <li><a href="{{ route('docs.use-cases') }}"
+                            class="{{ request()->routeIs('docs.use-cases') ? 'active' : '' }}">Use Cases</a></li>
                 </ul>
 
                 <h4>Advanced</h4>
@@ -301,6 +303,16 @@
                     </li>
                     <li><a href="{{ route('docs.architecture') }}"
                             class="{{ request()->routeIs('docs.architecture') ? 'active' : '' }}">How it Works</a>
+                    </li>
+                </ul>
+
+                <h4>Resources</h4>
+                <ul>
+                    <li><a href="{{ route('docs.troubleshooting') }}"
+                            class="{{ request()->routeIs('docs.troubleshooting') ? 'active' : '' }}">Troubleshooting</a>
+                    </li>
+                    <li><a href="{{ route('docs.roadmap') }}"
+                            class="{{ request()->routeIs('docs.roadmap') ? 'active' : '' }}">Roadmap</a>
                     </li>
                 </ul>
             </aside>

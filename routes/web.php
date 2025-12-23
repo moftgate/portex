@@ -16,6 +16,9 @@ Route::prefix('docs')->group(function () {
     Route::view('/security', 'docs.security')->name('docs.security');
     Route::view('/dashboard', 'docs.dashboard')->name('docs.dashboard');
     Route::view('/architecture', 'docs.architecture')->name('docs.architecture');
+    Route::view('/use-cases', 'docs.use-cases')->name('docs.use-cases');
+    Route::view('/troubleshooting', 'docs.troubleshooting')->name('docs.troubleshooting');
+    Route::view('/roadmap', 'docs.roadmap')->name('docs.roadmap');
 });
 // Main docs redirect to index
 Route::get('/docs-old', fn() => redirect()->route('docs.index'))->name('docs');

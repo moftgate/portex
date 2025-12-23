@@ -1,4 +1,4 @@
-@extends('docs.layout')
+@extends('components.layouts.docs')
 
 @section('title', 'System Architecture & Infrastructure')
 
