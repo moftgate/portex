@@ -1,6 +1,7 @@
 package tunnel
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -42,6 +43,28 @@ func (h *ProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if agent == nil {
 		h.renderOfflinePage(w, subdomain)
 		return
+	}
+
+	// Check for PIN protection
+	if agent.Pin != "" {
+		// Check for access cookie
+		cookieName := "portex_access_" + agent.TunnelID
+		cookie, err := r.Cookie(cookieName)
+
+		// Expected value is "pin:session_token"
+		expectedValue := agent.Pin + ":" + agent.SessionToken
+
+		// If no cookie or cookie value doesn't match PIN+Session, redirect to entry page
+		if err != nil || cookie.Value != expectedValue {
+			// Redirect to PIN entry page on the main domain
+			pinUrl := fmt.Sprintf("https://%s/tunnels/pin/%s?session_token=%s&redirect_to=%s",
+				h.domain,
+				agent.TunnelID,
+				agent.SessionToken,
+				"https://"+r.Host+r.URL.Path)
+			http.Redirect(w, r, pinUrl, http.StatusFound)
+			return
+		}
 	}
 
 	// Read request body

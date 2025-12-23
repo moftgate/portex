@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"os"
 	"os/exec"
@@ -16,6 +17,7 @@ import (
 	"portex/agent/pkg/deviceid"
 	"portex/agent/pkg/forwarder"
 
+	"github.com/mdp/qrterminal/v3"
 	"github.com/spf13/cobra"
 )
 
@@ -97,6 +99,7 @@ var loginCmd = &cobra.Command{
 var (
 	port      int
 	subdomain string
+	pin       string
 )
 
 type TunnelResponse struct {
@@ -307,6 +310,9 @@ var startCmd = &cobra.Command{
 		if subdomain != "" {
 			tunnelReq["subdomain"] = subdomain
 		}
+		if pin != "" {
+			tunnelReq["pin"] = pin
+		}
 		tunnelBody, _ := json.Marshal(tunnelReq)
 
 		req, _ = http.NewRequest("POST", cfg.Server.URL+"/api/agent/tunnels", bytes.NewBuffer(tunnelBody))
@@ -407,6 +413,21 @@ var startCmd = &cobra.Command{
 		fmt.Println("  \033[1;33mForwarding\033[0m")
 		fmt.Printf("  %s \033[1;34m->\033[0m http://localhost:%d\n", tunnelResp.Tunnel.PublicURL, tunnelResp.Tunnel.LocalPort)
 		fmt.Println()
+
+		// Show QR Code for mobile testing
+		if strings.HasPrefix(tunnelResp.Tunnel.PublicURL, "http") {
+			fmt.Println("  \033[1;33mScan for Mobile Testing\033[0m")
+			config := qrterminal.Config{
+				Level:     qrterminal.L,
+				Writer:    os.Stdout,
+				BlackChar: qrterminal.BLACK,
+				WhiteChar: qrterminal.WHITE,
+				QuietZone: 1,
+			}
+			qrterminal.GenerateWithConfig(tunnelResp.Tunnel.PublicURL, config)
+			fmt.Println()
+		}
+
 		if loginURL != "" {
 			fmt.Println("  \033[1;35mWeb Interface\033[0m")
 			fmt.Printf("  %s\n", loginURL)
@@ -483,12 +504,53 @@ func init() {
 	// Start command flags
 	startCmd.Flags().IntVarP(&port, "port", "p", 0, "Local port to forward")
 	startCmd.Flags().StringVarP(&subdomain, "subdomain", "s", "", "Custom subdomain (optional)")
+	startCmd.Flags().StringVar(&pin, "pin", "", "PIN protection (4 digits)")
 	startCmd.MarkFlagRequired("port")
 
 	// Add commands to root
 	rootCmd.AddCommand(loginCmd)
 	rootCmd.AddCommand(startCmd)
 	rootCmd.AddCommand(logoutCmd)
+	rootCmd.AddCommand(staticCmd)
+}
+
+var staticCmd = &cobra.Command{
+	Use:   "static [directory]",
+	Short: "Serve a static directory over a tunnel",
+	Long:  `Serve a local directory as a web server and expose it to the internet using a Portex tunnel.`,
+	Args:  cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		dir := args[0]
+		absDir, err := filepath.Abs(dir)
+		if err != nil {
+			return fmt.Errorf("invalid directory: %w", err)
+		}
+
+		if info, err := os.Stat(absDir); err != nil || !info.IsDir() {
+			return fmt.Errorf("directory does not exist: %s", absDir)
+		}
+
+		// Start local server on a random available port
+		listener, err := net.Listen("tcp", "127.0.0.1:0")
+		if err != nil {
+			return fmt.Errorf("failed to start local server: %w", err)
+		}
+		localPort := listener.Addr().(*net.TCPAddr).Port
+		listener.Close()
+
+		go func() {
+			fmt.Printf("📁 Serving directory: %s\n", absDir)
+			err := http.ListenAndServe(fmt.Sprintf("127.0.0.1:%d", localPort), http.FileServer(http.Dir(absDir)))
+			if err != nil {
+				fmt.Printf("❌ Local server failed: %v\n", err)
+				os.Exit(1)
+			}
+		}()
+
+		// Set the port and call the start command logic
+		port = localPort
+		return startCmd.RunE(cmd, args)
+	},
 }
 
 func main() {

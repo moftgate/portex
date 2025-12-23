@@ -90,6 +90,7 @@ class Tunnel extends Model
         'total_requests',
         'last_activity_at',
         'usage_seconds_today',
+        'pin',
     ];
 
     /**

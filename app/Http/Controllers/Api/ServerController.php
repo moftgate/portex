@@ -28,11 +28,32 @@ class ServerController extends Controller
                     'auth_enabled' => $tunnel->auth_enabled,
                     'auth_username' => $tunnel->auth_username,
                     'auth_password' => $tunnel->auth_password,
+                    'pin' => $tunnel->pin,
                 ];
             });
 
         return response()->json([
             'tunnels' => $tunnels,
+        ]);
+    }
+
+    /**
+     * Get a single tunnel for routing.
+     */
+    public function getTunnel(Tunnel $tunnel)
+    {
+        return response()->json([
+            'tunnel' => [
+                'id' => $tunnel->id,
+                'subdomain' => $tunnel->subdomain,
+                'custom_domain' => $tunnel->custom_domain,
+                'protocol' => $tunnel->protocol,
+                'agent_id' => $tunnel->agent_id,
+                'auth_enabled' => $tunnel->auth_enabled,
+                'auth_username' => $tunnel->auth_username,
+                'auth_password' => $tunnel->auth_password,
+                'pin' => $tunnel->pin,
+            ],
         ]);
     }
 

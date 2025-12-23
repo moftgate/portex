@@ -1,6 +1,8 @@
 package tunnel
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -43,12 +45,14 @@ type HTTPResponse struct {
 }
 
 type AgentConnection struct {
-	TunnelID    string
-	Subdomain   string
-	Conn        *websocket.Conn
-	Send        chan Message
-	PendingReqs map[string]chan HTTPResponse
-	mu          sync.RWMutex
+	TunnelID     string
+	Subdomain    string
+	Conn         *websocket.Conn
+	Send         chan Message
+	PendingReqs  map[string]chan HTTPResponse
+	Pin          string
+	SessionToken string
+	mu           sync.RWMutex
 }
 
 type TunnelManager struct {
@@ -62,21 +66,34 @@ func NewTunnelManager() *TunnelManager {
 	}
 }
 
-func (tm *TunnelManager) RegisterAgent(subdomain, tunnelID string, conn *websocket.Conn) *AgentConnection {
+func (tm *TunnelManager) RegisterAgent(subdomain, tunnelID, pin string, conn *websocket.Conn) *AgentConnection {
+	// Generate a random session token for this specific connection
+	sessionToken := generateRandomToken(16)
+
 	agent := &AgentConnection{
-		TunnelID:    tunnelID,
-		Subdomain:   subdomain,
-		Conn:        conn,
-		Send:        make(chan Message, 256),
-		PendingReqs: make(map[string]chan HTTPResponse),
+		TunnelID:     tunnelID,
+		Subdomain:    subdomain,
+		Pin:          pin,
+		SessionToken: sessionToken,
+		Conn:         conn,
+		Send:         make(chan Message, 256),
+		PendingReqs:  make(map[string]chan HTTPResponse),
 	}
 
 	tm.mu.Lock()
 	tm.agents[subdomain] = agent
 	tm.mu.Unlock()
 
-	//log.Printf("Agent registered for subdomain: %s (tunnel: %s)", subdomain, tunnelID)
+	//log.Printf("Agent registered for subdomain: %s (tunnel: %s, session: %s)", subdomain, tunnelID, sessionToken)
 	return agent
+}
+
+func generateRandomToken(n int) string {
+	b := make([]byte, n)
+	if _, err := rand.Read(b); err != nil {
+		return ""
+	}
+	return hex.EncodeToString(b)
 }
 
 func (tm *TunnelManager) UnregisterAgent(subdomain string) {

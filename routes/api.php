@@ -31,5 +31,6 @@ Route::middleware(AgentAuthentication::class)->prefix('agent')->group(function (
 // Server routes (server API key auth)
 Route::middleware(ServerAuthentication::class)->prefix('server')->group(function () {
     Route::get('/tunnels', [ServerController::class, 'getTunnels']);
+    Route::get('/tunnel/{tunnel}', [ServerController::class, 'getTunnel']);
     Route::post('/tunnel/{tunnel}/request', [ServerController::class, 'logRequest']);
 });

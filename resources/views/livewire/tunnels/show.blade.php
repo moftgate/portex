@@ -4,12 +4,14 @@ use App\Models\Tunnel;
 use App\Models\TunnelRequest;
 use Livewire\Volt\Component;
 use Livewire\WithPagination;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 new class extends Component {
     use WithPagination;
 
     public Tunnel $tunnel;
     public ?string $selectedRequestId = null;
+    public bool $showQrModal = false;
 
     public function mount(Tunnel $tunnel)
     {
@@ -108,6 +110,12 @@ new class extends Component {
             </div>
 
             <div class="flex items-center gap-3">
+                <button @click="$dispatch('open-qr-modal')"
+                    class="p-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors shadow-sm text-gray-600 hover:text-orange-600"
+                    title="Show QR Code">
+                    <x-icon name="o-qr-code" class="w-5 h-5" />
+                </button>
+
                 <div
                     class="px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-2 {{ $tunnel->status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' }}">
                     <div
@@ -208,6 +216,19 @@ new class extends Component {
                                 </svg>
                                 <span>Replay</span>
                             </button>
+
+                            <button
+                                onclick="copyAsCurl({{ json_encode([
+                                    'method' => $selectedRequest->method,
+                                    'url' => $tunnel->public_url . $selectedRequest->path,
+                                    'headers' => $selectedRequest->request_headers,
+                                    'body' => $selectedRequest->request_body,
+                                ]) }})"
+                                class="text-xs font-bold text-gray-600 hover:text-gray-700 flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 rounded-lg transition-colors border border-gray-200">
+                                <x-icon name="o-clipboard-document" class="w-3.5 h-3.5" />
+                                <span>Copy as cURL</span>
+                            </button>
+
                             <div class="text-xs text-gray-500">
                                 {{ $selectedRequest->created_at->format('M d, Y H:i:s.v') }}
                             </div>
@@ -356,6 +377,27 @@ new class extends Component {
     </div>
 
     <script>
+        function copyAsCurl(request) {
+            let curl = `curl -X ${request.method} "${request.url}"`;
+            for (const [header, values] of Object.entries(request.headers || {})) {
+                // Skip headers that curl adds automatically or are internal
+                const lowered = header.toLowerCase();
+                if (['content-length', 'host', 'connection'].includes(lowered)) continue;
+
+                const val = Array.isArray(values) ? values.join(', ') : values;
+                curl += ` -H "${header}: ${val}"`;
+            }
+            if (request.body) {
+                // Escape single quotes for shell
+                const escapedBody = request.body.replace(/'/g, "'\\''");
+                curl += ` -d '${escapedBody}'`;
+            }
+
+            navigator.clipboard.writeText(curl).then(() => {
+                alert('cURL command copy to clipboard!');
+            });
+        }
+
         document.addEventListener('livewire:init', () => {
             Livewire.on('request-replayed', (event) => {
                 alert('Request replayed! Remote server returned: ' + event[0].status);
@@ -364,6 +406,30 @@ new class extends Component {
             Livewire.on('request-failed', (event) => {
                 alert('Replay failed: ' + event[0].error);
             });
+        });
+    </script>
+    <!-- QR Code Modal -->
+    <x-modal wire:model="showQrModal" id="qr-modal" title="Scan for Mobile Testing">
+        <div class="flex flex-col items-center justify-center p-6 text-center">
+            <div class="bg-white p-4 rounded-3xl shadow-lg border border-gray-100 mb-6 font-mono">
+                {!! QrCode::size(250)->margin(1)->generate($tunnel->public_url) !!}
+            </div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Tunnel Public URL</h3>
+            <p class="text-sm text-gray-500 break-all bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100 cursor-pointer hover:bg-gray-100"
+                @click="navigator.clipboard.writeText('{{ $tunnel->public_url }}').then(() => alert('URL kopyalandı!'))">
+                {{ $tunnel->public_url }}
+            </p>
+            <p class="mt-4 text-xs text-gray-400">Scan this code with your mobile device to test your local service
+                instantly.</p>
+        </div>
+        <x-slot:actions>
+            <x-button label="Close" @click="$wire.showQrModal = false" class="btn-ghost" />
+        </x-slot:actions>
+    </x-modal>
+
+    <script>
+        document.addEventListener('open-qr-modal', () => {
+            @this.set('showQrModal', true);
         });
     </script>
 </div>

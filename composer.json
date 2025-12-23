@@ -13,7 +13,8 @@
         "livewire/livewire": "^3.7",
         "livewire/volt": "^1.10",
         "owenvoke/blade-fontawesome": "^3.0",
-        "robsontenorio/mary": "^2.4"
+        "robsontenorio/mary": "^2.4",
+        "simplesoftwareio/simple-qrcode": "^4.2"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^3.6",

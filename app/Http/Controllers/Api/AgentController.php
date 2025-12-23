@@ -200,12 +200,14 @@ class AgentController extends Controller
             'subdomain' => 'nullable|string|max:63|regex:/^[a-z0-9-]+$/',
             'local_port' => 'required|integer|min:1|max:65535',
             'protocol' => 'nullable|in:http,https,tcp',
+            'pin' => 'nullable|string|size:4',
         ]);
 
         // Set defaults
         $validated['name'] = $validated['name'] ?? 'Tunnel '.now()->format('Y-m-d H:i');
         $validated['protocol'] = $validated['protocol'] ?? 'http';
         $validated['agent_id'] = $agent->id;
+        $validated['pin'] = $validated['pin'] ?? null;
 
         // Check if this agent already has this subdomain
         if (! empty($validated['subdomain'])) {
@@ -217,6 +219,7 @@ class AgentController extends Controller
                 $existing->update([
                     'local_port' => $validated['local_port'],
                     'protocol' => $validated['protocol'],
+                    'pin' => $validated['pin'],
                     'status' => 'active',
                 ]);
 
@@ -229,6 +232,7 @@ class AgentController extends Controller
                         'protocol' => $existing->protocol,
                         'public_url' => $existing->public_url,
                         'status' => $existing->status,
+                        'pin' => $existing->pin,
                     ],
                     'message' => 'Tunnel updated successfully',
                 ], 200);
@@ -247,6 +251,7 @@ class AgentController extends Controller
                 'protocol' => $tunnel->protocol,
                 'public_url' => $tunnel->public_url,
                 'status' => $tunnel->status,
+                'pin' => $tunnel->pin,
             ],
             'message' => 'Tunnel created successfully',
         ], 201);

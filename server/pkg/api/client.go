@@ -24,6 +24,7 @@ type Tunnel struct {
 	AuthEnabled  bool   `json:"auth_enabled"`
 	AuthUsername string `json:"auth_username"`
 	AuthPassword string `json:"auth_password"`
+	Pin          string `json:"pin"`
 }
 
 func NewClient(baseURL, apiKey string) *Client {
@@ -34,6 +35,36 @@ func NewClient(baseURL, apiKey string) *Client {
 			Timeout: 10 * time.Second,
 		},
 	}
+}
+
+func (c *Client) GetTunnel(tunnelID string) (*Tunnel, error) {
+	req, err := http.NewRequest("GET", c.baseURL+"/api/server/tunnel/"+tunnelID, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Authorization", "Bearer "+c.apiKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := c.client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed to get tunnel: status %d", resp.StatusCode)
+	}
+
+	var result struct {
+		Tunnel Tunnel `json:"tunnel"`
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, err
+	}
+
+	return &result.Tunnel, nil
 }
 
 func (c *Client) GetActiveTunnels() ([]Tunnel, error) {

@@ -63,8 +63,17 @@ func main() {
 			return
 		}
 
+		// Fetch tunnel details from API to get the PIN and other info
+		t, err := apiClient.GetTunnel(tunnelID)
+		pin := ""
+		if err == nil && t != nil {
+			pin = t.Pin
+		} else {
+			log.Printf("Warning: Failed to fetch tunnel details for %s: %v", tunnelID, err)
+		}
+
 		// Register agent
-		agent := tunnelManager.RegisterAgent(subdomain, tunnelID, conn)
+		agent := tunnelManager.RegisterAgent(subdomain, tunnelID, pin, conn)
 
 		// Start write pump in goroutine
 		go agent.WritePump()

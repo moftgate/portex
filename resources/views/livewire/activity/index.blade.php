@@ -450,6 +450,19 @@ new class extends Component {
                                 </svg>
                                 <span>Replay</span>
                             </button>
+
+                            <button
+                                onclick="copyAsCurl({{ json_encode([
+                                    'method' => $selectedRequest->method,
+                                    'url' => ($selectedRequest->tunnel->public_url ?? '') . $selectedRequest->path,
+                                    'headers' => $selectedRequest->request_headers,
+                                    'body' => $selectedRequest->request_body,
+                                ]) }})"
+                                class="text-xs font-bold text-gray-600 hover:text-gray-700 flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 rounded-lg transition-colors border border-gray-200">
+                                <x-icon name="o-clipboard-document" class="w-3.5 h-3.5" />
+                                <span>Copy as cURL</span>
+                            </button>
+
                             <a href="{{ route('tunnels.show', $selectedRequest->tunnel_id) }}"
                                 class="text-xs font-bold text-orange-600 hover:text-orange-700 flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 rounded-lg transition-colors border border-orange-100">
                                 Inspect Tunnel
@@ -677,6 +690,27 @@ new class extends Component {
         </div>
 
         <script>
+            function copyAsCurl(request) {
+                let curl = `curl -X ${request.method} "${request.url}"`;
+                for (const [header, values] of Object.entries(request.headers || {})) {
+                    // Skip headers that curl adds automatically or are internal
+                    const lowered = header.toLowerCase();
+                    if (['content-length', 'host', 'connection'].includes(lowered)) continue;
+
+                    const val = Array.isArray(values) ? values.join(', ') : values;
+                    curl += ` -H "${header}: ${val}"`;
+                }
+                if (request.body) {
+                    // Escape single quotes for shell
+                    const escapedBody = request.body.replace(/'/g, "'\\''");
+                    curl += ` -d '${escapedBody}'`;
+                }
+
+                navigator.clipboard.writeText(curl).then(() => {
+                    alert('cURL command copy to clipboard!');
+                });
+            }
+
             document.addEventListener('livewire:init', () => {
                 Livewire.on('logs-cleared', () => {
                     // Refresh charts? Activity log is polled anyway.
