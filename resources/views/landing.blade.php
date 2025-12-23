@@ -3,10 +3,49 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portex - The Secure Tunneling Tool for Developers</title>
+    <!-- Primary Meta Tags -->
+    <title>Portex - The Developer-First Localhost Tunneling Tool</title>
+    <meta name="title" content="Portex - The Developer-First Localhost Tunneling Tool">
     <meta name="description"
-        content="Expose local ports and directories to the internet. Secure, fast, and simple ngrok alternative.">
+        content="The fastest way to expose localhost to the internet. Secure ngrok alternative with custom subdomains, traffic inspection, and static file sharing. Open source and developer-friendly.">
+    <meta name="keywords"
+        content="ngrok alternative, localhost tunnel, port forwarding, expose localhost, webhook debugging, static site hosting, secure tunnel, dev tools, open source tunnel">
+    <meta name="author" content="Portex">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="canonical" href="https://portex.space">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://portex.space/">
+    <meta property="og:title" content="Portex - Your Localhost, Online in Seconds">
+    <meta property="og:description"
+        content="Securely expose your local server to the internet with one command. The modern, fast, and beautiful alternative to ngrok.">
+    <meta property="og:image" content="https://portex.space/og-image.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://portex.space/">
+    <meta property="twitter:title" content="Portex - Your Localhost, Online in Seconds">
+    <meta property="twitter:description"
+        content="Securely expose your local server to the internet with one command. The modern, fast, and beautiful alternative to ngrok.">
+    <meta property="twitter:image" content="https://portex.space/og-image.png">
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Portex",
+      "operatingSystem": "Windows, macOS, Linux",
+      "applicationCategory": "DeveloperApplication",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "description": "A secure tunneling tool to expose localhost to the internet. Features include custom subdomains, traffic inspection, and static file sharing."
+    }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -517,6 +556,8 @@
             }
         }
     </style>
+
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="269e123b-a36d-485b-bec5-378554421aa9"></script>
 </head>
 
 <body>
