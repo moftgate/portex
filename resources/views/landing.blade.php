@@ -813,7 +813,7 @@
                     <div class="cmd">
                         <span class="cmd-prompt">$</span> portex start --port 3000 <span
                             class="flag">--allow-ip</span>
-                        1.2.3.4</span>
+                        1.2.3.4 <span class="flag">--pin</span> 1234
                     </div>
                     <div class="out-dim">────────────────────────────────────────────────────────────</div>
                     <div class="out-row">
@@ -825,7 +825,7 @@
                     <div class="out-row">Account &nbsp;&nbsp;&nbsp;&nbsp;<span class="out-dim">pk_live_...</span>
                     </div>
                     <br>
-                    <div class="out-hl">ACTIVE TUNNEL (WHITELISTED)</div>
+                    <div class="out-hl">ACTIVE TUNNEL (SECURE & WHITELISTED)</div>
                     <div class="out-link">https://secure-node.portex.space</div>
                     <div class="out-dim">↳ forwarding to http://localhost:3000</div>
                 </div>
@@ -914,6 +914,7 @@
                                     <span style="opacity: 0.5">...</span>
                                     <span class="flag">--subdomain</span> myapp
                                     <span class="flag">--allow-ip</span> 1.2.3.4
+                                    <span class="flag">--pin</span> 1234
                                 </div>
                                 <div class="cmd-tag opt">Security</div>
                             </div>
@@ -925,6 +926,14 @@
                             <div class="cmd-row">
                                 <div class="cmd-code">portex share ./myfiles</div>
                                 <div class="cmd-tag">Basic</div>
+                            </div>
+                            <div class="cmd-row optional">
+                                <div class="cmd-code">
+                                    <span style="opacity: 0.5">...</span>
+                                    <span class="flag">--pin</span> 5678
+                                    <span class="flag">--allow-ip</span> 1.2.3.4
+                                </div>
+                                <div class="cmd-tag opt">Security</div>
                             </div>
                         </div>
                     </div>
@@ -1018,82 +1027,82 @@
                 <p>From local development to client demos, we've got you covered.</p>
             </div>
             <div class="features-grid">
-                <!-- 1. Secure -->
-                <div class="icon-box">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                    </svg>
+                <div class="feature-box">
+                    <div class="icon-box">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        </svg>
+                    </div>
+                    <h4>Advanced Security</h4>
+                    <p>Restrict access with **IP Whitelisting** or add a **4-digit PIN** to any tunnel for private demos
+                        and internal API testing.</p>
                 </div>
-                <h4>IP Whitelisting</h4>
-                <p>Restrict access to your tunnel to specific IP addresses. Perfect for private builds and internal
-                    API testing.</p>
-            </div>
 
-            <!-- 2. Inspect -->
-            <div class="feature-box">
-                <div class="icon-box">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
-                    </svg>
+                <!-- 2. Inspect -->
+                <div class="feature-box">
+                    <div class="icon-box">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                        </svg>
+                    </div>
+                    <h4>Traffic Inspector</h4>
+                    <p>Real-time request logging. See headers, payloads, and responses. Replay requests with one click.
+                    </p>
                 </div>
-                <h4>Traffic Inspector</h4>
-                <p>Real-time request logging. See headers, payloads, and responses. Replay requests with one click.
-                </p>
-            </div>
 
-            <!-- 3. Static -->
-            <div class="feature-box">
-                <div class="icon-box">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"></path>
-                        <path d="M13 2v7h7"></path>
-                    </svg>
+                <!-- 3. Static -->
+                <div class="feature-box">
+                    <div class="icon-box">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M13 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V9z"></path>
+                            <path d="M13 2v7h7"></path>
+                        </svg>
+                    </div>
+                    <h4>Static Hosting</h4>
+                    <p>Don't have a server running? Just point Portex to a folder and we'll host it for you instantly.
+                    </p>
                 </div>
-                <h4>Static Hosting</h4>
-                <p>Don't have a server running? Just point Portex to a folder and we'll host it for you instantly.
-                </p>
-            </div>
 
-            <!-- 4. Subdomains -->
-            <div class="feature-box">
-                <div class="icon-box">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="2" y1="12" x2="22" y2="12"></line>
-                        <path
-                            d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
-                        </path>
-                    </svg>
+                <!-- 4. Subdomains -->
+                <div class="feature-box">
+                    <div class="icon-box">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="2" y1="12" x2="22" y2="12"></line>
+                            <path
+                                d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
+                            </path>
+                        </svg>
+                    </div>
+                    <h4>Custom Subdomains</h4>
+                    <p>Reserve your own subdomains like <code>myapp</code> or <code>api-dev</code>. No more random
+                        strings to remember.</p>
                 </div>
-                <h4>Custom Subdomains</h4>
-                <p>Reserve your own subdomains like <code>myapp</code> or <code>api-dev</code>. No more random
-                    strings to remember.</p>
-            </div>
 
-            <!-- 5. QR Mobile -->
-            <div class="feature-box">
-                <div class="icon-box">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
-                        <line x1="12" y1="18" x2="12.01" y2="18"></line>
-                    </svg>
+                <!-- 5. QR Mobile -->
+                <div class="feature-box">
+                    <div class="icon-box">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                            <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                        </svg>
+                    </div>
+                    <h4>Mobile Testing</h4>
+                    <p>We generate a QR code in your terminal. Scan it to instantly test your localhost on iOS/Android.
+                    </p>
                 </div>
-                <h4>Mobile Testing</h4>
-                <p>We generate a QR code in your terminal. Scan it to instantly test your localhost on iOS/Android.
-                </p>
-            </div>
 
-            <!-- 6. Persistent -->
-            <div class="feature-box">
-                <div class="icon-box">
-                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                    </svg>
+                <!-- 6. Persistent -->
+                <div class="feature-box">
+                    <div class="icon-box">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        </svg>
+                    </div>
+                    <h4>Persistent Connections</h4>
+                    <p>Auto-reconnect logic keeps your tunnel alive even if your WiFi drops. Set it and forget it.</p>
                 </div>
-                <h4>Persistent Connections</h4>
-                <p>Auto-reconnect logic keeps your tunnel alive even if your WiFi drops. Set it and forget it.</p>
             </div>
-        </div>
         </div>
     </section>
 
