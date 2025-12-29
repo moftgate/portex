@@ -746,6 +746,46 @@
                 font-size: 18px;
             }
         }
+
+        /* Trust Bar */
+        .trust-section {
+            padding: 40px 0;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            background: #fdfdfd;
+        }
+
+        .trust-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+
+        .trust-item {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .trust-item svg {
+            color: var(--slate);
+        }
+
+        .trust-item h5 {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--dark);
+        }
+
+        .trust-item p {
+            font-size: 13px;
+            color: var(--slate);
+            line-height: 1.4;
+        }
     </style>
 
     <script defer src="https://cloud.umami.is/script.js" data-website-id="269e123b-a36d-485b-bec5-378554421aa9"></script>
@@ -793,7 +833,7 @@
 
     <header class="hero">
         <div class="container">
-            <div class="badge">New: Advanced IP Whitelisting</div>
+            <div class="badge"><a href="{{ route('docs.changelog') }}">New: Advanced IP Whitelisting</a></div>
             <h1>Your Localhost,<br>Online in Seconds.</h1>
             <p>The developer-first tunnel service. Expose ports, share files, and debug webhooks with a single command.
             </p>
@@ -832,6 +872,55 @@
             </div>
         </div>
     </header>
+
+    <section class="trust-section">
+        <div class="container">
+            <div class="trust-grid">
+                <!-- 1. Encryption -->
+                <div class="trust-item">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                    <h5>E2E Encrypted</h5>
+                    <p>TLS encryption for all data.</p>
+                </div>
+                <!-- 2. Privacy -->
+                <div class="trust-item">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                    </svg>
+                    <h5>Zero Visibility</h5>
+                    <p>We can't see your data.</p>
+                </div>
+                <!-- 3. Infrastructure -->
+                <div class="trust-item">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+                        <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+                        <line x1="6" y1="6" x2="6.01" y2="6"></line>
+                        <line x1="6" y1="18" x2="6.01" y2="18"></line>
+                    </svg>
+                    <h5>EU Infrastructure</h5>
+                    <p>Hetzner Falkenstein (H/W).</p>
+                </div>
+                <!-- 4. SOC2 -->
+                <div class="trust-item">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                    <h5>SOC-2 Type I</h5>
+                    <p>Assessment in progress.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <section id="guide" class="guide-section">
         <div class="container">
@@ -1177,9 +1266,14 @@
                     source transparency.</p>
             </div>
             <div class="faq-item">
-                <h4>Is my local server exposed securely?</h4>
-                <p>Yes. All traffic is encrypted with TLS. You can also add a 4-digit PIN to your tunnel (<code>--pin
-                        1234</code>) to ensure only authorized visitors can access your service.</p>
+                <h4>Is my data private and secure?</h4>
+                <p>Absolutely. All traffic is end-to-end encrypted with TLS. We store your logs and metadata using
+                    industry-standard encryption, and our team has <strong>zero visibility</strong> into your tunneled
+                    data—only you can see your traffic. We are committed to transparency and have officially applied for
+                    <strong>SOC-2 compliance</strong>. Our infrastructure is powered by high-performance bare-metal
+                    servers in <strong>Hetzner Falkenstein (Germany)</strong>, ensuring both GDPR compliance and extreme
+                    reliability.
+                </p>
             </div>
             <div class="faq-item">
                 <h4>Can I use it for static builds?</h4>

@@ -16,15 +16,15 @@
     </div>
 
     <div class="code-header">Options</div>
-    <ul>
-        <li><code>--port, -p</code> (Required): The local port you want to expose.</li>
-        <li><code>--subdomain, -s</code>: Specify a custom subdomain.</li>
-        <li><code>--pin</code>: Secure your tunnel with a 4-digit PIN.</li>
+    <li><code>--port, -p</code> (Required): The local port you want to expose.</li>
+    <li><code>--subdomain, -s</code>: Specify a custom subdomain.</li>
+    <li><code>--pin</code>: Secure your tunnel with a 4-digit PIN.</li>
+    <li><code>--allow-ip, -a</code>: Restrict access to specific IP addresses (comma-separated).</li>
     </ul>
 
     <div class="code-header">Complex Example</div>
     <div class="code-block">
-        portex start -p 8080 --subdomain staging-api --pin 9988
+        portex start -p 8080 --subdomain staging-api --pin 9988 --allow-ip 1.2.3.4
     </div>
 
     <h2 id="share">portex share</h2>
@@ -33,9 +33,10 @@
 
     <div class="code-header">Usage</div>
     <div class="code-block">
-        portex share ./public_html
+        portex share ./public_html --allow-ip 85.99.12.34
     </div>
-    <p>Useful for sharing static builds (React, Vue, Vite) without needing to configure a local server.</p>
+    <p>Useful for sharing static builds (React, Vue, Vite) without needing to configure a local server. Supports all
+        security flags like <code>--pin</code> and <code>--allow-ip</code>.</p>
 
     <h2 id="login">portex login</h2>
     <p>Connects your active agent to your Portex account. This unlocks premium features and persistent dashboard logging.

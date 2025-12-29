@@ -10,6 +10,28 @@
         <div style="display: flex; gap: 24px;">
             <div style="min-width: 120px;">
                 <span
+                    style="background: var(--orange-dim); color: var(--orange); padding: 4px 12px; border-radius: 100px; font-weight: 700; font-size: 13px;">v0.6.5</span>
+                <p style="font-size: 12px; color: var(--slate); margin-top: 8px;">Dec 29, 2024</p>
+            </div>
+            <div style="flex: 1; border-left: 2px solid var(--border); padding-left: 32px; padding-bottom: 48px;">
+                <h3 style="margin-bottom: 16px;">The Security & Access Release</h3>
+                <p>Focus on advanced tunnel security and network access control.</p>
+                <ul style="margin-left: 20px; list-style: disc; color: #334155;">
+                    <li style="margin-bottom: 8px;">Added <strong>IP Whitelisting</strong> support for both
+                        <code>start</code> and <code>share</code> commands.</li>
+                    <li style="margin-bottom: 8px;">New <strong>Access Control</strong> tab in the tunnel dashboard.</li>
+                    <li style="margin-bottom: 8px;">Support for multiple IP addresses (comma-separated) via CLI and
+                        Dashboard.</li>
+                    <li style="margin-bottom: 8px;">Integrated Real-time IP resolution for proxy headers (X-Forwarded-For
+                        support).</li>
+                    <li style="margin-bottom: 8px;">Enhanced Landing and Documentation pages with new security feature
+                        highlights.</li>
+                </ul>
+            </div>
+        </div>
+        <div style="display: flex; gap: 24px;">
+            <div style="min-width: 120px;">
+                <span
                     style="background: var(--orange-dim); color: var(--orange); padding: 4px 12px; border-radius: 100px; font-weight: 700; font-size: 13px;">v0.6.0</span>
                 <p style="font-size: 12px; color: var(--slate); margin-top: 8px;">Dec 24, 2024</p>
             </div>
