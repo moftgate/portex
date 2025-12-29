@@ -29,6 +29,7 @@ class ServerController extends Controller
                     'auth_username' => $tunnel->auth_username,
                     'auth_password' => $tunnel->auth_password,
                     'pin' => $tunnel->pin,
+                    'allowed_ips' => $tunnel->allowed_ips,
                 ];
             });
 
@@ -53,6 +54,7 @@ class ServerController extends Controller
                 'auth_username' => $tunnel->auth_username,
                 'auth_password' => $tunnel->auth_password,
                 'pin' => $tunnel->pin,
+                'allowed_ips' => $tunnel->allowed_ips,
             ],
         ]);
     }

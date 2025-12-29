@@ -45,6 +45,28 @@ func (h *ProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Check for IP Whitelisting
+	if len(agent.AllowedIPs) > 0 {
+		remoteIP := strings.Split(r.RemoteAddr, ":")[0]
+		// Also check X-Forwarded-For if behind a proxy like Nginx
+		if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
+			remoteIP = strings.TrimSpace(strings.Split(xff, ",")[0])
+		}
+
+		allowed := false
+		for _, ip := range agent.AllowedIPs {
+			if remoteIP == ip {
+				allowed = true
+				break
+			}
+		}
+
+		if !allowed {
+			http.Error(w, "Access denied: IP not allowed ("+remoteIP+")", http.StatusForbidden)
+			return
+		}
+	}
+
 	// Check for PIN protection
 	if agent.Pin != "" {
 		// Check for access cookie

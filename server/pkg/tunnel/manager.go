@@ -51,6 +51,7 @@ type AgentConnection struct {
 	Send         chan Message
 	PendingReqs  map[string]chan HTTPResponse
 	Pin          string
+	AllowedIPs   []string
 	SessionToken string
 	mu           sync.RWMutex
 }
@@ -66,7 +67,7 @@ func NewTunnelManager() *TunnelManager {
 	}
 }
 
-func (tm *TunnelManager) RegisterAgent(subdomain, tunnelID, pin string, conn *websocket.Conn) *AgentConnection {
+func (tm *TunnelManager) RegisterAgent(subdomain, tunnelID, pin string, allowedIPs []string, conn *websocket.Conn) *AgentConnection {
 	// Generate a random session token for this specific connection
 	sessionToken := generateRandomToken(16)
 
@@ -74,6 +75,7 @@ func (tm *TunnelManager) RegisterAgent(subdomain, tunnelID, pin string, conn *we
 		TunnelID:     tunnelID,
 		Subdomain:    subdomain,
 		Pin:          pin,
+		AllowedIPs:   allowedIPs,
 		SessionToken: sessionToken,
 		Conn:         conn,
 		Send:         make(chan Message, 256),

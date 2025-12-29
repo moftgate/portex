@@ -120,6 +120,7 @@ class TunnelService
                 'auth_enabled' => $tunnel->auth_enabled,
                 'auth_username' => $tunnel->auth_username,
                 'auth_password' => $tunnel->auth_password,
+                'allowed_ips' => $tunnel->allowed_ips,
             ]);
         } catch (\Exception $e) {
             // Log error but don't fail the operation

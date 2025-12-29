@@ -201,6 +201,8 @@ class AgentController extends Controller
             'local_port' => 'required|integer|min:1|max:65535',
             'protocol' => 'nullable|in:http,https,tcp',
             'pin' => 'nullable|string|size:4',
+            'allowed_ips' => 'nullable|array',
+            'allowed_ips.*' => 'ip',
         ]);
 
         // Set defaults
@@ -208,6 +210,7 @@ class AgentController extends Controller
         $validated['protocol'] = $validated['protocol'] ?? 'http';
         $validated['agent_id'] = $agent->id;
         $validated['pin'] = $validated['pin'] ?? null;
+        $validated['allowed_ips'] = $validated['allowed_ips'] ?? null;
 
         // Check if this agent already has this subdomain
         if (! empty($validated['subdomain'])) {
@@ -220,6 +223,7 @@ class AgentController extends Controller
                     'local_port' => $validated['local_port'],
                     'protocol' => $validated['protocol'],
                     'pin' => $validated['pin'],
+                    'allowed_ips' => $validated['allowed_ips'],
                     'status' => 'active',
                 ]);
 

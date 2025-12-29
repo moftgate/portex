@@ -91,6 +91,7 @@ class Tunnel extends Model
         'last_activity_at',
         'usage_seconds_today',
         'pin',
+        'allowed_ips',
     ];
 
     /**
@@ -101,6 +102,7 @@ class Tunnel extends Model
     protected $casts = [
         'auth_enabled' => 'boolean',
         'metadata' => 'array',
+        'allowed_ips' => 'array',
         'last_activity_at' => 'datetime',
     ];
 

@@ -16,15 +16,16 @@ type Client struct {
 }
 
 type Tunnel struct {
-	ID           string `json:"id"`
-	Subdomain    string `json:"subdomain"`
-	CustomDomain string `json:"custom_domain"`
-	Protocol     string `json:"protocol"`
-	AgentID      string `json:"agent_id"`
-	AuthEnabled  bool   `json:"auth_enabled"`
-	AuthUsername string `json:"auth_username"`
-	AuthPassword string `json:"auth_password"`
-	Pin          string `json:"pin"`
+	ID           string   `json:"id"`
+	Subdomain    string   `json:"subdomain"`
+	CustomDomain string   `json:"custom_domain"`
+	Protocol     string   `json:"protocol"`
+	AgentID      string   `json:"agent_id"`
+	AuthEnabled  bool     `json:"auth_enabled"`
+	AuthUsername string   `json:"auth_username"`
+	AuthPassword string   `json:"auth_password"`
+	Pin          string   `json:"pin"`
+	AllowedIPs   []string `json:"allowed_ips"`
 }
 
 func NewClient(baseURL, apiKey string) *Client {
