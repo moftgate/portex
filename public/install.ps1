@@ -32,6 +32,7 @@ Write-Host "Download successful." -ForegroundColor Green
 
 # Add to PATH
 $UserPath = [Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User)
+
 if ($UserPath -notlike "*$InstallDir*") {
     Write-Host "Adding $InstallDir to PATH..."
     [Environment]::SetEnvironmentVariable("Path", "$UserPath;$InstallDir", [EnvironmentVariableTarget]::User)
