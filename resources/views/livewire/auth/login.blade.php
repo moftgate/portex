@@ -92,7 +92,7 @@ new #[Layout('components.layouts.guest', ['title' => 'Login'])] class extends Co
     </form>
 
     <!-- Divider -->
-    <div class="relative my-6">
+    {{--<div class="relative my-6">
         <div class="absolute inset-0 flex items-center">
             <div class="w-full border-t border-gray-200"></div>
         </div>
@@ -109,5 +109,5 @@ new #[Layout('components.layouts.guest', ['title' => 'Login'])] class extends Co
         onmouseover="this.style.backgroundColor='rgba(37, 99, 235, 0.05)'"
         onmouseout="this.style.backgroundColor='transparent'">
         Create an account
-    </a>
+    </a>--}}
 </div>

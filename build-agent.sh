@@ -6,7 +6,7 @@
 set -e
 
 # Versions
-VERSION="0.6.0"
+VERSION="0.7.1"
 DIST_DIR="dist"
 PUBLIC_BIN_DIR="public/bin"
 

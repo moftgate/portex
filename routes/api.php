@@ -34,4 +34,5 @@ Route::middleware(ServerAuthentication::class)->prefix('server')->group(function
     Route::get('/tunnel/{tunnel}', [ServerController::class, 'getTunnel']);
     Route::put('/tunnel/{tunnel}/status', [ServerController::class, 'updateStatus']);
     Route::post('/tunnel/{tunnel}/request', [ServerController::class, 'logRequest']);
+    Route::post('/tunnel/{tunnel}/browser-log', [ServerController::class, 'logBrowserLog']);
 });

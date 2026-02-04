@@ -10,6 +10,28 @@
         <div style="display: flex; gap: 24px;">
             <div style="min-width: 120px;">
                 <span
+                    style="background: var(--orange-dim); color: var(--orange); padding: 4px 12px; border-radius: 100px; font-weight: 700; font-size: 13px;">v0.7.1</span>
+                <p style="font-size: 12px; color: var(--slate); margin-top: 8px;">Dec 31, 2025</p>
+            </div>
+            <div style="flex: 1; border-left: 2px solid var(--border); padding-left: 32px; padding-bottom: 48px;">
+                <h3 style="margin-bottom: 16px;">The Windows & Visibility Release</h3>
+                <p>Ensuring Portex runs flawlessly on all modern Windows versions{{-- alongside remote debugging features--}}.</p>
+                <ul style="margin-left: 20px; list-style: disc; color: #334155;">
+                    <li style="margin-bottom: 8px;">Improved <strong>Device ID Retrieval</strong> for Windows: Added multiple
+                        fallback methods (REG query and PowerShell) to replace the deprecated <code>wmic</code> command.
+                    </li>
+                   {{-- <li style="margin-bottom: 8px;">Added <strong>Remote Browser Console Sync</strong>: Capture
+                        <code>console.log</code>, <code>error</code>, and JS crashes from remote devices directly in your
+                        dashboard.</li>
+                    <li style="margin-bottom: 8px;">Real-time log streaming using edge-level script injection.</li>--}}
+                    <li style="margin-bottom: 8px;">Fixed "executable file not found in %PATH%" error on Windows 10 (21H1+)
+                        and Windows 11.</li>
+                </ul>
+            </div>
+        </div>
+        <div style="display: flex; gap: 24px;">
+            <div style="min-width: 120px;">
+                <span
                     style="background: var(--orange-dim); color: var(--orange); padding: 4px 12px; border-radius: 100px; font-weight: 700; font-size: 13px;">v0.6.5</span>
                 <p style="font-size: 12px; color: var(--slate); margin-top: 8px;">Dec 29, 2024</p>
             </div>
@@ -18,7 +40,8 @@
                 <p>Focus on advanced tunnel security and network access control.</p>
                 <ul style="margin-left: 20px; list-style: disc; color: #334155;">
                     <li style="margin-bottom: 8px;">Added <strong>IP Whitelisting</strong> support for both
-                        <code>start</code> and <code>share</code> commands.</li>
+                        <code>start</code> and <code>share</code> commands.
+                    </li>
                     <li style="margin-bottom: 8px;">New <strong>Access Control</strong> tab in the tunnel dashboard.</li>
                     <li style="margin-bottom: 8px;">Support for multiple IP addresses (comma-separated) via CLI and
                         Dashboard.</li>

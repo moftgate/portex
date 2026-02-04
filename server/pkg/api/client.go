@@ -175,3 +175,36 @@ func (c *Client) UpdateTunnelStatus(tunnelID, status string) error {
 
 	return nil
 }
+
+func (c *Client) LogBrowserLog(tunnelID, logType, message, url string) error {
+	payload := map[string]interface{}{
+		"type":    logType,
+		"message": message,
+		"url":     url,
+	}
+
+	body, err := json.Marshal(payload)
+	if err != nil {
+		return err
+	}
+
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/api/server/tunnel/%s/browser-log", c.baseURL, tunnelID), bytes.NewBuffer(body))
+	if err != nil {
+		return err
+	}
+
+	req.Header.Set("Authorization", "Bearer "+c.apiKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := c.client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to log browser log: status %d", resp.StatusCode)
+	}
+
+	return nil
+}

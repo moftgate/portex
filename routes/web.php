@@ -21,6 +21,7 @@ Route::prefix('solutions')->group(function () {
 Route::prefix('docs')->group(function () {
     Route::view('/', 'docs.index')->name('docs.index');
     Route::view('/installation', 'docs.installation')->name('docs.installation');
+    Route::view('/uninstall', 'docs.uninstall')->name('docs.uninstall');
     Route::view('/commands', 'docs.commands')->name('docs.commands');
     Route::view('/security', 'docs.security')->name('docs.security');
     Route::view('/dashboard', 'docs.dashboard')->name('docs.dashboard');

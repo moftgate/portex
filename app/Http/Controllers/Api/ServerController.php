@@ -114,6 +114,29 @@ class ServerController extends Controller
     }
 
     /**
+     * Log browser console events.
+     */
+    public function logBrowserLog(Request $request, Tunnel $tunnel)
+    {
+        $validated = $request->validate([
+            'type' => 'required|string',
+            'message' => 'required|string',
+            'url' => 'nullable|string',
+        ]);
+
+        \App\Models\BrowserLog::create([
+            'tunnel_id' => $tunnel->id,
+            'type' => $validated['type'],
+            'message' => $validated['message'],
+            'url' => $validated['url'],
+        ]);
+
+        return response()->json([
+            'status' => 'logged',
+        ]);
+    }
+
+    /**
      * Update tunnel status (e.g., active, inactive).
      */
     public function updateStatus(Request $request, Tunnel $tunnel)

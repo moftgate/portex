@@ -140,6 +140,14 @@ class Tunnel extends Model
     }
 
     /**
+     * Get the browser logs for the tunnel.
+     */
+    public function browserLogs(): HasMany
+    {
+        return $this->hasMany(BrowserLog::class);
+    }
+
+    /**
      * Scope a query to only include active tunnels.
      */
     public function scopeActive($query)

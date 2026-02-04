@@ -14,6 +14,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="canonical" href="https://portex.space">
 
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://portex.space/">
@@ -823,9 +825,9 @@
                 @auth
                     <a href="{{ route('dashboard') }}" class="btn btn-primary"
                         style="margin-left: 32px; color: white;">Dashboard</a>
-                @else
+                {{--@else
                     <a href="{{ route('login') }}" class="btn btn-primary" style="margin-left: 32px; color: white;">Sign
-                        in</a>
+                        in</a>--}}
                 @endauth
             </div>
         </div>
@@ -857,7 +859,7 @@
                     </div>
                     <div class="out-dim">────────────────────────────────────────────────────────────</div>
                     <div class="out-row">
-                        <span class="out-hl">PORTEX</span> <span class="out-dim">1.0.0</span>
+                        <span class="out-hl">PORTEX</span> <span class="out-dim">0.7.1</span>
                     </div>
                     <br>
                     <div class="out-row">Status &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span
@@ -1098,6 +1100,10 @@
                         <li><svg width="20" height="20" fill="none" stroke="currentColor"
                                 stroke-width="2.5">
                                 <path d="M20 6L9 17L4 12" />
+                            </svg> Remote Browser Console Sync</li>
+                        <li><svg width="20" height="20" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <path d="M20 6L9 17L4 12" />
                             </svg> Works through Firewalls & Corporate VPNs</li>
                     </ul>
                     <a href="{{ route('solutions.mobile') }}" class="btn btn-primary">Learn More about Mobile Dev</a>
@@ -1135,7 +1141,8 @@
                         </svg>
                     </div>
                     <h4>Traffic Inspector</h4>
-                    <p>Real-time request logging. See headers, payloads, and responses. Replay requests with one click.
+                    <p>Real-time request logging and **Remote Console Sync**. See headers, payloads, and browser logs
+                        instantly. Replay with one click.
                     </p>
                 </div>
 

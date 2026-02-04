@@ -7,7 +7,7 @@
     <p>Portex is actively developed with a clear vision: to become the most developer-friendly tunneling solution. Here's
         what we're working on and what's coming next.</p>
 
-    <h2>Current Version: v0.6.0 (Beta)</h2>
+    <h2>Current Version: v0.7.1 (Beta)</h2>
     <p>We're in active beta with core features stable and production-ready. Our focus is on gathering feedback and refining
         the user experience.</p>
 

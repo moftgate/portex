@@ -14,7 +14,8 @@
         curl -fsSL https://portex.space/install.sh | bash
     </div>
     <p>This script downloads the correct binary for your system (Intel/Apple Silicon or x64 Linux) and moves it to
-        <code>/usr/local/bin</code>.</p>
+        <code>/usr/local/bin</code>.
+    </p>
 
     <div class="code-header">Windows (PowerShell Admin)</div>
     <div class="code-block">
@@ -30,6 +31,8 @@
     <p>Once installed, verify the installation by checking the version:</p>
     <div class="code-block">
         portex version
+        <span style="color: #64748b; font-weight: normal; margin-top: 8px; display: block; opacity: 0.7;"># Output: Portex
+            version 0.7.1</span>
     </div>
 
     <div class="callout">

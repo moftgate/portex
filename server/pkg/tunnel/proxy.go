@@ -1,6 +1,7 @@
 package tunnel
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -89,6 +90,23 @@ func (h *ProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// Handle Browser Log Reporting
+	if r.URL.Path == "/_portex/browser-logs" && r.Method == "POST" {
+		var logEvent struct {
+			Type    string `json:"type"`
+			Message string `json:"message"`
+			URL     string `json:"url"`
+		}
+		if err := json.NewDecoder(r.Body).Decode(&logEvent); err == nil {
+			go h.apiClient.LogBrowserLog(agent.TunnelID, logEvent.Type, logEvent.Message, logEvent.URL)
+		}
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	// Disable compression to make JS injection easier
+	r.Header.Del("Accept-Encoding")
+
 	// Read request body
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -97,7 +115,7 @@ func (h *ProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	// Convert headers to map
+	// Create HTTP request message
 	headers := make(map[string]string)
 	for key, values := range r.Header {
 		if len(values) > 0 {
@@ -139,7 +157,47 @@ func (h *ProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(resp.StatusCode)
 
 	// Write response body
-	w.Write(resp.Body)
+	contentType := resp.Headers["Content-Type"]
+	contentEncoding := resp.Headers["Content-Encoding"]
+
+	if strings.Contains(contentType, "text/html") && contentEncoding == "" {
+		script := `
+<script>
+(function() {
+    const originalConsole = { log: console.log, error: console.error, warn: console.warn, info: console.info };
+    function sendLog(type, args) {
+        const message = Array.from(args).map(arg => {
+            if (typeof arg === 'object') { try { return JSON.stringify(arg); } catch(e) { return String(arg); } }
+            return String(arg);
+        }).join(' ');
+        fetch('/_portex/browser-logs', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type: type, message: message, url: window.location.href })
+        }).catch(() => {});
+    }
+    console.log = function() { originalConsole.log.apply(console, arguments); sendLog('log', arguments); };
+    console.error = function() { originalConsole.error.apply(console, arguments); sendLog('error', arguments); };
+    console.warn = function() { originalConsole.warn.apply(console, arguments); sendLog('warn', arguments); };
+    console.info = function() { originalConsole.info.apply(console, arguments); sendLog('info', arguments); };
+    window.addEventListener('error', function(event) {
+        sendLog('error', [event.message + ' at ' + event.filename + ':' + event.lineno]);
+    });
+})();
+</script>`
+		bodyStr := string(resp.Body)
+		if strings.Contains(bodyStr, "</body>") {
+			bodyStr = strings.Replace(bodyStr, "</body>", script+"</body>", 1)
+		} else if strings.Contains(bodyStr, "</head>") {
+			bodyStr = strings.Replace(bodyStr, "</head>", script+"</head>", 1)
+		} else {
+			bodyStr = script + bodyStr
+		}
+		w.Header().Del("Content-Length")
+		w.Write([]byte(bodyStr))
+	} else {
+		w.Write(resp.Body)
+	}
 
 	duration := time.Since(start)
 

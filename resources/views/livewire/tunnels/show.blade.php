@@ -106,11 +106,22 @@ new class extends Component {
         }
     }
 
+    public function getConsoleLogsProperty()
+    {
+        return $this->tunnel->browserLogs()->latest()->take(100)->get();
+    }
+
+    public function clearConsoleLogs()
+    {
+        $this->tunnel->browserLogs()->delete();
+    }
+
     public function with()
     {
         return [
             'requests' => $this->requests,
             'selectedRequest' => $this->selectedRequest,
+            'consoleLogs' => $this->consoleLogs,
         ];
     }
 }; ?>
@@ -150,6 +161,14 @@ new class extends Component {
                         <button wire:click="$set('activeTab', 'security')"
                             class="whitespace-nowrap pb-4 px-1 border-b-2 font-bold text-sm transition-all {{ $activeTab === 'security' ? 'border-orange-500 text-orange-600 scale-105' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
                             Access Control
+                        </button>
+                        <button wire:click="$set('activeTab', 'console')"
+                            class="whitespace-nowrap pb-4 px-1 border-b-2 font-bold text-sm transition-all {{ $activeTab === 'console' ? 'border-orange-500 text-orange-600 scale-105' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                            Browser Console
+                            @if ($consoleLogs->count() > 0)
+                                <span
+                                    class="ml-2 bg-orange-100 text-orange-600 text-[10px] px-1.5 py-0.5 rounded-full">{{ $consoleLogs->count() }}</span>
+                            @endif
                         </button>
                     </nav>
                 </div>
@@ -423,7 +442,7 @@ new class extends Component {
                     @endif
                 </div>
             </div>
-        @else
+        @elseif ($activeTab === 'security')
             <!-- Security Tab -->
             <div class="animate-in slide-in-from-bottom-4 duration-500">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -485,7 +504,7 @@ new class extends Component {
                         </div>
                     </div>
 
-                    <!-- PIN Protection Card (ReadOnly placeholder for now or move it here) -->
+                    <!-- PIN Protection Card -->
                     <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm opacity-60">
                         <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center gap-3">
                             <div
@@ -529,63 +548,112 @@ new class extends Component {
                     </div>
                 </div>
             </div>
+        @elseif($activeTab === 'console')
+            <!-- Browser Console Tab -->
+            <div class="animate-in fade-in duration-500" wire:poll.3s>
+                <div
+                    class="bg-gray-900 rounded-2xl border border-gray-800 overflow-hidden shadow-2xl flex flex-col h-[600px]">
+                    <div class="px-6 py-4 border-b border-gray-800 bg-gray-900 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                            <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400">Remote Browser
+                                Console</h3>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div class="text-[10px] text-gray-500 font-mono">Real-time sync active</div>
+                            <button wire:click="clearConsoleLogs"
+                                class="text-[10px] bg-red-900/30 text-red-400 px-3 py-1 rounded-md border border-red-900/50 hover:bg-red-900/50 transition-colors">
+                                Clear Logs
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 overflow-y-auto p-4 font-mono text-sm leading-relaxed space-y-1">
+                        @forelse($consoleLogs as $log)
+                            <div
+                                class="flex gap-4 group hover:bg-white/5 py-0.5 px-2 rounded transition-colors text-white">
+                                <span
+                                    class="text-gray-500 text-[10px] shrink-0 w-20 pt-1">{{ $log->created_at->format('H:i:s.v') }}</span>
+                                <span
+                                    class="shrink-0 w-12 font-bold uppercase text-[10px] pt-1
+                                    @if ($log->type === 'error') text-red-500
+                                    @elseif($log->type === 'warn') text-yellow-500
+                                    @elseif($log->type === 'info') text-blue-500
+                                    @else text-gray-400 @endif">
+                                    [{{ $log->type }}]
+                                </span>
+                                <span class="text-gray-300 break-all">{{ $log->message }}</span>
+                                <span
+                                    class="ml-auto text-[10px] text-gray-600 truncate max-w-[200px] opacity-0 group-hover:opacity-100 pt-1">{{ $log->url }}</span>
+                            </div>
+                        @empty
+                            <div class="h-full flex flex-col items-center justify-center text-gray-600 text-center">
+                                <x-icon name="o-command-line" class="w-12 h-12 mb-4 opacity-20" />
+                                <p class="text-sm">No console logs yet.</p>
+                                <p class="text-xs mt-1">Open your tunnel URL and check the browser console.</p>
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
         @endif
     </div>
+</div>
 
-    <script>
-        function copyAsCurl(request) {
-            let curl = `curl -X ${request.method} "${request.url}"`;
-            for (const [header, values] of Object.entries(request.headers || {})) {
-                // Skip headers that curl adds automatically or are internal
-                const lowered = header.toLowerCase();
-                if (['content-length', 'host', 'connection'].includes(lowered)) continue;
+<script>
+    function copyAsCurl(request) {
+        let curl = `curl -X ${request.method} "${request.url}"`;
+        for (const [header, values] of Object.entries(request.headers || {})) {
+            // Skip headers that curl adds automatically or are internal
+            const lowered = header.toLowerCase();
+            if (['content-length', 'host', 'connection'].includes(lowered)) continue;
 
-                const val = Array.isArray(values) ? values.join(', ') : values;
-                curl += ` -H "${header}: ${val}"`;
-            }
-            if (request.body) {
-                // Escape single quotes for shell
-                const escapedBody = request.body.replace(/'/g, "'\\''");
-                curl += ` -d '${escapedBody}'`;
-            }
-
-            navigator.clipboard.writeText(curl).then(() => {
-                alert('cURL command copy to clipboard!');
-            });
+            const val = Array.isArray(values) ? values.join(', ') : values;
+            curl += ` -H "${header}: ${val}"`;
+        }
+        if (request.body) {
+            // Escape single quotes for shell
+            const escapedBody = request.body.replace(/'/g, "'\\''");
+            curl += ` -d '${escapedBody}'`;
         }
 
-        document.addEventListener('livewire:init', () => {
-            Livewire.on('request-replayed', (event) => {
-                alert('Request replayed! Remote server returned: ' + event[0].status);
-            });
-
-            Livewire.on('request-failed', (event) => {
-                alert('Replay failed: ' + event[0].error);
-            });
+        navigator.clipboard.writeText(curl).then(() => {
+            alert('cURL command copy to clipboard!');
         });
-    </script>
-    <!-- QR Code Modal -->
-    <x-modal wire:model="showQrModal" id="qr-modal" title="Scan for Mobile Testing">
-        <div class="flex flex-col items-center justify-center p-6 text-center">
-            <div class="bg-white p-4 rounded-3xl shadow-lg border border-gray-100 mb-6 font-mono">
-                {!! QrCode::size(250)->margin(1)->generate($tunnel->public_url) !!}
-            </div>
-            <h3 class="text-lg font-bold text-gray-900 mb-2">Tunnel Public URL</h3>
-            <p class="text-sm text-gray-500 break-all bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100 cursor-pointer hover:bg-gray-100"
-                @click="navigator.clipboard.writeText('{{ $tunnel->public_url }}').then(() => alert('URL kopyalandı!'))">
-                {{ $tunnel->public_url }}
-            </p>
-            <p class="mt-4 text-xs text-gray-400">Scan this code with your mobile device to test your local service
-                instantly.</p>
+    }
+
+    document.addEventListener('livewire:init', () => {
+        Livewire.on('request-replayed', (event) => {
+            alert('Request replayed! Remote server returned: ' + event[0].status);
+        });
+
+        Livewire.on('request-failed', (event) => {
+            alert('Replay failed: ' + event[0].error);
+        });
+    });
+</script>
+<!-- QR Code Modal -->
+<x-modal wire:model="showQrModal" id="qr-modal" title="Scan for Mobile Testing">
+    <div class="flex flex-col items-center justify-center p-6 text-center">
+        <div class="bg-white p-4 rounded-3xl shadow-lg border border-gray-100 mb-6 font-mono">
+            {!! QrCode::size(250)->margin(1)->generate($tunnel->public_url) !!}
         </div>
-        <x-slot:actions>
-            <x-button label="Close" @click="$wire.showQrModal = false" class="btn-ghost" />
-        </x-slot:actions>
-    </x-modal>
+        <h3 class="text-lg font-bold text-gray-900 mb-2">Tunnel Public URL</h3>
+        <p class="text-sm text-gray-500 break-all bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100 cursor-pointer hover:bg-gray-100"
+            @click="navigator.clipboard.writeText('{{ $tunnel->public_url }}').then(() => alert('URL kopyalandı!'))">
+            {{ $tunnel->public_url }}
+        </p>
+        <p class="mt-4 text-xs text-gray-400">Scan this code with your mobile device to test your local service
+            instantly.</p>
+    </div>
+    <x-slot:actions>
+        <x-button label="Close" @click="$wire.showQrModal = false" class="btn-ghost" />
+    </x-slot:actions>
+</x-modal>
 
-    <script>
-        document.addEventListener('open-qr-modal', () => {
-            @this.set('showQrModal', true);
-        });
-    </script>
+<script>
+    document.addEventListener('open-qr-modal', () => {
+        @this.set('showQrModal', true);
+    });
+</script>
 </div>

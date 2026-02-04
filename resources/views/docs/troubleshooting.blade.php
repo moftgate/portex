@@ -69,6 +69,11 @@
         curl -fsSL https://portex.space/install.sh | bash
     </div>
 
+    <h3>How do I remove Portex from my computer?</h3>
+    <p>Check out our <a href="{{ route('docs.uninstall') }}"
+            style="color: var(--orange); font-weight: 600; text-decoration: none;">Uninstall Guide</a> for detailed steps on
+        removing the binary and configuration files for your system.</p>
+
     <div class="callout">
         <span>Still Need Help?</span>
         Join our community on Discord or open an issue on <a href="https://github.com/orgs/portex-space/repositories"
