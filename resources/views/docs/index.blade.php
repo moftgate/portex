@@ -30,6 +30,10 @@
             <h3>Directory Sharing</h3>
             <p>Serve local directories as HTTPS sites with a single command.</p>
         </div>
+        <div class="feature-card">
+            <h3>Host Rewriting</h3>
+            <p>Rewrite Host headers to support Laravel Valet and virtual hosts.</p>
+        </div>
     </div>
 
     <div class="callout">

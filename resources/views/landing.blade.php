@@ -825,9 +825,9 @@
                 @auth
                     <a href="{{ route('dashboard') }}" class="btn btn-primary"
                         style="margin-left: 32px; color: white;">Dashboard</a>
-                {{--@else
+                    {{-- @else
                     <a href="{{ route('login') }}" class="btn btn-primary" style="margin-left: 32px; color: white;">Sign
-                        in</a>--}}
+                        in</a> --}}
                 @endauth
             </div>
         </div>
@@ -835,7 +835,7 @@
 
     <header class="hero">
         <div class="container">
-            <div class="badge"><a href="{{ route('docs.changelog') }}">New: Advanced IP Whitelisting</a></div>
+            <div class="badge"><a href="{{ route('docs.changelog') }}">New: Host Header Rewriting</a></div>
             <h1>Your Localhost,<br>Online in Seconds.</h1>
             <p>The developer-first tunnel service. Expose ports, share files, and debug webhooks with a single command.
             </p>

@@ -10,6 +10,7 @@ Portex is a self-hosted tunnel service that allows you to expose local services 
 - 📊 **Analytics**: Track requests, response times, and tunnel usage
 - 🔄 **Auto-Reconnect**: Agents automatically reconnect on connection loss
 - 🌐 **Custom Domains**: Support for custom subdomains and domains
+- 🏠 **Host Rewriting**: Override local Host headers with `--host-header`
 
 ## Architecture
 

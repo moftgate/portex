@@ -59,6 +59,14 @@
         portex start --port 4000 --subdomain api-docs
     </div>
 
+    <h2>7. Virtual Hosts & Laravel Valet</h2>
+    <p>Using a development environment that relies on Host headers (like Laravel Valet, Laragon, or custom Nginx virtual
+        hosts)? Portex can rewrite the host header for you:</p>
+    <div class="code-block">
+        portex start --port 80 --host-header myapp.test
+    </div>
+    <p>This allows you to tunnel to local sites that wouldn't normally respond to <code>localhost</code> directly.</p>
+
     <div class="callout">
         <span>Pro Tip</span>
         Combine Portex with tools like ngrok-alternative request inspection to debug complex integrations faster.

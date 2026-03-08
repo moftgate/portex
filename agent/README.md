@@ -10,6 +10,7 @@ The Portex Agent is a high-performance, standalone CLI tool written in **Go**. I
 - 📁 **Instant Sharing**: Serve any local directory as a website with `portex share`.
 - 🔑 **PIN Protection**: Protect your tunnels with 4-digit PINs for private demos.
 - 🛡️ **IP Whitelisting**: Restrict access to specific IP addresses.
+- 🔄 **Host Header Rewriting**: Override the Host header for local servers with `--host-header`.
 - 💻 **Cross-Platform**: Native support for macOS (Intel/M1), Linux, and Windows.
 
 ## Installation
@@ -52,7 +53,13 @@ portex start --port 8080 --allow-ip 1.2.3.4
 portex start -p 8080 -a 1.2.3.4,5.6.7.8
 ```
 
-### 5. Share a static directory
+### 5. Host Header Rewriting
+Useful for local servers that expect a specific Host header (like Laravel Valet or virtual hosts):
+```bash
+portex start --port 8080 --host-header myapp.local
+```
+
+### 6. Share a static directory
 ```bash
 portex share ./dist
 ```

@@ -41,20 +41,22 @@ type HTTPResponse struct {
 }
 
 type Forwarder struct {
-	LocalPort int
-	ServerURL string
-	Subdomain string
-	TunnelID  string
-	conn      *websocket.Conn
-	writeMu   sync.Mutex // Protect concurrent writes to WebSocket
+	LocalPort  int
+	ServerURL  string
+	Subdomain  string
+	TunnelID   string
+	HostHeader string
+	conn       *websocket.Conn
+	writeMu    sync.Mutex // Protect concurrent writes to WebSocket
 }
 
-func New(localPort int, serverURL, subdomain, tunnelID string) *Forwarder {
+func New(localPort int, serverURL, subdomain, tunnelID string, hostHeader string) *Forwarder {
 	return &Forwarder{
-		LocalPort: localPort,
-		ServerURL: serverURL,
-		Subdomain: subdomain,
-		TunnelID:  tunnelID,
+		LocalPort:  localPort,
+		ServerURL:  serverURL,
+		Subdomain:  subdomain,
+		TunnelID:   tunnelID,
+		HostHeader: hostHeader,
 	}
 }
 
@@ -140,6 +142,12 @@ func (f *Forwarder) handleHTTPRequest(requestID string, data json.RawMessage) {
 	// Copy headers
 	for key, value := range req.Headers {
 		httpReq.Header.Set(key, value)
+	}
+
+	// Override Host header if requested
+	if f.HostHeader != "" {
+		httpReq.Host = f.HostHeader
+		httpReq.Header.Set("Host", f.HostHeader)
 	}
 
 	// Send request

@@ -20,11 +20,12 @@
     <li><code>--subdomain, -s</code>: Specify a custom subdomain.</li>
     <li><code>--pin</code>: Secure your tunnel with a 4-digit PIN.</li>
     <li><code>--allow-ip, -a</code>: Restrict access to specific IP addresses (comma-separated).</li>
+    <li><code>--host-header</code>: Rewrite the Host header of forwarded requests (useful for virtual hosts).</li>
     </ul>
 
     <div class="code-header">Complex Example</div>
     <div class="code-block">
-        portex start -p 8080 --subdomain staging-api --pin 9988 --allow-ip 1.2.3.4
+        portex start -p 8080 --subdomain staging --host-header app.local --pin 1234
     </div>
 
     <h2 id="share">portex share</h2>

@@ -113,6 +113,7 @@ var (
 	subdomain  string
 	pin        string
 	allowedIPs []string
+	hostHeader string
 )
 
 type TunnelResponse struct {
@@ -442,6 +443,7 @@ var startCmd = &cobra.Command{
 			cfg.Server.WSURL,
 			tunnelResp.Tunnel.Subdomain,
 			tunnelResp.Tunnel.ID,
+			hostHeader,
 		)
 
 		if err := forwarderInst.Start(); err != nil {
@@ -506,12 +508,14 @@ func init() {
 	startCmd.Flags().StringVarP(&subdomain, "subdomain", "s", "", "Custom subdomain (optional)")
 	startCmd.Flags().StringVar(&pin, "pin", "", "PIN protection (4 digits)")
 	startCmd.Flags().StringSliceVarP(&allowedIPs, "allow-ip", "a", []string{}, "Allowed IP addresses for whitelisting")
+	startCmd.Flags().StringVar(&hostHeader, "host-header", "", "Rewrite the Host header of forwarded requests")
 	startCmd.MarkFlagRequired("port")
 
 	// Share command flags
 	shareCmd.Flags().StringVarP(&subdomain, "subdomain", "s", "", "Custom subdomain (optional)")
 	shareCmd.Flags().StringVar(&pin, "pin", "", "PIN protection (4 digits)")
 	shareCmd.Flags().StringSliceVarP(&allowedIPs, "allow-ip", "a", []string{}, "Allowed IP addresses for whitelisting")
+	shareCmd.Flags().StringVar(&hostHeader, "host-header", "", "Rewrite the Host header of forwarded requests")
 
 	// Add commands to root
 	rootCmd.AddCommand(loginCmd)
