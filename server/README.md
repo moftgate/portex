@@ -104,6 +104,9 @@ HTTP_PORT=8080
 HTTPS_PORT=8443
 ```
 
+bu platformun .env'sinde de olmalı
+PORTEX_SERVER_API_KEY=e4bd53f46783383b2e6b73b9aeebbc3664ac45b2f494a3c3ac0d61720b8762ed
+
 ## 🎯 Next Steps
 
 1. ✅ Go server `.env` desteği eklendi
